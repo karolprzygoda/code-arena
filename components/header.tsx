@@ -4,7 +4,6 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
@@ -17,7 +16,9 @@ const Header = () => {
       <nav className={"flex h-14 items-center px-4 text-sm font-medium"}>
         <div className={"flex w-full items-center justify-between"}>
           <div className={"relative flex items-center gap-4 font-bold"}>
-            <Link href={"/"}>code-arena.com</Link>
+            <Link className={"ps-2"} href={"/"}>
+              code-arena.com
+            </Link>
             <div className={"hidden items-center gap-4 md:flex"}>
               <Link
                 className={

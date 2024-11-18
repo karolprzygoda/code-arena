@@ -87,12 +87,12 @@ export default function ChallangePage() {
             <Tabs defaultValue="account" className={"h-full"}>
               <TabsList
                 className={
-                  "grid h-auto w-full grid-cols-2 gap-1 rounded-b-none border-b border-zinc-300 py-2 outline-0 dark:border-zinc-700 sm:grid-cols-4"
+                  "flex h-auto w-full flex-wrap gap-1 rounded-b-none border-b border-zinc-300 py-2 outline-0 dark:border-zinc-700"
                 }
               >
                 <TabsTrigger
                   className={
-                    "px-4 py-1.5 font-semibold hover:bg-neutral-200/50 data-[state=active]:bg-neutral-200 dark:hover:bg-neutral-700/50 dark:data-[state=active]:bg-neutral-700"
+                    "flex-1 px-4 py-1.5 font-semibold hover:bg-neutral-200/50 data-[state=active]:bg-neutral-200 dark:hover:bg-neutral-700/50 dark:data-[state=active]:bg-neutral-700"
                   }
                   value="account"
                 >
@@ -100,7 +100,7 @@ export default function ChallangePage() {
                 </TabsTrigger>
                 <TabsTrigger
                   className={
-                    "px-4 py-1.5 font-semibold hover:bg-neutral-200/50 data-[state=active]:bg-neutral-200 dark:hover:bg-neutral-700/50 dark:data-[state=active]:bg-neutral-700"
+                    "flex-1 px-4 py-1.5 font-semibold hover:bg-neutral-200/50 data-[state=active]:bg-neutral-200 dark:hover:bg-neutral-700/50 dark:data-[state=active]:bg-neutral-700"
                   }
                   value="password"
                 >
@@ -108,7 +108,7 @@ export default function ChallangePage() {
                 </TabsTrigger>
                 <TabsTrigger
                   className={
-                    "px-4 py-1.5 font-semibold hover:bg-neutral-200/50 data-[state=active]:bg-neutral-200 dark:hover:bg-neutral-700/50 dark:data-[state=active]:bg-neutral-700"
+                    "flex-1 px-4 py-1.5 font-semibold hover:bg-neutral-200/50 data-[state=active]:bg-neutral-200 dark:hover:bg-neutral-700/50 dark:data-[state=active]:bg-neutral-700"
                   }
                   value="submissions"
                 >
@@ -116,7 +116,7 @@ export default function ChallangePage() {
                 </TabsTrigger>
                 <TabsTrigger
                   className={
-                    "px-4 py-1.5 font-semibold hover:bg-neutral-200/50 data-[state=active]:bg-neutral-200 dark:hover:bg-neutral-700/50 dark:data-[state=active]:bg-neutral-700"
+                    "flex-1 px-4 py-1.5 font-semibold hover:bg-neutral-200/50 data-[state=active]:bg-neutral-200 dark:hover:bg-neutral-700/50 dark:data-[state=active]:bg-neutral-700"
                   }
                   value="assistant"
                 >
