@@ -11,10 +11,10 @@ const ChallangeGroupLink = ({ href, name }: ChallangeGroupLink) => {
     <Link
       href={href}
       className={
-        "inline-flex h-9 flex-1 items-center justify-start gap-2 whitespace-nowrap rounded-md rounded-tl-xl bg-transparent px-4 py-2 text-sm font-semibold text-accent-foreground shadow-none transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 dark:hover:bg-zinc-900 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0"
+        "inline-flex h-9 flex-1 items-center justify-start gap-2 overflow-hidden rounded-md rounded-tl-xl px-3 text-sm font-medium ring-offset-background transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 dark:hover:bg-zinc-900"
       }
     >
-      <Swords />
+      <Swords className={"h-4 w-4"} />
       <span className={"overflow-hidden text-ellipsis whitespace-nowrap"}>
         {name}
       </span>
