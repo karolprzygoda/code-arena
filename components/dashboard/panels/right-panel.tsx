@@ -5,10 +5,10 @@ import {
 } from "@/components/ui/resizable";
 
 import { Button } from "@/components/ui/button";
-import CodePanel from "@/components/dashboard/code-panel";
-import TestsPanel from "@/components/dashboard/tests-panel";
-import PanelFooter from "@/components/dashboard/panel-footer";
-import PanelWrapper from "@/components/dashboard/panel-wrapper";
+import CodePanel from "@/components/dashboard/panels/code-panel";
+import TestsPanel from "@/components/dashboard/panels/tests-panel";
+import PanelFooter from "@/components/dashboard/panels/panel-footer";
+import PanelWrapper from "@/components/dashboard/panels/panel-wrapper";
 
 const RightPanel = () => {
   return (

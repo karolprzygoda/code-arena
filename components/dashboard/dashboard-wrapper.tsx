@@ -1,36 +1,40 @@
 "use client";
 
 import { ResizablePanelGroup } from "@/components/ui/resizable";
-import { ReactNode, useEffect, useState } from "react";
+import { ReactNode, useEffect, useRef } from "react";
+import useDirection from "@/hooks/use-direction";
+import { useDashboardStore } from "@/lib/dashboard-store";
+import { useShallow } from "zustand/react/shallow";
+import { cn } from "@/lib/utils";
 
 type DashBoardWrapper = {
   children: ReactNode;
 };
 
 const DashBoardWrapper = ({ children }: DashBoardWrapper) => {
-  const [direction, setDirection] = useState<"horizontal" | "vertical">(
-    "horizontal",
+  const direction = useDirection();
+  const dashboard = useRef(null);
+
+  const { setFullScreenElement, isFullScreen } = useDashboardStore(
+    useShallow((state) => ({
+      setFullScreenElement: state.setFullScreenElement,
+      isFullScreen: state.isFullScreen,
+    })),
   );
 
   useEffect(() => {
-    const handleResize = () => {
-      setDirection(window.innerWidth < 1024 ? "vertical" : "horizontal");
-    };
-
-    handleResize();
-
-    window.addEventListener("resize", handleResize);
-
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
+    setFullScreenElement(dashboard.current!);
+  }, [setFullScreenElement]);
 
   return (
-    <ResizablePanelGroup
-      direction={direction}
-      className="flex flex-1 px-4 pb-4"
+    <div
+      ref={dashboard}
+      className={cn("flex flex-1 px-4 pb-4", isFullScreen && "pt-4")}
     >
-      {children}
-    </ResizablePanelGroup>
+      <ResizablePanelGroup direction={direction} className="flex flex-1">
+        {children}
+      </ResizablePanelGroup>
+    </div>
   );
 };
 
