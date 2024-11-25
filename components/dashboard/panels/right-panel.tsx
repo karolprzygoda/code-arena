@@ -4,11 +4,11 @@ import {
   ResizablePanelGroup,
 } from "@/components/ui/resizable";
 
-import { Button } from "@/components/ui/button";
 import CodePanel from "@/components/dashboard/panels/code-panel";
 import TestsPanel from "@/components/dashboard/panels/tests-panel";
 import PanelFooter from "@/components/dashboard/panels/panel-footer";
 import PanelWrapper from "@/components/dashboard/panels/panel-wrapper";
+import ChallangeSubmitButton from "@/components/dashboard/buttons/challange-submit-button";
 
 const RightPanel = () => {
   return (
@@ -28,7 +28,7 @@ const RightPanel = () => {
           <PanelFooter>
             <div className={"flex items-center gap-4"}></div>
             <div className={"flex items-center justify-between gap-4"}>
-              <Button className={"rounded-xl font-bold"}>Submit</Button>
+              <ChallangeSubmitButton />
             </div>
           </PanelFooter>
         </ResizablePanelGroup>

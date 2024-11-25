@@ -1,6 +1,6 @@
 import EditorButton from "@/components/dashboard/buttons/editor-button";
 import { RotateCcw } from "lucide-react";
-import { useEditorStore } from "@/lib/editorStore";
+import { useEditorStore } from "@/lib/stores/editorStore";
 import { useShallow } from "zustand/react/shallow";
 import { useStore } from "zustand";
 

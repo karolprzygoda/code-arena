@@ -10,7 +10,7 @@ import MaximizeEditorButton from "@/components/dashboard/buttons/maximize-editor
 import ShortcutButton from "@/components/dashboard/buttons/shortcut-button";
 import CodeResetButton from "@/components/dashboard/buttons/code-reset-button";
 import SettingsButton from "@/components/dashboard/buttons/settings-button";
-import { useEditorStore } from "@/lib/editorStore";
+import { useEditorStore } from "@/lib/stores/editorStore";
 import { useShallow } from "zustand/react/shallow";
 import ChooseLanguageButton from "@/components/dashboard/buttons/choose-language-button";
 import { useStore } from "zustand";

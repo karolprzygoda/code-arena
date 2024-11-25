@@ -4,7 +4,7 @@ import { ResizableHandle } from "@/components/ui/resizable";
 import LeftPanel from "@/components/dashboard/panels/left-panel";
 import RightPanel from "@/components/dashboard/panels/right-panel";
 import DashBoardWrapper from "@/components/dashboard/dashboard-wrapper";
-import { useDashboardStore } from "@/lib/dashboard-store";
+import { useDashboardStore } from "@/lib/stores/dashboard-store";
 import { useShallow } from "zustand/react/shallow";
 
 export default function ChallangePage() {

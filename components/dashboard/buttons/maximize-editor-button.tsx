@@ -1,7 +1,7 @@
 "use client";
 
 import { useFullScreen } from "@/hooks/use-full-screen";
-import { useDashboardStore } from "@/lib/dashboard-store";
+import { useDashboardStore } from "@/lib/stores/dashboard-store";
 import { useShallow } from "zustand/react/shallow";
 import { Maximize2, Minimize2 } from "lucide-react";
 import EditorButton from "@/components/dashboard/buttons/editor-button";

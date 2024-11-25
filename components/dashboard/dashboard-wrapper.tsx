@@ -3,7 +3,7 @@
 import { ResizablePanelGroup } from "@/components/ui/resizable";
 import { ReactNode, useEffect, useRef } from "react";
 import useDirection from "@/hooks/use-direction";
-import { useDashboardStore } from "@/lib/dashboard-store";
+import { useDashboardStore } from "@/lib/stores/dashboard-store";
 import { useShallow } from "zustand/react/shallow";
 import { cn } from "@/lib/utils";
 

@@ -6,7 +6,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useEditorStore } from "@/lib/editorStore";
+import { useEditorStore } from "@/lib/stores/editorStore";
 import { useShallow } from "zustand/react/shallow";
 import { Button } from "@/components/ui/button";
 import { ChevronDown } from "lucide-react";

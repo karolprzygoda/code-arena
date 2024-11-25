@@ -22,7 +22,7 @@ import {
 } from "@/components/ui/select";
 import { DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { useEditorStore } from "@/lib/editorStore";
+import { useEditorStore } from "@/lib/stores/editorStore";
 import { useShallow } from "zustand/react/shallow";
 import { useStore } from "zustand";
 
