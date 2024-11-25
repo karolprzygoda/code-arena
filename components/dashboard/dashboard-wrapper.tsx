@@ -29,7 +29,10 @@ const DashBoardWrapper = ({ children }: DashBoardWrapper) => {
   return (
     <div
       ref={dashboard}
-      className={cn("flex flex-1 px-4 pb-4", isFullScreen && "pt-4")}
+      className={cn(
+        "flex flex-1 bg-background px-4 pb-4",
+        isFullScreen && "pt-4",
+      )}
     >
       <ResizablePanelGroup direction={direction} className="flex flex-1">
         {children}
