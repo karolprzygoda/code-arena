@@ -6,7 +6,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useEditorStore } from "@/lib/stores/editorStore";
+import { useEditorStore } from "@/stores/editor-store";
 import { useShallow } from "zustand/react/shallow";
 import { Button } from "@/components/ui/button";
 import { ChevronDown } from "lucide-react";
@@ -15,22 +15,22 @@ import { Icons } from "@/components/icons";
 import { useStore } from "zustand";
 
 const ChooseLanguageButton = () => {
-  const { defaultLanguage } = useStore(
+  const { language } = useStore(
     useEditorStore,
     useShallow((state) => ({
-      defaultLanguage: state.defaultLanguage,
+      language: state.language,
     })),
   );
 
   const IconComponent =
-    Icons[defaultLanguage.toLocaleLowerCase() as keyof typeof Icons];
+    Icons[language.toLocaleLowerCase() as keyof typeof Icons];
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button className={"mr-auto text-muted-foreground"} variant={"ghost"}>
           <IconComponent className={"h-6 w-6"} />
-          {defaultLanguage}
+          {language}
           <ChevronDown />
         </Button>
       </DropdownMenuTrigger>
@@ -55,10 +55,10 @@ type DropdownButtonProps = {
 };
 
 const DropdownButton = ({ language }: DropdownButtonProps) => {
-  const { setDefaultLanguage } = useStore(
+  const { setLanguage } = useStore(
     useEditorStore,
     useShallow((state) => ({
-      setDefaultLanguage: state.setDefaultLanguage,
+      setLanguage: state.setLanguage,
     })),
   );
 
@@ -70,7 +70,7 @@ const DropdownButton = ({ language }: DropdownButtonProps) => {
       <Button
         className={"h-auto w-full items-center justify-start gap-4"}
         variant={"ghost"}
-        onClick={() => setDefaultLanguage(language)}
+        onClick={() => setLanguage(language)}
       >
         <IconComponent className={"h-6 w-6"} />
         {language}

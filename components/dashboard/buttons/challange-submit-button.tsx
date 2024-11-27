@@ -1,30 +1,30 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { testChallenge } from "@/lib/actions/actions";
+import { testChallenge, testChallenge2 } from "@/actions/actions";
 import { AvailableLanguages } from "@/lib/types";
 import { useStore } from "zustand/index";
-import { useEditorStore } from "@/lib/stores/editorStore";
+import { useEditorStore } from "@/stores/editor-store";
 import { useShallow } from "zustand/react/shallow";
 
 const ChallangeSubmitButton = () => {
-  const { value, defaultLanguage } = useStore(
+  const { value, language } = useStore(
     useEditorStore,
     useShallow((state) => ({
       value: state.value,
-      defaultLanguage: state.defaultLanguage,
+      language: state.language,
     })),
   );
 
   const handleSubmit = async (code: string, language: AvailableLanguages) => {
-    const response = await testChallenge(code);
+    const response = await testChallenge2(code);
     console.log(response);
   };
 
   return (
     <Button
       onClick={() => {
-        void handleSubmit(value, defaultLanguage);
+        void handleSubmit(value, language);
       }}
       className={"rounded-xl font-bold"}
     >

@@ -42,3 +42,31 @@ export const testChallenge = async (code: string) => {
     return { error: "Błąd podczas uruchamiania kodu." };
   }
 };
+
+export const testChallenge2 = async (code: string) => {
+  const tests = [
+    { input: [1, 2], expectedOutput: 3 },
+    { input: [1, 4], expectedOutput: 5 },
+    { input: [1, 6], expectedOutput: 7 },
+  ];
+  try {
+    return await new Promise((resolve, reject) => {
+      const sanitizedCode = code.replace(/  |\r\n|\n|\r/gm, "");
+
+      const sanitizedTests = JSON.stringify(tests).replace(/"/g, '\\"');
+
+      const command = `docker run --rm -e USER_FUNCTION="${sanitizedCode}" -e USER_TESTS="${sanitizedTests}" runners:latest node runner.js`;
+
+      exec(command, (error, stdout, stderr) => {
+        if (error || stderr) {
+          reject(stderr || error?.message);
+        } else {
+          resolve(JSON.parse(stdout));
+        }
+      });
+    });
+  } catch (error) {
+    console.error("Błąd:", error);
+    return { error: "Błąd podczas uruchamiania kodu." };
+  }
+};

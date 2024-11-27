@@ -9,11 +9,21 @@ import { EditorShortcuts } from "@/components/dashboard/editor-shortcuts";
 import { SquareSlash } from "lucide-react";
 import EditorButton from "@/components/dashboard/buttons/editor-button";
 
-const ShortcutButton = () => {
+type ShortcutButtonProps = {
+  label?: string;
+  className?: string;
+};
+
+const ShortcutButton = ({ label, className }: ShortcutButtonProps) => {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <EditorButton tooltipMessage={"Shortcuts"} Icon={SquareSlash} />
+        <EditorButton
+          tooltipMessage={"Shortcuts"}
+          Icon={SquareSlash}
+          label={label}
+          className={className}
+        />
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>

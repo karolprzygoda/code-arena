@@ -22,9 +22,9 @@ import {
 } from "@/components/ui/select";
 import { DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { useEditorStore } from "@/lib/stores/editorStore";
 import { useShallow } from "zustand/react/shallow";
 import { useStore } from "zustand";
+import { usePreferencesStore } from "@/stores/user-preferences-store";
 
 const formSchema = z.object({
   fontSize: z.string(),
@@ -37,7 +37,7 @@ export function SettingsForm() {
   const { toast } = useToast();
 
   const { settings, updateSettings } = useStore(
-    useEditorStore,
+    usePreferencesStore,
     useShallow((state) => ({
       updateSettings: state.updateSettings,
       settings: state.settings,

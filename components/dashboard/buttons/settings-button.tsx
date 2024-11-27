@@ -9,11 +9,21 @@ import {
 } from "@/components/ui/dialog";
 import { SettingsForm } from "@/components/dashboard/settings-form";
 
-const SettingsButton = () => {
+type SettingsButtonProps = {
+  label?: string;
+  className?: string;
+};
+
+const SettingsButton = ({ label, className }: SettingsButtonProps) => {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <EditorButton tooltipMessage={"Settings"} Icon={Settings} />
+        <EditorButton
+          tooltipMessage={"Settings"}
+          Icon={Settings}
+          label={label}
+          className={className}
+        />
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>

@@ -10,7 +10,7 @@ const PanelHeader = ({ children, className }: PanelHeaderProps) => {
   return (
     <div
       className={cn(
-        "flex h-[44px] min-h-[44px] items-center gap-1 border-b border-zinc-300 p-1 dark:border-zinc-700",
+        "sticky top-0 flex h-[44px] min-h-[44px] items-center gap-1 border-b border-zinc-300 p-1 dark:border-zinc-700",
         className,
       )}
     >

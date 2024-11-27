@@ -2,10 +2,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const ChallangeTabs = () => {
   return (
-    <Tabs defaultValue="Description" className={"h-full"}>
+    <Tabs
+      defaultValue="Description"
+      className={"@[255px]:block @container/tabs hidden h-full"}
+    >
       <TabsList
         className={
-          "flex h-auto w-full flex-wrap gap-1 rounded-b-none border-b border-zinc-300 py-2 outline-0 dark:border-zinc-700"
+          "@[450px]/tabs:grid-cols-4 grid h-auto w-full grid-cols-2 flex-wrap gap-1 rounded-b-none border-b border-zinc-300 py-2 outline-0 dark:border-zinc-700"
         }
       >
         <ChallangeTabTrigger value={"Description"} />
@@ -37,7 +40,7 @@ const ChallangeTabTrigger = ({ value }: ChallangeTabTriggerProps) => {
   return (
     <TabsTrigger
       className={
-        "flex-1 px-4 py-1.5 font-semibold hover:bg-neutral-200/50 data-[state=active]:bg-neutral-200 dark:hover:bg-neutral-700/50 dark:data-[state=active]:bg-neutral-700"
+        "px-4 py-1.5 font-semibold hover:bg-neutral-200/50 data-[state=active]:bg-neutral-200 dark:hover:bg-neutral-700/50 dark:data-[state=active]:bg-neutral-700"
       }
       value={value}
     >

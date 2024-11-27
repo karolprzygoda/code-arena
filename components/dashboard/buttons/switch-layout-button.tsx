@@ -1,12 +1,17 @@
 "use client";
 
-import { useDashboardStore } from "@/lib/stores/dashboard-store";
 import { useShallow } from "zustand/react/shallow";
 import { ArrowRightLeft } from "lucide-react";
 import EditorButton from "@/components/dashboard/buttons/editor-button";
+import { usePreferencesStore } from "@/stores/user-preferences-store";
 
-const SwitchLayoutButton = () => {
-  const { toggleLayout } = useDashboardStore(
+type SwitchLayoutButtonProps = {
+  label?: string;
+  className?: string;
+};
+
+const SwitchLayoutButton = ({ label, className }: SwitchLayoutButtonProps) => {
+  const { toggleLayout } = usePreferencesStore(
     useShallow((state) => ({
       toggleLayout: state.toggleLayout,
     })),
@@ -14,9 +19,11 @@ const SwitchLayoutButton = () => {
 
   return (
     <EditorButton
+      className={className}
       onClick={toggleLayout}
       tooltipMessage={"Swap panels"}
       Icon={ArrowRightLeft}
+      label={label}
     />
   );
 };

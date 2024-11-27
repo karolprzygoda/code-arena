@@ -3,9 +3,9 @@
 import { ResizablePanelGroup } from "@/components/ui/resizable";
 import { ReactNode, useEffect, useRef } from "react";
 import useDirection from "@/hooks/use-direction";
-import { useDashboardStore } from "@/lib/stores/dashboard-store";
 import { useShallow } from "zustand/react/shallow";
 import { cn } from "@/lib/utils";
+import { usePreferencesStore } from "@/stores/user-preferences-store";
 
 type DashBoardWrapper = {
   children: ReactNode;
@@ -15,7 +15,7 @@ const DashBoardWrapper = ({ children }: DashBoardWrapper) => {
   const direction = useDirection();
   const dashboard = useRef(null);
 
-  const { setFullScreenElement, isFullScreen } = useDashboardStore(
+  const { setFullScreenElement, isFullScreen } = usePreferencesStore(
     useShallow((state) => ({
       setFullScreenElement: state.setFullScreenElement,
       isFullScreen: state.isFullScreen,

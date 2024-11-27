@@ -1,14 +1,22 @@
 "use client";
 
 import { useFullScreen } from "@/hooks/use-full-screen";
-import { useDashboardStore } from "@/lib/stores/dashboard-store";
 import { useShallow } from "zustand/react/shallow";
 import { Maximize2, Minimize2 } from "lucide-react";
 import EditorButton from "@/components/dashboard/buttons/editor-button";
+import { usePreferencesStore } from "@/stores/user-preferences-store";
 
-const MaximizeEditorButton = () => {
+type MaximizeEditorButtonProps = {
+  label?: string;
+  className?: string;
+};
+
+const MaximizeEditorButton = ({
+  label,
+  className,
+}: MaximizeEditorButtonProps) => {
   const { fullScreenElement, setIsFullScreen, isFullScreen } =
-    useDashboardStore(
+    usePreferencesStore(
       useShallow((state) => ({
         fullScreenElement: state.fullScreenElement,
         setIsFullScreen: state.setIsFullScreen,
@@ -23,9 +31,11 @@ const MaximizeEditorButton = () => {
 
   return (
     <EditorButton
+      className={className}
       onClick={toggleFullScreen}
       tooltipMessage={"Maximize editor"}
       Icon={isFullScreen ? Minimize2 : Maximize2}
+      label={label}
     />
   );
 };
