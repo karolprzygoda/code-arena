@@ -10,41 +10,57 @@ import useDirection from "@/hooks/use-direction";
 import { useShallow } from "zustand/react/shallow";
 import { cn } from "@/lib/utils";
 import { usePreferencesStore } from "@/stores/user-preferences-store";
+import { useState } from "react";
+import { useMediaQuery } from "@/hooks/use-media-query";
 
 const LeftPanel = () => {
   const direction = useDirection();
+
   const { layout } = usePreferencesStore(
-    useShallow((state) => ({ layout: state.layout })),
+    useShallow((state) => ({
+      layout: state.layout,
+    })),
   );
+
+  const isBigScreen = useMediaQuery("(min-width: 1440px)");
+  const [isCollapsed, setIsCollapsed] = useState(false);
 
   return (
     <ResizablePanel
       order={layout === "classic" ? 1 : 2}
       className={cn(
-        "@container min-h-[40px] min-w-[90px]",
+        "min-h-[87px] min-w-[68px] @container/panel min-[484px]:min-h-[51px]",
         layout === "classic" ? "order-1" : "order-3",
       )}
-      minSize={direction === "horizontal" ? 15 : 32}
+      minSize={direction === "horizontal" ? (isBigScreen ? 15 : 50) : 32}
       collapsible
+      onCollapse={() => {
+        setIsCollapsed(true);
+      }}
+      onExpand={() => {
+        setIsCollapsed(false);
+      }}
       defaultSize={50}
     >
       <PanelWrapper>
         <PanelHeader
-          className={direction === "horizontal" ? "@[255px]:flex hidden" : ""}
+          className={cn(isCollapsed && direction === "vertical" && "hidden")}
         >
           <ChallangeGroupLink href={"/"} name={"Challenges Group Name"} />
-          <ChallangeNavigator
-            tooltipMessage={"Previous"}
-            variant={"prev"}
-            href={"/"}
-          />
-          <ChallangeNavigator
-            tooltipMessage={"Next"}
-            variant={"next"}
-            href={"/"}
-          />
+          <span className={"hidden gap-1 @[70px]/panel:flex"}>
+            <ChallangeNavigator
+              tooltipMessage={"Previous"}
+              variant={"prev"}
+              href={"/"}
+            />
+            <ChallangeNavigator
+              tooltipMessage={"Next"}
+              variant={"next"}
+              href={"/"}
+            />
+          </span>
         </PanelHeader>
-        <ChallangeTabs />
+        <ChallangeTabs isCollapsed={isCollapsed} direction={direction} />
       </PanelWrapper>
     </ResizablePanel>
   );

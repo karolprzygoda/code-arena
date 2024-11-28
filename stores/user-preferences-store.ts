@@ -28,12 +28,7 @@ export const usePreferencesStore = create<State & Actions>()(
         tabSize: "2",
         bindings: "standard",
       },
-      layout:
-        typeof window !== "undefined" &&
-        localStorage.getItem("user-preferences")
-          ? JSON.parse(localStorage.getItem("user-preferences")!).layout ||
-            "classic"
-          : "classic",
+      layout: "classic",
       fullScreenElement: null,
       isFullScreen: false,
       toggleLayout: () => {

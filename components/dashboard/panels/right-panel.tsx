@@ -21,14 +21,16 @@ import ShortcutButton from "@/components/dashboard/buttons/shortcut-button";
 import SettingsButton from "@/components/dashboard/buttons/settings-button";
 import SwitchLayoutButton from "@/components/dashboard/buttons/switch-layout-button";
 import MaximizeEditorButton from "@/components/dashboard/buttons/maximize-editor-button";
-
 import MobileEditorSettings from "@/components/dashboard/mobile-editor-settings";
 import { usePreferencesStore } from "@/stores/user-preferences-store";
 
 const RightPanel = () => {
   const { layout } = usePreferencesStore(
-    useShallow((state) => ({ layout: state.layout })),
+    useShallow((state) => ({
+      layout: state.layout,
+    })),
   );
+
   const direction = useDirection();
 
   return (
