@@ -3,6 +3,7 @@ import Link from "next/link";
 import HeaderLink from "@/components/header/header-link";
 import { SearchButton } from "@/components/header/search-button";
 import HeaderDropdown from "@/components/header/header-dropdown";
+import MobileNavButton from "@/components/header/mobile-nav-button";
 
 const Header = () => {
   return (
@@ -22,11 +23,7 @@ const Header = () => {
               <Bell className={"h-5 w-5"} />
             </Link>
             <HeaderDropdown />
-            <div className={"md:hidden"}>
-              <button className={"rounded-lg p-4 pr-0 focus:outline-none"}>
-                <Menu />
-              </button>
-            </div>
+            <MobileNavButton />
           </div>
         </div>
       </nav>

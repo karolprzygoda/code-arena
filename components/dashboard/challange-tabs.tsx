@@ -28,18 +28,22 @@ const ChallangeTabs = ({ isCollapsed, direction }: ChallangeTabsProps) => {
         <ChallangeTabTrigger value={"Submissions"} Icon={History} />
         <ChallangeTabTrigger value={"AI Assistant"} Icon={BrainCircuit} />
       </TabsList>
-      <ChallangeTabContentWrapper value={"Description"}>
-        Description
-      </ChallangeTabContentWrapper>
-      <ChallangeTabContentWrapper value={"Solutions"}>
-        Solutions
-      </ChallangeTabContentWrapper>
-      <ChallangeTabContentWrapper value={"Submissions"}>
-        Submissions
-      </ChallangeTabContentWrapper>
-      <ChallangeTabContentWrapper value={"AI Assistant"}>
-        Assistant
-      </ChallangeTabContentWrapper>
+      {!isCollapsed && (
+        <>
+          <ChallangeTabContentWrapper value={"Description"}>
+            Description
+          </ChallangeTabContentWrapper>
+          <ChallangeTabContentWrapper value={"Solutions"}>
+            Solutions
+          </ChallangeTabContentWrapper>
+          <ChallangeTabContentWrapper value={"Submissions"}>
+            Submissions
+          </ChallangeTabContentWrapper>
+          <ChallangeTabContentWrapper value={"AI Assistant"}>
+            Assistant
+          </ChallangeTabContentWrapper>
+        </>
+      )}
     </Tabs>
   );
 };
@@ -79,16 +83,14 @@ type ChallangeTabContentWrapperProps = {
   children: string;
 };
 
-const ChallangeTabContentWrapper = ({
+export const ChallangeTabContentWrapper = ({
   value,
   children,
 }: ChallangeTabContentWrapperProps) => {
   return (
     <TabsContent
       value={value}
-      className={
-        "hidden h-full overflow-y-auto px-4 pb-36 pt-3 outline-none @[70px]/panel:inline-block"
-      }
+      className={"h-full w-full overflow-y-auto px-4 pb-36 pt-3 outline-none"}
     >
       {children}
     </TabsContent>

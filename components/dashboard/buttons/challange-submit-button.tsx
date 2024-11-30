@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { testChallenge, testChallenge2 } from "@/actions/actions";
+import { testChallenge2 } from "@/actions/actions";
 import { AvailableLanguages } from "@/lib/types";
 import { useStore } from "zustand/index";
 import { useEditorStore } from "@/stores/editor-store";
