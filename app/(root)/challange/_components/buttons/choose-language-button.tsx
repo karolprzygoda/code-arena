@@ -42,7 +42,6 @@ const ChooseLanguageButton = () => {
         }
       >
         <DropdownButton language={"JavaScript"} />
-        <DropdownButton language={"TypeScript"} />
         <DropdownButton language={"Java"} />
         <DropdownButton language={"Python"} />
       </DropdownMenuContent>

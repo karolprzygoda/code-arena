@@ -1,5 +1,1 @@
-export type AvailableLanguages =
-  | "JavaScript"
-  | "TypeScript"
-  | "Java"
-  | "Python";
+export type AvailableLanguages = "JavaScript" | "Java" | "Python";

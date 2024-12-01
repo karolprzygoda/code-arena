@@ -2,7 +2,7 @@
 
 import { useShallow } from "zustand/react/shallow";
 import { ArrowRightLeft } from "lucide-react";
-import EditorButton from "@/components/dashboard/buttons/editor-button";
+import EditorButton from "@/app/(root)/challange/_components/buttons/editor-button";
 import { usePreferencesStore } from "@/stores/user-preferences-store";
 
 type SwitchLayoutButtonProps = {
@@ -24,6 +24,7 @@ const SwitchLayoutButton = ({ label, className }: SwitchLayoutButtonProps) => {
       tooltipMessage={"Swap panels"}
       Icon={ArrowRightLeft}
       label={label}
+      title={"Swap panels"}
     />
   );
 };

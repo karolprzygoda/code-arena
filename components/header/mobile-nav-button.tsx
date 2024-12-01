@@ -17,6 +17,7 @@ const MobileNavButton = () => {
     <Sheet>
       <SheetTrigger
         className={"rounded-lg p-4 pr-0 focus:outline-none md:hidden"}
+        title={"open menu button"}
       >
         <Menu />
       </SheetTrigger>

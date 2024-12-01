@@ -1,4 +1,4 @@
-import { Bell, Menu } from "lucide-react";
+import { Bell } from "lucide-react";
 import Link from "next/link";
 import HeaderLink from "@/components/header/header-link";
 import { SearchButton } from "@/components/header/search-button";
@@ -14,12 +14,11 @@ const Header = () => {
             <Link href={"/"}>code-arena.com</Link>
             <div className={"hidden items-center gap-4 md:flex"}>
               <HeaderLink href={"#"}>Explore</HeaderLink>
-              <HeaderLink href={"#"}>Tracks</HeaderLink>
             </div>
           </div>
           <div className={"flex items-center justify-end gap-2"}>
             <SearchButton />
-            <Link className={"ml-2"} href={"/"}>
+            <Link className={"ml-2"} href={"/"} title={"Notifications"}>
               <Bell className={"h-5 w-5"} />
             </Link>
             <HeaderDropdown />

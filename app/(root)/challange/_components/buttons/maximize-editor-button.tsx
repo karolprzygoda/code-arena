@@ -3,7 +3,7 @@
 import { useFullScreen } from "@/hooks/use-full-screen";
 import { useShallow } from "zustand/react/shallow";
 import { Maximize2, Minimize2 } from "lucide-react";
-import EditorButton from "@/components/dashboard/buttons/editor-button";
+import EditorButton from "@/app/(root)/challange/_components/buttons/editor-button";
 import { usePreferencesStore } from "@/stores/user-preferences-store";
 
 type MaximizeEditorButtonProps = {
@@ -36,6 +36,7 @@ const MaximizeEditorButton = ({
       tooltipMessage={"Maximize editor"}
       Icon={isFullScreen ? Minimize2 : Maximize2}
       label={label}
+      title={isFullScreen ? "Maximize editor" : "Minimize editor"}
     />
   );
 };

@@ -1,4 +1,6 @@
-import EditorButton from "@/components/dashboard/buttons/editor-button";
+"use client";
+
+import EditorButton from "@/app/(root)/challange/_components/buttons/editor-button";
 import { RotateCcw } from "lucide-react";
 import { useEditorStore } from "@/stores/editor-store";
 import { useShallow } from "zustand/react/shallow";
@@ -30,6 +32,7 @@ const CodeResetButton = ({ label, className }: CodeResetButtonProps) => {
       tooltipSide={"left"}
       Icon={RotateCcw}
       label={label}
+      title={"Reset code to default"}
     />
   );
 };

@@ -3,7 +3,7 @@
 import { Editor } from "@monaco-editor/react";
 import { ResizablePanel } from "@/components/ui/resizable";
 import { useTheme } from "next-themes";
-import PanelWrapper from "@/components/dashboard/panels/panel-wrapper";
+import PanelWrapper from "@/app/(root)/challange/_components/panel-wrapper";
 import { useEditorStore } from "@/stores/editor-store";
 import { useShallow } from "zustand/react/shallow";
 import { useStore } from "zustand";
@@ -29,7 +29,7 @@ const CodePanel = () => {
   );
 
   return (
-    <ResizablePanel defaultSize={100}>
+    <ResizablePanel id={"code-panel"} defaultSize={100}>
       <PanelWrapper className={"rounded-none border-0 dark:bg-[#1e1e1e]"}>
         <Editor
           value={value}

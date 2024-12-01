@@ -1,25 +1,25 @@
 import { ReactNode } from "react";
-import DashBoardWrapper from "@/components/dashboard/dashboard-wrapper";
+import DashBoardWrapper from "@/app/(root)/challange/_components/dashboard-wrapper";
 import { ResizableHandle } from "@/components/ui/resizable";
 import type { Metadata } from "next";
 
-type ChallangeLayoutProps = {
+type DashBoardLayoutProps = {
   editor: ReactNode;
   resources: ReactNode;
   params: Promise<{ challangeName: string }>;
 };
 
-export async function generateMetadata({
+export const generateMetadata = async ({
   params,
-}: ChallangeLayoutProps): Promise<Metadata> {
+}: DashBoardLayoutProps): Promise<Metadata> => {
   const name = (await params).challangeName;
 
   return {
     title: `${name} - CodeArena`,
   };
-}
+};
 
-const ChallangeLayout = ({ editor, resources }: ChallangeLayoutProps) => {
+const DashBoardLayout = ({ editor, resources }: DashBoardLayoutProps) => {
   return (
     <DashBoardWrapper>
       {resources}
@@ -32,4 +32,4 @@ const ChallangeLayout = ({ editor, resources }: ChallangeLayoutProps) => {
   );
 };
 
-export default ChallangeLayout;
+export default DashBoardLayout;

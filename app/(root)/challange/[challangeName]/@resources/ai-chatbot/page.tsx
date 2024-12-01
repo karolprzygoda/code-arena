@@ -1,5 +1,5 @@
-const Page = () => {
+const AiChatBotPage = () => {
   return <div>ai-chatbot</div>;
 };
 
-export default Page;
+export default AiChatBotPage;

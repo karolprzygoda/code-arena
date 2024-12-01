@@ -1,7 +1,5 @@
 "use client";
 
-import { Settings } from "lucide-react";
-import EditorButton from "@/components/dashboard/buttons/editor-button";
 import {
   Dialog,
   DialogContent,
@@ -10,7 +8,9 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { SettingsForm } from "@/components/dashboard/settings-form";
+import { EditorShortcuts } from "@/app/(root)/challange/[challangeName]/@editor/_components/editor-shortcuts";
+import { SquareSlash } from "lucide-react";
+import EditorButton from "@/app/(root)/challange/_components/buttons/editor-button";
 import { useState } from "react";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import {
@@ -22,57 +22,60 @@ import {
   DrawerTrigger,
 } from "@/components/ui/drawer";
 
-type SettingsButtonProps = {
+type ShortcutButtonProps = {
   label?: string;
   className?: string;
 };
 
-const SettingsButton = ({ label, className }: SettingsButtonProps) => {
+const ShortcutButton = ({ label, className }: ShortcutButtonProps) => {
   const [open, setOpen] = useState(false);
   const isDesktop = useMediaQuery("(min-width: 1024px)");
   if (isDesktop) {
     return (
-      <Dialog>
+      <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>
           <EditorButton
-            tooltipMessage={"Settings"}
-            Icon={Settings}
+            tooltipMessage={"Shortcuts"}
+            Icon={SquareSlash}
             label={label}
             className={className}
+            title={"Open Shortcuts"}
           />
         </DialogTrigger>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Settings</DialogTitle>
-            <DialogDescription>Manage your Settings</DialogDescription>
+            <DialogTitle>Shortcuts</DialogTitle>
+            <DialogDescription>All available Shortcuts</DialogDescription>
           </DialogHeader>
-          <SettingsForm />
+          <div className="pt-4">
+            <EditorShortcuts />
+          </div>
         </DialogContent>
       </Dialog>
     );
   }
-
   return (
     <Drawer open={open} onOpenChange={setOpen}>
       <DrawerTrigger asChild>
         <EditorButton
-          tooltipMessage={"Settings"}
-          Icon={Settings}
+          tooltipMessage={"Shortcuts"}
+          Icon={SquareSlash}
           label={label}
           className={className}
+          title={"Open Shortcuts"}
         />
       </DrawerTrigger>
       <DrawerContent>
-        <DrawerHeader className="text-left">
-          <DrawerTitle>Settings</DrawerTitle>
-          <DrawerDescription>Manage your Settings</DrawerDescription>
+        <DrawerHeader>
+          <DrawerTitle>Shortcuts</DrawerTitle>
+          <DrawerDescription>All available Shortcuts</DrawerDescription>
         </DrawerHeader>
-        <div className={"p-4"}>
-          <SettingsForm />
+        <div className="p-4">
+          <EditorShortcuts />
         </div>
       </DrawerContent>
     </Drawer>
   );
 };
 
-export default SettingsButton;
+export default ShortcutButton;

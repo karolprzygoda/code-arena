@@ -17,6 +17,7 @@ const HeaderDropdown = () => {
         className={
           "hidden rounded-lg p-2 duration-300 focus:outline-none focus-visible:ring-2 md:block"
         }
+        title={"Open menu options"}
       >
         <User />
       </DropdownMenuTrigger>

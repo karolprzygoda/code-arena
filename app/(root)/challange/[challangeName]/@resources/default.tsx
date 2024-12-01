@@ -1,5 +1,5 @@
-const Default = () => {
+const ResourcesDefault = () => {
   return null;
 };
 
-export default Default;
+export default ResourcesDefault;

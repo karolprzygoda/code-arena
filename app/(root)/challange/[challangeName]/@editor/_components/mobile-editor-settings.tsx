@@ -5,11 +5,11 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Ellipsis } from "lucide-react";
-import CodeResetButton from "@/components/dashboard/buttons/code-reset-button";
-import ShortcutButton from "@/components/dashboard/buttons/shortcut-button";
-import SettingsButton from "@/components/dashboard/buttons/settings-button";
-import SwitchLayoutButton from "@/components/dashboard/buttons/switch-layout-button";
-import MaximizeEditorButton from "@/components/dashboard/buttons/maximize-editor-button";
+import CodeResetButton from "@/app/(root)/challange/_components/buttons/code-reset-button";
+import ShortcutButton from "@/app/(root)/challange/_components/buttons/shortcut-button";
+import SettingsButton from "@/app/(root)/challange/_components/buttons/settings-button";
+import SwitchLayoutButton from "@/app/(root)/challange/_components/buttons/switch-layout-button";
+import MaximizeEditorButton from "@/app/(root)/challange/_components/buttons/maximize-editor-button";
 
 const MobileEditorSettings = () => {
   return (
@@ -18,6 +18,7 @@ const MobileEditorSettings = () => {
         className={
           "rounded-lg p-2 duration-300 focus:outline-none focus-visible:ring-2 sm:hidden"
         }
+        title={"Open Settings"}
       >
         <Ellipsis className={"h-5 w-5 text-muted-foreground"} />
       </DropdownMenuTrigger>
