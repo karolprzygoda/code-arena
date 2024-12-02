@@ -8,7 +8,7 @@ type TestsPanelProps = {
 const TestsPanel = ({ children }: TestsPanelProps) => {
   return (
     <ResizablePanel id={"test-panel"} defaultSize={0}>
-      <div className="flex h-full items-center justify-center p-6 dark:bg-[#1e1e1e]">
+      <div className="h-full overflow-y-auto p-3 dark:border-zinc-700 dark:bg-[#1e1e1e]">
         {children}
       </div>
     </ResizablePanel>
