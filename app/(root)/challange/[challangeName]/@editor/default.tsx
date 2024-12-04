@@ -17,6 +17,48 @@ import PanelFooter from "@/app/(root)/challange/_components/panel-footer";
 import ChallangeSubmitButton from "@/app/(root)/challange/_components/buttons/challange-submit-button";
 
 const EditorDefault = () => {
+  const tests = [
+    {
+      inputs: [
+        {
+          name: "a",
+          value: 1,
+        },
+        {
+          name: "b",
+          value: 2,
+        },
+      ],
+      expectedOutput: 3,
+    },
+    {
+      inputs: [
+        {
+          name: "a",
+          value: 1,
+        },
+        {
+          name: "b",
+          value: 4,
+        },
+      ],
+      expectedOutput: 5,
+    },
+    {
+      inputs: [
+        {
+          name: "a",
+          value: 1,
+        },
+        {
+          name: "b",
+          value: 6,
+        },
+      ],
+      expectedOutput: 7,
+    },
+  ];
+
   return (
     <EditorWrapper>
       <ResizablePanelGroup className={"rounded-2xl"} direction="vertical">
@@ -36,15 +78,13 @@ const EditorDefault = () => {
           className={
             "group border-y border-zinc-200 bg-zinc-100 p-2 dark:border-zinc-700 dark:bg-zinc-800 lg:[&[data-panel-group-direction=vertical]>div]:rotate-90"
           }
-          withHandle
+          withCustomHandle
         />
-        <TestsPanel>
-          <span className="font-semibold">Tests</span>
-        </TestsPanel>
+        <TestsPanel tests={tests} />
         <PanelFooter>
           <div className={"flex items-center gap-4"}></div>
           <div className={"flex items-center justify-between gap-4"}>
-            <ChallangeSubmitButton />
+            <ChallangeSubmitButton tests={tests} />
           </div>
         </PanelFooter>
       </ResizablePanelGroup>

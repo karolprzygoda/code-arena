@@ -25,7 +25,7 @@ const DashBoardLayout = ({ editor, resources }: DashBoardLayoutProps) => {
       {resources}
       <ResizableHandle
         className={"group order-2 bg-background p-2"}
-        withHandle
+        withCustomHandle
       />
       {editor}
     </DashBoardWrapper>

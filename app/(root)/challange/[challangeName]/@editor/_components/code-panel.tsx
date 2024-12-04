@@ -29,7 +29,7 @@ const CodePanel = () => {
   );
 
   return (
-    <ResizablePanel id={"code-panel"} defaultSize={100}>
+    <ResizablePanel id={"code-panel"} defaultSize={70}>
       <PanelWrapper className={"rounded-none border-0 dark:bg-[#1e1e1e]"}>
         <Editor
           value={value}
