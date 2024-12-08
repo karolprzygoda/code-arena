@@ -1,91 +1,167 @@
 "use server";
 
-// import * as fs from "fs/promises";
-// import { exec } from "node:child_process";
-import axios from "axios";
-import { DockerResponse, Test } from "@/lib/types";
+import { StateType } from "@/lib/types";
+import { TAuthSchema } from "@/schemas/schema";
+import { createClient } from "@/lib/supabase/server";
+import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
+import prismadb from "@/lib/prismadb";
+import { Language, Submission } from "@prisma/client";
+import { pollSubmissionResult, sendKafkaMessage } from "@/lib/utils";
 
-// export const testChallenge = async (code: string) => {
-//   const tests = [
-//     { input: [1, 2], expectedOutput: 3 },
-//     { input: [1, 4], expectedOutput: 5 },
-//     { input: [1, 6], expectedOutput: 7 },
-//   ];
-//   try {
-//     const finalCode = `
-//     try{
-//       const solution = ${code};
-//       const tests = ${JSON.stringify(tests)};
-//       const results = tests.map(test => ({
-//         passed: test.expectedOutput === solution(...test.input),
-//         input: test.input,
-//         expectedOutput: test.expectedOutput
-//       }));
-//       console.log(JSON.stringify(results));
-//      }catch(error){
-//       console.log("xd");
-//      }
-//     `;
-//
-//     await fs.writeFile("/test/code-execution/test.js", finalCode, "utf-8");
-//
-//     return await new Promise((resolve, reject) => {
-//       exec(
-//         `docker run  -v /c/test/code-execution:/app -w /app node node test.js`,
-//         (error, stdout, stderr) => {
-//           if (error || stderr) {
-//             reject(stderr || error?.message);
-//           } else {
-//             resolve(JSON.parse(stdout));
-//           }
-//         },
-//       );
-//     });
-//   } catch (error) {
-//     return { error: error.message };
-//   }
-// };
-//
-// export const testChallenge2 = async (code: string) => {
-//   const tests = [
-//     { input: [1, 2], expectedOutput: 3 },
-//     { input: [1, 4], expectedOutput: 5 },
-//     { input: [1, 6], expectedOutput: 7 },
-//   ];
-//   try {
-//     return await new Promise((resolve, reject) => {
-//       const sanitizedCode = code.replace(/  |\r\n|\n|\r/gm, "");
-//
-//       const sanitizedTests = JSON.stringify(tests).replace(/"/g, '\\"');
-//
-//       const command = `docker run --rm -e USER_FUNCTION="${sanitizedCode}" -e USER_TESTS="${sanitizedTests}" runners:latest node runner.js`;
-//
-//       exec(command, (error, stdout, stderr) => {
-//         if (error || stderr) {
-//           reject(stderr || error?.message);
-//         } else {
-//           resolve(JSON.parse(stdout));
-//         }
-//       });
-//     });
-//   } catch (error) {
-//     console.error("Błąd:", error);
-//     return { error: "Błąd podczas uruchamiania kodu." };
-//   }
-// };
+export async function login(formData: TAuthSchema) {
+  const supabase = await createClient();
 
-export const testChallenge3 = async (
+  const data = {
+    email: formData.email,
+    password: formData.password,
+  };
+
+  const { error } = await supabase.auth.signInWithPassword(data);
+
+  if (error) {
+    return {
+      title: "Error",
+      description: error.message,
+      variant: "destructive",
+    } as StateType;
+  }
+
+  revalidatePath("/", "layout");
+  redirect("/");
+}
+
+export async function signup(formData: TAuthSchema) {
+  const supabase = await createClient();
+
+  const data = {
+    email: formData.email,
+    password: formData.password,
+  };
+
+  const { error } = await supabase.auth.signUp(data);
+
+  if (error) {
+    return {
+      title: "Error",
+      description: error.message,
+      variant: "destructive",
+    } as StateType;
+  }
+
+  revalidatePath("/", "layout");
+  redirect("/");
+}
+
+export async function loginWithGitHub() {
+  const supabase = await createClient();
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: "github",
+    options: {
+      redirectTo: "http://localhost:3000",
+    },
+  });
+
+  console.log(data, error);
+
+  if (error) {
+    return {
+      title: "Error",
+      description: error.message,
+      variant: "destructive",
+    } as StateType;
+  } else {
+    return redirect(data.url);
+  }
+}
+
+export async function loginWithGoogle() {
+  const supabase = await createClient();
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: "google",
+    options: {
+      redirectTo: "http://localhost:3000",
+      queryParams: {
+        access_type: "offline",
+        prompt: "consent",
+      },
+    },
+  });
+
+  console.log(data, error);
+
+  if (error) {
+    return {
+      title: "Error",
+      description: error.message,
+      variant: "destructive",
+    } as StateType;
+  } else {
+    return redirect(data.url);
+  }
+}
+
+export const testChallenge = async (
   code: string,
-  tests: Test[],
-): Promise<DockerResponse> => {
+  language: Language,
+  challengeId: string,
+): Promise<Submission> => {
   try {
-    const response = await axios.post("http://localhost:9000/run", {
-      code,
-      tests,
+    const supabase = await createClient();
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser();
+
+    if (!user || authError) {
+      redirect("/login");
+    }
+
+    const submission = await prismadb.submission.create({
+      data: {
+        code,
+        userId: user.id,
+        status: "PENDING",
+        language,
+        challengeId,
+        testResults: { test: null },
+      },
     });
-    console.log(response.data);
-    return response.data;
-  } catch (error: unknown) {
-    return { success: false, error: error.message };
+
+    const challange = await prismadb.challenge.findFirst({
+      where: {
+        id: challengeId,
+      },
+      select: {
+        testCases: true,
+      },
+    });
+
+    console.log("Producer connected to Kafka");
+
+    await sendKafkaMessage("nodejs-submission-topic", {
+      submissionId: submission.id,
+      code: code,
+      testCases: challange!.testCases,
+    });
+
+    console.log("Message sent successfully");
+
+    const result = await pollSubmissionResult(submission.id);
+
+    return await prismadb.submission.update({
+      where: {
+        id: submission.id,
+      },
+      data: {
+        testResults: result.testResults,
+        status: result.success ? "SUCCESS" : "FAIL",
+      },
+    });
+  } catch (error) {
+    console.error("Error in testChallenge:", error);
+    throw new Error(
+      "An unexpected error occurred try again or contact with support.",
+    );
   }
 };

@@ -1,4 +1,5 @@
 import { ReactNode } from "react";
+import { Submission } from "@prisma/client";
 
 export type AvailableLanguages = "JavaScript" | "Java" | "Python";
 
@@ -12,7 +13,7 @@ export type TestResult = {
   expectedOutput: number;
   actualOutput: number;
   passed: boolean;
-  logs?: string[];
+  logs: string[];
 };
 
 export type ErrorResponseObject = {
@@ -20,18 +21,13 @@ export type ErrorResponseObject = {
   stack: string;
 };
 
-type ErrorResponse = {
-  success: false;
-  results?: never;
-  error: ErrorResponseObject;
-  logs?: never;
+export type StateType = {
+  title: string;
+  description: string;
+  variant: "default" | "destructive";
 };
 
-type SuccessResponse = {
-  success: true;
-  results: TestResult[];
-  error?: never;
-  logs: string[];
+export type SubmissionResponse = {
+  success: boolean;
+  testResults: TestResult[];
 };
-
-export type DockerResponse = ErrorResponse | SuccessResponse;

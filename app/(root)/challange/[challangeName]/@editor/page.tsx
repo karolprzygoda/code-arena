@@ -15,49 +15,29 @@ import {
 import TestsPanel from "@/app/(root)/challange/[challangeName]/@editor/_components/tests-panel";
 import PanelFooter from "@/app/(root)/challange/_components/panel-footer";
 import ChallangeSubmitButton from "@/app/(root)/challange/_components/buttons/challange-submit-button";
+import prismadb from "@/lib/prismadb";
+import { Test } from "@/lib/types";
+import { notFound } from "next/navigation";
 
-const EditorPage = () => {
-  const tests = [
-    {
-      inputs: [
-        {
-          name: "a",
-          value: 1,
-        },
-        {
-          name: "b",
-          value: 2,
-        },
-      ],
-      expectedOutput: 3,
-    },
-    {
-      inputs: [
-        {
-          name: "a",
-          value: 1,
-        },
-        {
-          name: "b",
-          value: 4,
-        },
-      ],
-      expectedOutput: 5,
-    },
-    {
-      inputs: [
-        {
-          name: "a",
-          value: 1,
-        },
-        {
-          name: "b",
-          value: 6,
-        },
-      ],
-      expectedOutput: 7,
-    },
-  ];
+type EditorPageParams = {
+  params: Promise<{ challangeName: string }>;
+};
+
+const EditorPage = async ({ params }: EditorPageParams) => {
+  const data: { testCases: Test[]; id: string } | null =
+    (await prismadb.challenge.findFirst({
+      where: {
+        title: (await params).challangeName,
+      },
+      select: {
+        testCases: true,
+        id: true,
+      },
+    })) as unknown as { testCases: Test[]; id: string };
+
+  if (data === null) {
+    notFound();
+  }
 
   return (
     <EditorWrapper>
@@ -80,11 +60,11 @@ const EditorPage = () => {
           }
           withCustomHandle
         />
-        <TestsPanel tests={tests} />
+        <TestsPanel tests={data.testCases} />
         <PanelFooter>
           <div className={"flex items-center gap-4"}></div>
           <div className={"flex items-center justify-between gap-4"}>
-            <ChallangeSubmitButton tests={tests} />
+            <ChallangeSubmitButton challangeId={data.id} />
           </div>
         </PanelFooter>
       </ResizablePanelGroup>

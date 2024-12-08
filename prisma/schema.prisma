@@ -1,0 +1,50 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum Difficulty {
+  EASY
+  MEDIUM
+  HARD
+}
+
+enum Language {
+  JAVASCRIPT
+  PYTHON
+  JAVA
+}
+
+enum Status {
+  PENDING
+  SUCCESS
+  FAIL
+}
+
+model Challenge {
+  id          String       @id @default(uuid())
+  title       String       @unique
+  description String
+  difficulty  Difficulty
+  testCases   Json
+  createdAt   DateTime     @default(now())
+  submissions Submission[]
+}
+
+model Submission {
+  id          String   @id @default(uuid())
+  userId      String
+  challengeId String
+  code        String
+  language    Language
+  status      Status
+  createdAt   DateTime @default(now())
+  testResults Json
+
+  challenge Challenge @relation(fields: [challengeId], references: [id], onDelete: Cascade)
+}

@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
-import Header from "@/components/header/header";
 import { ThemeProvider } from "@/components/theme/theme-provider";
 import { Toaster } from "@/components/ui/toaster";
 
@@ -37,7 +36,6 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <Header />
           <main className={"flex h-full w-full flex-col"}>{children}</main>
           <Toaster />
         </ThemeProvider>

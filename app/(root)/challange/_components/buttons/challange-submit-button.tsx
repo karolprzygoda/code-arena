@@ -1,19 +1,20 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { testChallenge3 } from "@/actions/actions";
-import { AvailableLanguages, Test } from "@/lib/types";
+import { testChallenge } from "@/actions/actions";
+import { AvailableLanguages, TestResult } from "@/lib/types";
 import { useStore } from "zustand/index";
 import { useEditorStore } from "@/stores/editor-store";
 import { useShallow } from "zustand/react/shallow";
 import { toast } from "@/hooks/use-toast";
 import { useTestResultsStore } from "@/stores/tests-results-store";
+import { Language } from "@prisma/client";
 
 type ChallangeSubmitButtonProps = {
-  tests: Test[];
+  challangeId: string;
 };
 
-const ChallangeSubmitButton = ({ tests }: ChallangeSubmitButtonProps) => {
+const ChallangeSubmitButton = ({ challangeId }: ChallangeSubmitButtonProps) => {
   const { value, language } = useStore(
     useEditorStore,
     useShallow((state) => ({
@@ -30,41 +31,41 @@ const ChallangeSubmitButton = ({ tests }: ChallangeSubmitButtonProps) => {
     })),
   );
 
-  const handleSubmit = async (
-    code: string,
-    tests: Test[],
-    language: AvailableLanguages,
-  ) => {
-    const response = await testChallenge3(code, tests);
-    if (!response.success) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: response.error.message,
-      });
-      setGlobalError(response.error);
-    } else {
-      if (response.results.find((result) => !result.passed)) {
+  const handleSubmit = async (code: string, language: AvailableLanguages) => {
+    try {
+      const response = await testChallenge(
+        code,
+        language.toUpperCase() as Language,
+        challangeId,
+      );
+
+      setTestsResults(response.testResults as TestResult[]);
+
+      if (response.status === "FAIL") {
         toast({
-          title: "Failure",
-          description: "Your code do not successfully passed all tests.",
           variant: "destructive",
+          title: "Uh oh! You still have errors.",
         });
       } else {
         toast({
-          title: "Success",
-          description: "Your code successfully passed all tests.",
+          title: "All tests passed",
         });
       }
-      setTestsResults(response.results);
-      setGlobalError(null);
+    } catch (error) {
+      if (error instanceof Error) {
+        toast({
+          variant: "destructive",
+          title: "An Error occurred!",
+          description: error.message,
+        });
+      }
     }
   };
 
   return (
     <Button
       onClick={() => {
-        void handleSubmit(value, tests, language);
+        void handleSubmit(value, language);
       }}
       className={"rounded-xl font-bold"}
     >
