@@ -2,6 +2,10 @@ generator client {
   provider = "prisma-client-js"
 }
 
+generator json {
+  provider = "prisma-json-types-generator"
+}
+
 datasource db {
   provider  = "postgresql"
   url       = env("DATABASE_URL")
@@ -31,9 +35,12 @@ model Challenge {
   title       String       @unique
   description String
   difficulty  Difficulty
+  /// [TestCasesType]
   testCases   Json
   createdAt   DateTime     @default(now())
   submissions Submission[]
+  /// [DefaultCodeType]
+  defaultCode Json
 }
 
 model Submission {
@@ -44,7 +51,10 @@ model Submission {
   language    Language
   status      Status
   createdAt   DateTime @default(now())
+  /// [TestResultsType]
   testResults Json
+  /// [GlobalErrorType]
+  globalError Json?
 
   challenge Challenge @relation(fields: [challengeId], references: [id], onDelete: Cascade)
 }

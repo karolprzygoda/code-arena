@@ -23,10 +23,10 @@ import { useForm } from "react-hook-form";
 import { authSchema, TAuthSchema } from "@/schemas/schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
-import { signup } from "@/actions/actions";
+import { signUp } from "@/actions/actions";
 import { toast } from "@/hooks/use-toast";
 
-export function SignUp() {
+const SignUp = () => {
   const form = useForm<TAuthSchema>({
     resolver: zodResolver(authSchema),
     defaultValues: {
@@ -36,13 +36,14 @@ export function SignUp() {
   });
 
   const onSubmit = async (data: TAuthSchema) => {
-    const { title, description, variant } = await signup(data);
-
-    if (title || description || variant) {
+    try {
+      await signUp(data);
+    } catch (error) {
       toast({
-        title,
-        description,
-        variant,
+        title: "Authentication Error",
+        description:
+          error instanceof Error ? error.message : "An unknown error occurred",
+        variant: "destructive",
       });
     }
   };
@@ -51,8 +52,11 @@ export function SignUp() {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)}>
-        <Card className={"w-96"}>
+      <form
+        className={"w-full max-w-96"}
+        onSubmit={form.handleSubmit(onSubmit)}
+      >
+        <Card className={"w-full"}>
           <CardHeader className="space-y-1">
             <CardTitle className="text-2xl">Create your account</CardTitle>
             <CardDescription>Enter your email below to sign up</CardDescription>
@@ -134,4 +138,6 @@ export function SignUp() {
       </form>
     </Form>
   );
-}
+};
+
+export default SignUp;

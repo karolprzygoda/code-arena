@@ -18,12 +18,9 @@ const executeCode = async (code, tests) => {
   const originalConsoleLog = console.log;
 
   try {
-    const moduleWrapper = new Function(`return ${code}`);
-    const solution = moduleWrapper();
+    const moduleWrapper = new Function(`${code}; return solution;`);
 
-    if (typeof solution !== "function") {
-      throw new Error("Provided code does not export a valid function");
-    }
+    const solution = moduleWrapper();
 
     const results = await Promise.all(
       tests.map(async (test) => {
@@ -44,7 +41,6 @@ const executeCode = async (code, tests) => {
         let errorOccurred = null;
 
         try {
-          // Obsługa funkcji asynchronicznych
           actualOutput = await solution(...test.inputs.map((i) => i.value));
         } catch (error) {
           errorOccurred = error;
@@ -72,7 +68,8 @@ const executeCode = async (code, tests) => {
   } catch (error) {
     return {
       success: false,
-      error: {
+      testResults: null,
+      globalError: {
         message: error.message,
         stack: error.stack,
       },

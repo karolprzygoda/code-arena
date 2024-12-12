@@ -24,7 +24,6 @@ const SwitchLayoutButton = ({ label, className }: SwitchLayoutButtonProps) => {
       tooltipMessage={"Swap panels"}
       Icon={ArrowRightLeft}
       label={label}
-      title={"Swap panels"}
     />
   );
 };

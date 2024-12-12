@@ -36,7 +36,6 @@ const MaximizeEditorButton = ({
       tooltipMessage={"Maximize editor"}
       Icon={isFullScreen ? Minimize2 : Maximize2}
       label={label}
-      title={isFullScreen ? "Maximize editor" : "Minimize editor"}
     />
   );
 };

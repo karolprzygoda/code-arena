@@ -1,10 +1,12 @@
-const AuthLayout = ({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) => {
+import { ReactNode } from "react";
+
+type AuthLayout = {
+  children: Readonly<ReactNode>;
+};
+
+const AuthLayout = ({ children }: AuthLayout) => {
   return (
-    <div className={"flex h-screen w-screen items-center justify-center"}>
+    <div className={"flex h-screen w-full items-center justify-center p-4"}>
       {children}
     </div>
   );

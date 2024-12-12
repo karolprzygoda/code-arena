@@ -11,7 +11,11 @@ import SettingsButton from "@/app/(root)/challange/_components/buttons/settings-
 import SwitchLayoutButton from "@/app/(root)/challange/_components/buttons/switch-layout-button";
 import MaximizeEditorButton from "@/app/(root)/challange/_components/buttons/maximize-editor-button";
 
-const MobileEditorSettings = () => {
+type MobileEditorSettingsProps = {
+  defaultCode: PrismaJson.DefaultCodeType;
+};
+
+const MobileEditorSettings = ({ defaultCode }: MobileEditorSettingsProps) => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
@@ -27,7 +31,10 @@ const MobileEditorSettings = () => {
         className="mt-[0.33rem] flex flex-col gap-2 rounded-xl bg-background"
       >
         <DropdownMenuItem asChild>
-          <CodeResetButton label={"Reset Your Code"} />
+          <CodeResetButton
+            defaultCode={defaultCode}
+            label={"Reset Your Code"}
+          />
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
           <ShortcutButton label={"Show shortcuts"} />

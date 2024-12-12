@@ -1,3 +1,5 @@
-export default function ChallangePage() {
+const RootPage = () => {
   return <>Home</>;
-}
+};
+
+export default RootPage;

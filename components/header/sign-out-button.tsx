@@ -3,10 +3,26 @@
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { LogOut } from "lucide-react";
+import { createClient } from "@/lib/supabase/client";
+import { useRouter } from "next/navigation";
+import { toast } from "@/hooks/use-toast";
 
 const SignOutButton = ({ className }: { className?: string }) => {
+  const router = useRouter();
+
   const handleSignOut = async () => {
-    console.log("sign out");
+    const supabase = createClient();
+    const { error } = await supabase.auth.signOut();
+
+    if (error) {
+      toast({
+        variant: "destructive",
+        title: "Sign out error",
+        description: error.message,
+      });
+    } else {
+      router.push("/sign-in");
+    }
   };
 
   return (

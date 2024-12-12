@@ -1,14 +1,17 @@
 import Header from "@/components/header/header";
+import { ReactNode } from "react";
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+type RootLayout = {
+  children: Readonly<ReactNode>;
+};
+
+const RootLayout = ({ children }: RootLayout) => {
   return (
     <>
       <Header />
       <main className={"flex h-full w-full flex-col"}>{children}</main>
     </>
   );
-}
+};
+
+export default RootLayout;

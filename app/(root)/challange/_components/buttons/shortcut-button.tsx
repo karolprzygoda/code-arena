@@ -39,7 +39,6 @@ const ShortcutButton = ({ label, className }: ShortcutButtonProps) => {
             Icon={SquareSlash}
             label={label}
             className={className}
-            title={"Open Shortcuts"}
           />
         </DialogTrigger>
         <DialogContent>
@@ -62,7 +61,6 @@ const ShortcutButton = ({ label, className }: ShortcutButtonProps) => {
           Icon={SquareSlash}
           label={label}
           className={className}
-          title={"Open Shortcuts"}
         />
       </DrawerTrigger>
       <DrawerContent>

@@ -1,16 +1,15 @@
 "use client";
 
 import { create } from "zustand";
-import { ErrorResponseObject, TestResult } from "@/lib/types";
 
 type State = {
-  testsResults: TestResult[];
-  globalError: ErrorResponseObject | null;
+  testsResults: PrismaJson.TestResultsType;
+  globalError?: PrismaJson.ErrorType | null;
 };
 
 type Actions = {
-  setTestsResults: (testsResults: TestResult[]) => void;
-  setGlobalError: (error: ErrorResponseObject | null) => void;
+  setTestsResults: (testsResults: PrismaJson.TestResultsType) => void;
+  setGlobalError: (error: PrismaJson.ErrorType | null) => void;
 };
 
 export const useTestResultsStore = create<State & Actions>()((set) => ({

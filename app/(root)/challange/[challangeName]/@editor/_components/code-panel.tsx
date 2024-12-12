@@ -8,16 +8,21 @@ import { useEditorStore } from "@/stores/editor-store";
 import { useShallow } from "zustand/react/shallow";
 import { useStore } from "zustand";
 import { usePreferencesStore } from "@/stores/user-preferences-store";
+import { useEffect } from "react";
 
-const CodePanel = () => {
+type CodePanelProps = {
+  defaultCode: PrismaJson.DefaultCodeType;
+};
+
+const CodePanel = ({ defaultCode }: CodePanelProps) => {
   const { resolvedTheme } = useTheme();
-  const { value, defaultValue, language, setValue } = useStore(
+  const { code, language, setCode, isPending } = useStore(
     useEditorStore,
     useShallow((state) => ({
-      value: state.value,
-      defaultValue: state.defaultValue,
+      code: state.code,
       language: state.language,
-      setValue: state.setValue,
+      setCode: state.setCode,
+      isPending: state.isPending,
     })),
   );
 
@@ -28,20 +33,25 @@ const CodePanel = () => {
     })),
   );
 
+  useEffect(() => {
+    const newCode = defaultCode[language];
+    setCode(newCode);
+  }, [language, defaultCode, setCode]);
+
   return (
     <ResizablePanel id={"code-panel"} defaultSize={70}>
       <PanelWrapper className={"rounded-none border-0 dark:bg-[#1e1e1e]"}>
         <Editor
-          value={value}
-          onChange={(e) => setValue(e as string)}
+          value={code}
+          onChange={(e) => setCode(e as string)}
           theme={resolvedTheme === "dark" ? "vs-dark" : "light"}
           options={{
             minimap: { enabled: false },
             fontSize: Number(settings.fontSize),
             tabSize: Number(settings.tabSize),
+            readOnly: isPending,
           }}
-          language={language.toLocaleLowerCase()}
-          defaultValue={defaultValue}
+          language={language}
         />
       </PanelWrapper>
     </ResizablePanel>

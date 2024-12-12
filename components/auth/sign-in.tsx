@@ -23,10 +23,10 @@ import { useForm } from "react-hook-form";
 import { authSchema, TAuthSchema } from "@/schemas/schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
-import { login, loginWithGitHub, loginWithGoogle } from "@/actions/actions";
+import { signIn, signInWithGithub, signInWithGoogle } from "@/actions/actions";
 import { toast } from "@/hooks/use-toast";
 
-export function SignIn() {
+const SignIn = () => {
   const form = useForm<TAuthSchema>({
     resolver: zodResolver(authSchema),
     defaultValues: {
@@ -36,37 +36,40 @@ export function SignIn() {
   });
 
   const onSubmit = async (data: TAuthSchema) => {
-    const { title, description, variant } = await login(data);
-
-    if (title || description || variant) {
+    try {
+      await signIn(data);
+    } catch (error) {
       toast({
-        title,
-        description,
-        variant,
+        title: "Authentication Error",
+        description:
+          error instanceof Error ? error.message : "An unknown error occurred",
+        variant: "destructive",
       });
     }
   };
 
-  async function signInWithGithub() {
-    const { title, description, variant } = await loginWithGitHub();
-
-    if (title || description || variant) {
+  const onGithubSignIn = async () => {
+    try {
+      await signInWithGithub();
+    } catch (error) {
       toast({
-        title,
-        description,
-        variant,
+        title: "Authentication Error",
+        description:
+          error instanceof Error ? error.message : "An unknown error occurred",
+        variant: "destructive",
       });
     }
-  }
+  };
 
-  async function signInWithGoogle() {
-    const { title, description, variant } = await loginWithGoogle();
-
-    if (title || description || variant) {
+  async function onGoogleSignIn() {
+    try {
+      await signInWithGoogle();
+    } catch (error) {
       toast({
-        title,
-        description,
-        variant,
+        title: "Authentication Error",
+        description:
+          error instanceof Error ? error.message : "An unknown error occurred",
+        variant: "destructive",
       });
     }
   }
@@ -75,8 +78,11 @@ export function SignIn() {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)}>
-        <Card className={"w-96"}>
+      <form
+        className={"w-full max-w-96"}
+        onSubmit={form.handleSubmit(onSubmit)}
+      >
+        <Card className={"w-full"}>
           <CardHeader className="space-y-1">
             <CardTitle className="text-2xl">Sign in to your account</CardTitle>
             <CardDescription>Enter your email below to sign in</CardDescription>
@@ -85,7 +91,7 @@ export function SignIn() {
             <div className="grid grid-cols-2 gap-6">
               <Button
                 type={"button"}
-                onClick={signInWithGithub}
+                onClick={onGithubSignIn}
                 disabled={isLoading}
                 variant="outline"
               >
@@ -93,7 +99,7 @@ export function SignIn() {
                 Github
               </Button>
               <Button
-                onClick={signInWithGoogle}
+                onClick={onGoogleSignIn}
                 type={"button"}
                 disabled={isLoading}
                 variant="outline"
@@ -168,4 +174,6 @@ export function SignIn() {
       </form>
     </Form>
   );
-}
+};
+
+export default SignIn;

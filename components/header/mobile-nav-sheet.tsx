@@ -12,7 +12,7 @@ import SignOutButton from "@/components/header/sign-out-button";
 import HeaderLink from "@/components/header/header-link";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 
-const MobileNavButton = () => {
+const MobileNavSheet = () => {
   return (
     <Sheet>
       <SheetTrigger
@@ -34,7 +34,6 @@ const MobileNavButton = () => {
         <div className={"flex flex-col"}>
           <div className={"flex flex-col gap-4 border-b py-4"}>
             <HeaderLink href={"/"}>Explore</HeaderLink>
-            <HeaderLink href={"/"}>Tracks</HeaderLink>
             <HeaderLink href={"/"}>Profile</HeaderLink>
           </div>
           <div className={"flex flex-col gap-4 pt-4"}>
@@ -50,4 +49,4 @@ const MobileNavButton = () => {
   );
 };
 
-export default MobileNavButton;
+export default MobileNavSheet;

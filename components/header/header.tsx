@@ -1,9 +1,8 @@
 import { Bell } from "lucide-react";
 import Link from "next/link";
-import HeaderLink from "@/components/header/header-link";
 import { SearchButton } from "@/components/header/search-button";
 import HeaderDropdown from "@/components/header/header-dropdown";
-import MobileNavButton from "@/components/header/mobile-nav-button";
+import MobileNavSheet from "@/components/header/mobile-nav-sheet";
 
 const Header = () => {
   return (
@@ -12,9 +11,6 @@ const Header = () => {
         <div className={"flex w-full items-center justify-between"}>
           <div className={"relative flex items-center gap-4 font-bold"}>
             <Link href={"/"}>code-arena.com</Link>
-            <div className={"hidden items-center gap-4 md:flex"}>
-              <HeaderLink href={"#"}>Explore</HeaderLink>
-            </div>
           </div>
           <div className={"flex items-center justify-end gap-2"}>
             <SearchButton />
@@ -22,7 +18,7 @@ const Header = () => {
               <Bell className={"h-5 w-5"} />
             </Link>
             <HeaderDropdown />
-            <MobileNavButton />
+            <MobileNavSheet />
           </div>
         </div>
       </nav>

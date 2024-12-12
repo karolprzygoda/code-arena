@@ -39,7 +39,6 @@ const SettingsButton = ({ label, className }: SettingsButtonProps) => {
             Icon={Settings}
             label={label}
             className={className}
-            title={"Open Settings"}
           />
         </DialogTrigger>
         <DialogContent>
@@ -61,7 +60,6 @@ const SettingsButton = ({ label, className }: SettingsButtonProps) => {
           Icon={Settings}
           label={label}
           className={className}
-          title={"Open Settings"}
         />
       </DrawerTrigger>
       <DrawerContent>

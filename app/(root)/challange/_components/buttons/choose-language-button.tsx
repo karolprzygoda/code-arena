@@ -10,9 +10,9 @@ import { useEditorStore } from "@/stores/editor-store";
 import { useShallow } from "zustand/react/shallow";
 import { Button } from "@/components/ui/button";
 import { ChevronDown } from "lucide-react";
-import { AvailableLanguages } from "@/lib/types";
 import { Icons } from "@/components/icons";
 import { useStore } from "zustand";
+import { Language } from "@prisma/client";
 
 const ChooseLanguageButton = () => {
   const { language } = useStore(
@@ -22,8 +22,7 @@ const ChooseLanguageButton = () => {
     })),
   );
 
-  const IconComponent =
-    Icons[language.toLocaleLowerCase() as keyof typeof Icons];
+  const IconComponent = Icons[language];
 
   return (
     <DropdownMenu>
@@ -41,16 +40,16 @@ const ChooseLanguageButton = () => {
           "rounded-xl bg-white/50 backdrop-blur-sm dark:bg-neutral-950/50"
         }
       >
-        <DropdownButton language={"JavaScript"} />
-        <DropdownButton language={"Java"} />
-        <DropdownButton language={"Python"} />
+        <DropdownButton language={"javascript"} />
+        <DropdownButton language={"java"} />
+        <DropdownButton language={"python"} />
       </DropdownMenuContent>
     </DropdownMenu>
   );
 };
 
 type DropdownButtonProps = {
-  language: AvailableLanguages;
+  language: Lowercase<Language>;
 };
 
 const DropdownButton = ({ language }: DropdownButtonProps) => {
@@ -61,8 +60,7 @@ const DropdownButton = ({ language }: DropdownButtonProps) => {
     })),
   );
 
-  const IconComponent =
-    Icons[language.toLocaleLowerCase() as keyof typeof Icons];
+  const IconComponent = Icons[language];
 
   return (
     <DropdownMenuItem className={"p-0"}>

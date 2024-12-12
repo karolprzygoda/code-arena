@@ -1,6 +1,5 @@
 "use server";
 
-import { StateType } from "@/lib/types";
 import { TAuthSchema } from "@/schemas/schema";
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
@@ -9,7 +8,7 @@ import prismadb from "@/lib/prismadb";
 import { Language, Submission } from "@prisma/client";
 import { pollSubmissionResult, sendKafkaMessage } from "@/lib/utils";
 
-export async function login(formData: TAuthSchema) {
+export async function signIn(formData: TAuthSchema) {
   const supabase = await createClient();
 
   const data = {
@@ -20,18 +19,14 @@ export async function login(formData: TAuthSchema) {
   const { error } = await supabase.auth.signInWithPassword(data);
 
   if (error) {
-    return {
-      title: "Error",
-      description: error.message,
-      variant: "destructive",
-    } as StateType;
+    throw new Error(error.message);
   }
 
   revalidatePath("/", "layout");
   redirect("/");
 }
 
-export async function signup(formData: TAuthSchema) {
+export async function signUp(formData: TAuthSchema) {
   const supabase = await createClient();
 
   const data = {
@@ -42,45 +37,37 @@ export async function signup(formData: TAuthSchema) {
   const { error } = await supabase.auth.signUp(data);
 
   if (error) {
-    return {
-      title: "Error",
-      description: error.message,
-      variant: "destructive",
-    } as StateType;
+    throw new Error(error.message);
   }
 
   revalidatePath("/", "layout");
   redirect("/");
 }
 
-export async function loginWithGitHub() {
+export async function signInWithGithub() {
   const supabase = await createClient();
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: "github",
     options: {
-      redirectTo: "http://localhost:3000",
+      redirectTo: "http://localhost:3000/auth/callback",
     },
   });
 
-  console.log(data, error);
-
   if (error) {
-    return {
-      title: "Error",
-      description: error.message,
-      variant: "destructive",
-    } as StateType;
-  } else {
-    return redirect(data.url);
+    throw new Error(error.message);
+  }
+
+  if (data.url) {
+    redirect(data.url);
   }
 }
 
-export async function loginWithGoogle() {
+export async function signInWithGoogle() {
   const supabase = await createClient();
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: "google",
     options: {
-      redirectTo: "http://localhost:3000",
+      redirectTo: "http://localhost:3000/auth/callback",
       queryParams: {
         access_type: "offline",
         prompt: "consent",
@@ -88,24 +75,19 @@ export async function loginWithGoogle() {
     },
   });
 
-  console.log(data, error);
-
   if (error) {
-    return {
-      title: "Error",
-      description: error.message,
-      variant: "destructive",
-    } as StateType;
-  } else {
-    return redirect(data.url);
+    throw new Error(error.message);
+  }
+  if (data.url) {
+    redirect(data.url);
   }
 }
 
-export const testChallenge = async (
+export async function testChallenge(
   code: string,
   language: Language,
   challengeId: string,
-): Promise<Submission> => {
+): Promise<Submission> {
   try {
     const supabase = await createClient();
     const {
@@ -124,7 +106,7 @@ export const testChallenge = async (
         status: "PENDING",
         language,
         challengeId,
-        testResults: { test: null },
+        testResults: null as unknown as PrismaJson.TestResultsType,
       },
     });
 
@@ -156,6 +138,7 @@ export const testChallenge = async (
       data: {
         testResults: result.testResults,
         status: result.success ? "SUCCESS" : "FAIL",
+        globalError: result.globalError,
       },
     });
   } catch (error) {
@@ -164,4 +147,4 @@ export const testChallenge = async (
       "An unexpected error occurred try again or contact with support.",
     );
   }
-};
+}

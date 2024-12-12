@@ -1,37 +1,37 @@
 "use client";
 
 import { create } from "zustand";
-import { AvailableLanguages } from "@/lib/types";
+import { Language } from "@prisma/client";
 
 type State = {
-  value: string;
-  defaultValue: string;
-  language: AvailableLanguages;
+  code: string;
+  language: Lowercase<Language>;
+  isPending: boolean;
 };
 
 type Actions = {
-  setValue: (value: string) => void;
-  setDefaultValue: (defaultValue: string) => void;
-  setLanguage: (defaultLanguage: AvailableLanguages) => void;
+  setCode: (value: string) => void;
+  setLanguage: (defaultLanguage: Lowercase<Language>) => void;
+  setIsPending: (isPending: boolean) => void;
 };
 
 export const useEditorStore = create<State & Actions>()((set) => ({
-  value: "",
-  defaultValue: "",
-  language: "JavaScript",
-  setValue: (value) => {
+  code: "",
+  language: "javascript",
+  isPending: false,
+  setCode: (value) => {
     set({
-      value,
-    });
-  },
-  setDefaultValue: (defaultValue) => {
-    set({
-      defaultValue,
+      code: value,
     });
   },
   setLanguage: (language) => {
     set({
       language,
+    });
+  },
+  setIsPending: (isPending) => {
+    set({
+      isPending,
     });
   },
 }));

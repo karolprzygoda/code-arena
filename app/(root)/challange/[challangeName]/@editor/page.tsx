@@ -16,7 +16,6 @@ import TestsPanel from "@/app/(root)/challange/[challangeName]/@editor/_componen
 import PanelFooter from "@/app/(root)/challange/_components/panel-footer";
 import ChallangeSubmitButton from "@/app/(root)/challange/_components/buttons/challange-submit-button";
 import prismadb from "@/lib/prismadb";
-import { Test } from "@/lib/types";
 import { notFound } from "next/navigation";
 
 type EditorPageParams = {
@@ -24,16 +23,16 @@ type EditorPageParams = {
 };
 
 const EditorPage = async ({ params }: EditorPageParams) => {
-  const data: { testCases: Test[]; id: string } | null =
-    (await prismadb.challenge.findFirst({
-      where: {
-        title: (await params).challangeName,
-      },
-      select: {
-        testCases: true,
-        id: true,
-      },
-    })) as unknown as { testCases: Test[]; id: string };
+  const data = await prismadb.challenge.findFirst({
+    where: {
+      title: (await params).challangeName,
+    },
+    select: {
+      testCases: true,
+      id: true,
+      defaultCode: true,
+    },
+  });
 
   if (data === null) {
     notFound();
@@ -45,15 +44,15 @@ const EditorPage = async ({ params }: EditorPageParams) => {
         <PanelHeader className={"justify-between px-3 dark:bg-[#1e1e1e]"}>
           <ChooseLanguageButton />
           <div className={"hidden gap-4 sm:flex"}>
-            <CodeResetButton />
+            <CodeResetButton defaultCode={data.defaultCode} />
             <ShortcutButton />
             <SettingsButton />
             <SwitchLayoutButton />
             <MaximizeEditorButton />
           </div>
-          <MobileEditorSettings />
+          <MobileEditorSettings defaultCode={data.defaultCode} />
         </PanelHeader>
-        <CodePanel />
+        <CodePanel defaultCode={data.defaultCode} />
         <ResizableHandle
           className={
             "group border-y border-zinc-200 bg-zinc-100 p-2 dark:border-zinc-700 dark:bg-zinc-800 lg:[&[data-panel-group-direction=vertical]>div]:rotate-90"
@@ -64,7 +63,10 @@ const EditorPage = async ({ params }: EditorPageParams) => {
         <PanelFooter>
           <div className={"flex items-center gap-4"}></div>
           <div className={"flex items-center justify-between gap-4"}>
-            <ChallangeSubmitButton challangeId={data.id} />
+            <ChallangeSubmitButton
+              defaultCode={data.defaultCode}
+              challangeId={data.id}
+            />
           </div>
         </PanelFooter>
       </ResizablePanelGroup>

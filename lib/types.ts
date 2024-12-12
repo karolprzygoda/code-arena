@@ -1,33 +1,37 @@
-import { ReactNode } from "react";
-import { Submission } from "@prisma/client";
+import { Language } from "@prisma/client";
 
-export type AvailableLanguages = "JavaScript" | "Java" | "Python";
+declare global {
+  namespace PrismaJson {
+    type ErrorType = { message: string; stack: string };
+    type InputType = { name: string; value: unknown };
+    type TestCasesType = {
+      inputs: InputType[];
+      expectedOutput: unknown;
+    }[];
+    type DefaultCodeType = Record<Lowercase<Language>, string>;
+    type TestResultsType = {
+      input: unknown;
+      expectedOutput: unknown;
+      actualOutput: unknown;
+      passed: boolean;
+      logs: string[];
+      error?: ErrorType | null;
+    }[];
+  }
+}
 
-export type Test = {
-  inputs: Array<{ name: string; value: unknown & ReactNode }>;
-  expectedOutput: unknown & ReactNode;
+type SuccessSubmissionResponse = {
+  success: true;
+  testResults: PrismaJson.TestResultsType;
+  globalError: never;
 };
 
-export type TestResult = {
-  input: number;
-  expectedOutput: number;
-  actualOutput: number;
-  passed: boolean;
-  logs: string[];
+type ErrorSubmissionResponse = {
+  success: false;
+  testResults: never;
+  globalError: PrismaJson.ErrorType;
 };
 
-export type ErrorResponseObject = {
-  message: string;
-  stack: string;
-};
-
-export type StateType = {
-  title: string;
-  description: string;
-  variant: "default" | "destructive";
-};
-
-export type SubmissionResponse = {
-  success: boolean;
-  testResults: TestResult[];
-};
+export type SubmissionResponse =
+  | SuccessSubmissionResponse
+  | ErrorSubmissionResponse;

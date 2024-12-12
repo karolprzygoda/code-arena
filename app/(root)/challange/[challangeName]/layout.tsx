@@ -3,7 +3,7 @@ import DashBoardWrapper from "@/app/(root)/challange/_components/dashboard-wrapp
 import { ResizableHandle } from "@/components/ui/resizable";
 import type { Metadata } from "next";
 
-type DashBoardLayoutProps = {
+type ChallangeDashboardLayoutProps = {
   editor: ReactNode;
   resources: ReactNode;
   params: Promise<{ challangeName: string }>;
@@ -11,7 +11,7 @@ type DashBoardLayoutProps = {
 
 export const generateMetadata = async ({
   params,
-}: DashBoardLayoutProps): Promise<Metadata> => {
+}: ChallangeDashboardLayoutProps): Promise<Metadata> => {
   const name = (await params).challangeName;
 
   return {
@@ -19,7 +19,10 @@ export const generateMetadata = async ({
   };
 };
 
-const DashBoardLayout = ({ editor, resources }: DashBoardLayoutProps) => {
+const ChallangeDashboardLayout = ({
+  editor,
+  resources,
+}: ChallangeDashboardLayoutProps) => {
   return (
     <DashBoardWrapper>
       {resources}
@@ -32,4 +35,4 @@ const DashBoardLayout = ({ editor, resources }: DashBoardLayoutProps) => {
   );
 };
 
-export default DashBoardLayout;
+export default ChallangeDashboardLayout;
