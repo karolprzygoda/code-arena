@@ -9,14 +9,16 @@ import { toast } from "@/hooks/use-toast";
 import { useTestResultsStore } from "@/stores/tests-results-store";
 import { Language } from "@prisma/client";
 import { useState } from "react";
+import { userCodeSchema } from "@/schemas/schema";
+import { getCodeSubmissionError } from "@/lib/utils";
 
 type ChallangeSubmitButtonProps = {
-  challangeId: string;
+  challengeId: string;
   defaultCode: PrismaJson.DefaultCodeType;
 };
 
 const ChallangeSubmitButton = ({
-  challangeId,
+  challengeId,
   defaultCode,
 }: ChallangeSubmitButtonProps) => {
   const { code, language, isPending, setIsPending } = useStore(
@@ -42,17 +44,17 @@ const ChallangeSubmitButton = ({
   const handleSubmit = async (code: string, language: Lowercase<Language>) => {
     try {
       setIsPending(true);
-      setUserCodeCache(code);
+
+      userCodeSchema.parse({ code, language, challengeId });
+
       if (userCodeCache === code) {
         throw new Error("Your code has no changes.");
       }
-      if (code === "") {
-        throw new Error("Your code is empty.");
-      }
+
       const response = await testChallenge(
         code,
         language.toUpperCase() as Language,
-        challangeId,
+        challengeId,
       );
 
       setTestsResults(response.testResults);
@@ -65,6 +67,8 @@ const ChallangeSubmitButton = ({
 
         if (response.globalError) {
           setGlobalError(response.globalError);
+        } else {
+          setGlobalError(null);
         }
       } else {
         toast({
@@ -76,11 +80,11 @@ const ChallangeSubmitButton = ({
       toast({
         variant: "destructive",
         title: "An Error occurred!",
-        description:
-          error instanceof Error ? error.message : "An unknown error occurred",
+        description: getCodeSubmissionError(error),
       });
     } finally {
       setIsPending(false);
+      setUserCodeCache(code);
     }
   };
 

@@ -9,7 +9,9 @@ const RootLayout = ({ children }: RootLayout) => {
   return (
     <>
       <Header />
-      <main className={"flex h-full w-full flex-col"}>{children}</main>
+      <main className={"flex h-full w-full flex-col overflow-hidden"}>
+        {children}
+      </main>
     </>
   );
 };

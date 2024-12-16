@@ -1,10 +1,11 @@
 import { Kafka } from "kafkajs";
+import vm from "vm";
 
 const broker = process.env.KAFKA_BROKER || "kafka:9092";
 const inputTopic = process.env.INPUT_TOPIC || "nodejs-submission-topic";
 
 const kafka = new Kafka({
-  clientId: "nodejs-solution-consumer",
+  clientId: "nodejs-solution-nodejs-consumer",
   brokers: [broker],
 });
 
@@ -14,45 +15,42 @@ const consumer = kafka.consumer({
 
 const producer = kafka.producer();
 
+const deepEqual = (a, b) => JSON.stringify(a) === JSON.stringify(b);
+
 const executeCode = async (code, tests) => {
-  const originalConsoleLog = console.log;
-
   try {
-    const moduleWrapper = new Function(`${code}; return solution;`);
-
-    const solution = moduleWrapper();
-
     const results = await Promise.all(
       tests.map(async (test) => {
-        const logs = [];
-
-        console.log = (...args) => {
-          logs.push(
-            args
-              .map((arg) =>
-                typeof arg === "object" ? JSON.stringify(arg, null, 2) : arg,
-              )
-              .join(" "),
-          );
-          originalConsoleLog(...args);
+        const sandbox = {
+          console: {
+            log: (...args) => {
+              sandbox.logs.push(
+                args
+                  .map((arg) =>
+                    typeof arg === "object" ? JSON.stringify(arg) : arg,
+                  )
+                  .join(" "),
+              );
+            },
+          },
+          logs: [],
+          actualOutput: null,
+          errorOccurred: null,
         };
+        const context = vm.createContext(sandbox);
+        const script = new vm.Script(
+          `try{${code}; actualOutput = solution(${test.inputs.map((input) => JSON.stringify(input.value)).join(", ")});}catch(error){errorOccurred = error}`,
+        );
+        await script.runInContext(context, { timeout: 4000 });
 
-        let actualOutput;
-        let errorOccurred = null;
-
-        try {
-          actualOutput = await solution(...test.inputs.map((i) => i.value));
-        } catch (error) {
-          errorOccurred = error;
-        }
-
-        console.log = originalConsoleLog;
+        const { actualOutput, errorOccurred, logs } = sandbox;
 
         return {
           input: test.inputs,
           expectedOutput: test.expectedOutput,
           actualOutput,
-          passed: !errorOccurred && actualOutput === test.expectedOutput,
+          passed:
+            !errorOccurred && deepEqual(actualOutput, test.expectedOutput),
           logs: logs,
           error: errorOccurred
             ? { message: errorOccurred.message, stack: errorOccurred.stack }
@@ -102,7 +100,7 @@ const runConsumer = async () => {
           console.log("Execution Result:", JSON.stringify(result, null, 2));
 
           await producer.send({
-            topic: `nodejs-solution-topic`,
+            topic: "nodejs-solution-topic",
             messages: [
               {
                 value: JSON.stringify({
@@ -113,7 +111,7 @@ const runConsumer = async () => {
             ],
           });
 
-          console.log("Results sent to Kafka topic:", `nodejs-solution-topic`);
+          console.log("Results sent to Kafka topic:", " nodejs-solution-topic");
         } catch (parseError) {
           console.error("Error parsing or executing message:", parseError);
         }

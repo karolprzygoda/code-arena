@@ -14,6 +14,7 @@ type EditorButtonProps = {
   Icon: LucideIcon;
   tooltipMessage: string;
   tooltipSide?: "top" | "right" | "left" | "bottom";
+  iconWidth?: 1 | 2;
   label?: string;
 } & ButtonHTMLAttributes<HTMLButtonElement>;
 
@@ -22,6 +23,7 @@ const EditorButton = ({
   tooltipMessage,
   tooltipSide = "top",
   label,
+  iconWidth = 1,
   ...props
 }: EditorButtonProps) => {
   return (
@@ -33,9 +35,10 @@ const EditorButton = ({
             className={cn("flex h-auto items-center gap-2", props.className)}
           >
             <Icon
-              className={
-                "h-5 w-5 stroke-zinc-500 stroke-1 hover:stroke-zinc-400"
-              }
+              className={cn(
+                "h-5 w-5 stroke-zinc-500 hover:stroke-zinc-400",
+                iconWidth === 1 ? "stroke-1" : "stroke-2",
+              )}
             />
             {label}
           </button>

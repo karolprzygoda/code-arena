@@ -1,6 +1,6 @@
 "use server";
 
-import { TAuthSchema } from "@/schemas/schema";
+import { authSchema, TAuthSchema, userCodeSchema } from "@/schemas/schema";
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
@@ -9,39 +9,57 @@ import { Language, Submission } from "@prisma/client";
 import { pollSubmissionResult, sendKafkaMessage } from "@/lib/utils";
 
 export async function signIn(formData: TAuthSchema) {
-  const supabase = await createClient();
+  try {
+    const supabase = await createClient();
 
-  const data = {
-    email: formData.email,
-    password: formData.password,
-  };
+    const data = {
+      email: formData.email,
+      password: formData.password,
+    };
 
-  const { error } = await supabase.auth.signInWithPassword(data);
+    authSchema.parse(data);
 
-  if (error) {
-    throw new Error(error.message);
+    const { error } = await supabase.auth.signInWithPassword(data);
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    revalidatePath("/", "layout");
+    redirect("/");
+  } catch (error) {
+    console.error("Error in testChallenge:", error);
+    throw new Error(
+      "An unexpected error occurred try again or contact with support.",
+    );
   }
-
-  revalidatePath("/", "layout");
-  redirect("/");
 }
 
 export async function signUp(formData: TAuthSchema) {
-  const supabase = await createClient();
+  try {
+    const supabase = await createClient();
 
-  const data = {
-    email: formData.email,
-    password: formData.password,
-  };
+    const data = {
+      email: formData.email,
+      password: formData.password,
+    };
 
-  const { error } = await supabase.auth.signUp(data);
+    authSchema.parse(data);
 
-  if (error) {
-    throw new Error(error.message);
+    const { error } = await supabase.auth.signUp(data);
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    revalidatePath("/", "layout");
+    redirect("/");
+  } catch (error) {
+    console.error("Error in testChallenge:", error);
+    throw new Error(
+      "An unexpected error occurred try again or contact with support.",
+    );
   }
-
-  revalidatePath("/", "layout");
-  redirect("/");
 }
 
 export async function signInWithGithub() {
@@ -99,6 +117,12 @@ export async function testChallenge(
       redirect("/login");
     }
 
+    userCodeSchema.parse({
+      code,
+      language: language.toLowerCase(),
+      challengeId,
+    });
+
     const submission = await prismadb.submission.create({
       data: {
         code,
@@ -119,9 +143,18 @@ export async function testChallenge(
       },
     });
 
-    console.log("Producer connected to Kafka");
+    const languageTopicMap: Record<string, string> = {
+      javascript: "nodejs-submission-topic",
+      python: "python-submission-topic",
+    };
 
-    await sendKafkaMessage("nodejs-submission-topic", {
+    const topic = languageTopicMap[language.toLowerCase()];
+
+    if (!topic) {
+      throw new Error(`Unsupported language: ${language}`);
+    }
+
+    await sendKafkaMessage(topic, {
       submissionId: submission.id,
       code: code,
       testCases: challange!.testCases,
@@ -129,7 +162,7 @@ export async function testChallenge(
 
     console.log("Message sent successfully");
 
-    const result = await pollSubmissionResult(submission.id);
+    const result = await pollSubmissionResult(submission.id, language);
 
     return await prismadb.submission.update({
       where: {

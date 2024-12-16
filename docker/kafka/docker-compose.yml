@@ -24,9 +24,9 @@ services:
     networks:
       - kafka-network
 
-  consumer:
+  nodejs-consumer:
     build:
-      context: ./consumer
+      context: ./nodejs-consumer
       dockerfile: Dockerfile
     depends_on:
       - kafka
@@ -36,7 +36,22 @@ services:
     networks:
       - kafka-network
     deploy:
-      replicas: 5
+      replicas: 3
+
+  python-consumer:
+    build:
+      context: ./python-consumer
+      dockerfile: Dockerfile
+    depends_on:
+      - kafka
+    environment:
+      - KAFKA_BROKER=kafka:9093
+      - TOPIC_NAME=python-submission-topic
+      - OUTPUT_TOPIC=python-solution-topic
+    networks:
+      - kafka-network
+    deploy:
+      replicas: 3
 
 networks:
   kafka-network:

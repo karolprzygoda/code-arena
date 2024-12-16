@@ -50,6 +50,12 @@ const CodePanel = ({ defaultCode }: CodePanelProps) => {
             fontSize: Number(settings.fontSize),
             tabSize: Number(settings.tabSize),
             readOnly: isPending,
+            fontLigatures: true,
+            wordWrap: "on",
+            bracketPairColorization: {
+              enabled: true,
+            },
+            formatOnPaste: true,
           }}
           language={language}
         />

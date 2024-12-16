@@ -65,7 +65,7 @@ const EditorPage = async ({ params }: EditorPageParams) => {
           <div className={"flex items-center justify-between gap-4"}>
             <ChallangeSubmitButton
               defaultCode={data.defaultCode}
-              challangeId={data.id}
+              challengeId={data.id}
             />
           </div>
         </PanelFooter>
