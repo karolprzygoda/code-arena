@@ -36,39 +36,33 @@ const SignIn = () => {
   });
 
   const onSubmit = async (data: TAuthSchema) => {
-    try {
-      await signIn(data);
-    } catch (error) {
+    const error = await signIn(data);
+    if (error) {
       toast({
         title: "Authentication Error",
-        description:
-          error instanceof Error ? error.message : "An unknown error occurred",
+        description: error.message,
         variant: "destructive",
       });
     }
   };
 
   const onGithubSignIn = async () => {
-    try {
-      await signInWithGithub();
-    } catch (error) {
+    const error = await signInWithGithub();
+    if (error) {
       toast({
         title: "Authentication Error",
-        description:
-          error instanceof Error ? error.message : "An unknown error occurred",
+        description: error.message,
         variant: "destructive",
       });
     }
   };
 
   async function onGoogleSignIn() {
-    try {
-      await signInWithGoogle();
-    } catch (error) {
+    const error = await signInWithGoogle();
+    if (error) {
       toast({
         title: "Authentication Error",
-        description:
-          error instanceof Error ? error.message : "An unknown error occurred",
+        description: error.message,
         variant: "destructive",
       });
     }

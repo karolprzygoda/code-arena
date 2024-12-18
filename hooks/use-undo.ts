@@ -3,7 +3,7 @@ import { useCallback, useEffect, useState } from "react";
 export const useUndo = (itemToUndoSetter: (value: string) => void) => {
   const [, setHistory] = useState<string[]>([""]);
 
-  const handleUndo = useCallback(
+  const undo = useCallback(
     (event: KeyboardEvent) => {
       if (event.ctrlKey && event.key === "z") {
         setHistory((prevHistory) => {
@@ -20,12 +20,24 @@ export const useUndo = (itemToUndoSetter: (value: string) => void) => {
     [itemToUndoSetter],
   );
 
+  const handleUndo = () => {
+    setHistory((prevHistory) => {
+      if (prevHistory.length > 1) {
+        const newHistory = [...prevHistory];
+        newHistory.pop();
+        itemToUndoSetter(newHistory[newHistory.length - 1]);
+        return newHistory;
+      }
+      return prevHistory;
+    });
+  };
+
   useEffect(() => {
-    window.addEventListener("keydown", handleUndo);
+    window.addEventListener("keydown", undo);
     return () => {
-      window.removeEventListener("keydown", handleUndo);
+      window.removeEventListener("keydown", undo);
     };
-  }, [handleUndo]);
+  }, [undo]);
 
   const addToHistory = (newItem: string) => {
     setHistory((prevHistory) => {
@@ -36,5 +48,5 @@ export const useUndo = (itemToUndoSetter: (value: string) => void) => {
     });
   };
 
-  return { addToHistory };
+  return { addToHistory, handleUndo };
 };

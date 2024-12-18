@@ -9,57 +9,51 @@ import { Language, Submission } from "@prisma/client";
 import { pollSubmissionResult, sendKafkaMessage } from "@/lib/utils";
 
 export async function signIn(formData: TAuthSchema) {
-  try {
-    const supabase = await createClient();
+  const supabase = await createClient();
 
-    const data = {
-      email: formData.email,
-      password: formData.password,
-    };
+  const data = {
+    email: formData.email,
+    password: formData.password,
+  };
 
-    authSchema.parse(data);
+  const validatedAuthData = authSchema.safeParse(data);
 
-    const { error } = await supabase.auth.signInWithPassword(data);
-
-    if (error) {
-      throw new Error(error.message);
-    }
-
-    revalidatePath("/", "layout");
-    redirect("/");
-  } catch (error) {
-    console.error("Error in testChallenge:", error);
-    throw new Error(
-      "An unexpected error occurred try again or contact with support.",
-    );
+  if (!validatedAuthData.success) {
+    return validatedAuthData.error.errors[0];
   }
+
+  const { error } = await supabase.auth.signInWithPassword(data);
+
+  if (error) {
+    return error;
+  }
+
+  revalidatePath("/", "layout");
+  redirect("/");
 }
 
 export async function signUp(formData: TAuthSchema) {
-  try {
-    const supabase = await createClient();
+  const supabase = await createClient();
 
-    const data = {
-      email: formData.email,
-      password: formData.password,
-    };
+  const data = {
+    email: formData.email,
+    password: formData.password,
+  };
 
-    authSchema.parse(data);
+  const validatedAuthData = authSchema.safeParse(data);
 
-    const { error } = await supabase.auth.signUp(data);
-
-    if (error) {
-      throw new Error(error.message);
-    }
-
-    revalidatePath("/", "layout");
-    redirect("/");
-  } catch (error) {
-    console.error("Error in testChallenge:", error);
-    throw new Error(
-      "An unexpected error occurred try again or contact with support.",
-    );
+  if (!validatedAuthData.success) {
+    return validatedAuthData.error.errors[0];
   }
+
+  const { error } = await supabase.auth.signUp(data);
+
+  if (error) {
+    return error;
+  }
+
+  revalidatePath("/", "layout");
+  redirect("/");
 }
 
 export async function signInWithGithub() {
@@ -72,7 +66,7 @@ export async function signInWithGithub() {
   });
 
   if (error) {
-    throw new Error(error.message);
+    return error;
   }
 
   if (data.url) {
@@ -94,7 +88,7 @@ export async function signInWithGoogle() {
   });
 
   if (error) {
-    throw new Error(error.message);
+    return error;
   }
   if (data.url) {
     redirect(data.url);

@@ -6,7 +6,7 @@ const MAX_SIZE_BYTES = MAX_SIZE_KB * 1024;
 export const authSchema = z.object({
   email: z
     .string({ required_error: "Email is required" })
-    .email("Email hast to be valid."),
+    .email("Email has to be valid."),
   password: z
     .string({ required_error: "Password is required" })
     .min(8, { message: "Password must be at least 8 characters long." })

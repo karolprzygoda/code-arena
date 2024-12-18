@@ -45,7 +45,10 @@ const TestsPanel = ({ tests }: TestsPanelProps) => {
       <ResizablePanel id={"test-panel"} defaultSize={30}>
         <div className="h-full overflow-y-auto p-4 dark:border-zinc-700 dark:bg-[#1e1e1e]">
           <TestTracker testsPassed={0} testsNumber={tests.length} />
-          <div className={"border p-4 dark:border-zinc-700"}>
+          <div
+            className={"overflow-auto border p-4 dark:border-zinc-700"}
+            style={{ scrollbarWidth: "thin" }}
+          >
             <pre className={"text-red-500"}>{globalError.stack}</pre>
           </div>
         </div>
