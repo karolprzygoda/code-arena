@@ -20,6 +20,18 @@ declare global {
   }
 }
 
+export type TypographyVariant =
+  | "bold"
+  | "italic"
+  | "strike"
+  | "inlineCode"
+  | "quote"
+  | "unorderedList"
+  | "orderedList"
+  | "h1"
+  | "h2"
+  | "h3";
+
 type SuccessSubmissionResponse = {
   success: true;
   testResults: PrismaJson.TestResultsType;
