@@ -1,4 +1,5 @@
 import { Language } from "@prisma/client";
+import { LucideIcon } from "lucide-react";
 
 declare global {
   namespace PrismaJson {
@@ -31,6 +32,14 @@ export type TypographyVariant =
   | "h1"
   | "h2"
   | "h3";
+
+export type TypographyAction = {
+  id: string;
+  label: string;
+  Icon: LucideIcon;
+  separator?: true;
+  onClick: () => void;
+};
 
 type SuccessSubmissionResponse = {
   success: true;

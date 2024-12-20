@@ -9,27 +9,26 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import EditorButton from "@/app/(root)/challange/_components/buttons/editor-button";
-import { LinkIcon } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { ChangeEvent, useState } from "react";
-import { useStore } from "zustand/index";
-import { useMarkdownEditorStore } from "@/stores/markdown-editor-store";
-import { useShallow } from "zustand/react/shallow";
 
-const AddMarkdownLinkButton = () => {
-  const { markdown, setMarkdown, textAreaElement } = useStore(
-    useMarkdownEditorStore,
-    useShallow((state) => ({
-      markdown: state.markdown,
-      setMarkdown: state.setMarkdown,
-      textAreaElement: state.textAreaElement,
-    })),
-  );
+type AddMarkdownLinkModalProps = {
+  isOpen: boolean;
+  onClose: () => void;
+  markdown: string;
+  setMarkdown: (updatedMarkdown: string) => void;
+  textAreaElement: HTMLTextAreaElement;
+};
 
+const AddMarkdownLinkModal = ({
+  isOpen,
+  onClose,
+  markdown,
+  setMarkdown,
+  textAreaElement,
+}: AddMarkdownLinkModalProps) => {
   const [url, setUrl] = useState("");
   const [anchorText, setAnchorText] = useState("");
 
@@ -55,10 +54,7 @@ const AddMarkdownLinkButton = () => {
   };
 
   return (
-    <AlertDialog>
-      <AlertDialogTrigger asChild>
-        <EditorButton iconWidth={2} Icon={LinkIcon} tooltipMessage={"Link"} />
-      </AlertDialogTrigger>
+    <AlertDialog open={isOpen}>
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>
@@ -89,7 +85,7 @@ const AddMarkdownLinkButton = () => {
           </div>
         </div>
         <AlertDialogFooter className={"mt-3"}>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogCancel onClick={onClose}>Cancel</AlertDialogCancel>
           <AlertDialogAction onClick={handleAddLink}>
             Continue
           </AlertDialogAction>
@@ -99,4 +95,4 @@ const AddMarkdownLinkButton = () => {
   );
 };
 
-export default AddMarkdownLinkButton;
+export default AddMarkdownLinkModal;

@@ -159,7 +159,7 @@ const SignIn = () => {
             </Button>
             <div className="mt-4 text-center text-sm">
               Don&apos;t have an account?{" "}
-              <Link href="/sign-up" className="underline">
+              <Link href="/(auth)/_components/sign-up" className="underline">
                 Sign Up
               </Link>
             </div>

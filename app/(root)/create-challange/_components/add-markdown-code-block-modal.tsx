@@ -9,10 +9,8 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import EditorButton from "@/app/(root)/challange/_components/buttons/editor-button";
-import { Code } from "lucide-react";
+
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -24,20 +22,22 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { ChangeEvent, useState } from "react";
 import { Language } from "@prisma/client";
-import { useStore } from "zustand/index";
-import { useMarkdownEditorStore } from "@/stores/markdown-editor-store";
-import { useShallow } from "zustand/react/shallow";
 
-const AddCodeBlockButton = () => {
-  const { markdown, setMarkdown, textAreaElement } = useStore(
-    useMarkdownEditorStore,
-    useShallow((state) => ({
-      markdown: state.markdown,
-      setMarkdown: state.setMarkdown,
-      textAreaElement: state.textAreaElement,
-    })),
-  );
+type AddCodeBlockModalProps = {
+  isOpen: boolean;
+  onClose: () => void;
+  markdown: string;
+  setMarkdown: (updatedMarkdown: string) => void;
+  textAreaElement: HTMLTextAreaElement;
+};
 
+const AddMarkdownCodeBlockModal = ({
+  isOpen,
+  onClose,
+  markdown,
+  setMarkdown,
+  textAreaElement,
+}: AddCodeBlockModalProps) => {
   const [code, setCode] = useState("");
   const [language, setLanguage] = useState<Lowercase<Language>>("javascript");
 
@@ -63,10 +63,7 @@ const AddCodeBlockButton = () => {
   };
 
   return (
-    <AlertDialog>
-      <AlertDialogTrigger asChild>
-        <EditorButton iconWidth={2} Icon={Code} tooltipMessage={"Code"} />
-      </AlertDialogTrigger>
+    <AlertDialog open={isOpen}>
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>Please provide code and language.</AlertDialogTitle>
@@ -107,7 +104,7 @@ const AddCodeBlockButton = () => {
           </div>
         </div>
         <AlertDialogFooter className={"mt-3"}>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogCancel onClick={onClose}>Cancel</AlertDialogCancel>
           <AlertDialogAction onClick={handleAddCodeBlock}>
             Continue
           </AlertDialogAction>
@@ -117,4 +114,4 @@ const AddCodeBlockButton = () => {
   );
 };
 
-export default AddCodeBlockButton;
+export default AddMarkdownCodeBlockModal;
