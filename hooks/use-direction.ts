@@ -1,11 +1,11 @@
-import { useEffect, useState } from "react";
+import { useLayoutEffect, useState } from "react";
 
 const useDirection = () => {
   const [direction, setDirection] = useState<"horizontal" | "vertical">(
     "horizontal",
   );
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const handleResize = () => {
       setDirection(window.innerWidth < 1024 ? "vertical" : "horizontal");
     };

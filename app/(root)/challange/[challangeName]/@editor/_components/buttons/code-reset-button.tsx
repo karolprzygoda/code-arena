@@ -1,10 +1,9 @@
 "use client";
 
-import EditorButton from "@/app/(root)/challange/_components/buttons/editor-button";
+import EditorButton from "@/app/(root)/challange/[challangeName]/@editor/_components/buttons/editor-button";
 import { RotateCcw } from "lucide-react";
 import { useEditorStore } from "@/stores/editor-store";
 import { useShallow } from "zustand/react/shallow";
-import { useStore } from "zustand";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -41,8 +40,7 @@ const CodeResetButton = ({
   className,
   defaultCode,
 }: CodeResetButtonProps) => {
-  const { setCode, language } = useStore(
-    useEditorStore,
+  const { setCode, language } = useEditorStore(
     useShallow((state) => ({
       setCode: state.setCode,
       language: state.language,

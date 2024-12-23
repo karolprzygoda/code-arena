@@ -8,6 +8,10 @@ import {
 } from "react-syntax-highlighter/dist/cjs/styles/prism";
 import Markdown from "react-markdown";
 import { useTheme } from "next-themes";
+import remarkMath from "remark-math";
+import rehypeKatex from "rehype-katex";
+import "katex/dist/katex.min.css";
+import { Icons } from "@/components/icons";
 
 type MarkdownRendererProps = {
   markdown: string;
@@ -16,10 +20,24 @@ type MarkdownRendererProps = {
 const MarkdownRenderer = ({ markdown }: MarkdownRendererProps) => {
   const { resolvedTheme } = useTheme();
 
+  if (markdown === "") {
+    return (
+      <div
+        className={
+          "flex h-full w-full flex-col items-center justify-center gap-6"
+        }
+      >
+        <Icons.noData className={"h-56 w-56"} />
+        <p className={"text-2xl font-bold"}>Description is Empty</p>
+      </div>
+    );
+  }
+
   return (
     <Markdown
-      remarkPlugins={[remarkGfm]}
-      className="prose-invert overflow-y-auto p-4 leading-7"
+      remarkPlugins={[remarkGfm, remarkMath]}
+      rehypePlugins={[rehypeKatex]}
+      className="prose-invert overflow-y-auto leading-7"
       components={{
         h1: ({ ...props }) => (
           <h1 {...props} className="mb-2 pb-2 text-3xl font-bold" />
@@ -53,9 +71,26 @@ const MarkdownRenderer = ({ markdown }: MarkdownRendererProps) => {
             }
           />
         ),
+        table: ({ ...props }) => (
+          <table
+            className="w-full table-auto border-collapse border border-gray-400 text-left"
+            {...props}
+          />
+        ),
+        th: ({ ...props }) => (
+          <th
+            className="border border-gray-400 bg-zinc-200 px-4 py-2 dark:bg-zinc-700"
+            {...props}
+          />
+        ),
+        td: ({ ...props }) => (
+          <td className="border border-gray-400 px-4 py-2" {...props} />
+        ),
         code(props) {
           const { children, className, node, ref, ...rest } = props;
+
           const match = /language-(\w+)/.exec(className || "");
+
           return match ? (
             <SyntaxHighlighter
               {...rest}

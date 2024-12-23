@@ -5,11 +5,11 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Ellipsis } from "lucide-react";
-import CodeResetButton from "@/app/(root)/challange/_components/buttons/code-reset-button";
-import ShortcutButton from "@/app/(root)/challange/_components/buttons/shortcut-button";
-import SettingsButton from "@/app/(root)/challange/_components/buttons/settings-button";
-import SwitchLayoutButton from "@/app/(root)/challange/_components/buttons/switch-layout-button";
-import MaximizeEditorButton from "@/app/(root)/challange/_components/buttons/maximize-editor-button";
+import CodeResetButton from "@/app/(root)/challange/[challangeName]/@editor/_components/buttons/code-reset-button";
+import ShortcutButton from "@/app/(root)/challange/[challangeName]/@editor/_components/buttons/shortcut-button";
+import SettingsButton from "@/app/(root)/challange/[challangeName]/@editor/_components/buttons/settings-button";
+import SwitchLayoutButton from "@/app/(root)/challange/[challangeName]/@editor/_components/buttons/switch-layout-button";
+import MaximizeEditorButton from "@/app/(root)/challange/[challangeName]/@editor/_components/buttons/maximize-editor-button";
 
 type MobileEditorSettingsProps = {
   defaultCode: PrismaJson.DefaultCodeType;

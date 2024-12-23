@@ -42,4 +42,37 @@ export const userCodeSchema = z.object({
     .uuid({ message: "Challenge ID must be a positive integer" }),
 });
 
+const inputSchema = z
+  .object({
+    name: z.string().min(1, "Input name is required"),
+    value: z.string().min(1, "Input value is required"),
+  })
+  .array();
+
+const testCaseSchema = z.object({
+  inputs: inputSchema,
+  expectedOutput: z.string().min(1, "Expected output is required"),
+});
+
+export const createChallangeSchema = z.object({
+  description: z.string().min(1, "Description is required"),
+  challangeTitle: z
+    .string()
+    .min(1, "Challenge title is required")
+    .max(50, "Challenge title cannot exceed 50 characters"),
+  challangeDifficulty: z.enum(["EASY", "MEDIUM", "HARD"], {
+    errorMap: () => ({
+      message: "Please select a valid difficulty level (EASY, MEDIUM, HARD)",
+    }),
+  }),
+  challangeDescription: z
+    .string()
+    .min(1, "Challenge quick description is required")
+    .max(200, "Challenge description cannot exceed 200 characters"),
+  challangeTestCases: testCaseSchema
+    .array()
+    .min(5, "At least five test cases are required"),
+});
+
+export type TChallangeSchema = z.infer<typeof createChallangeSchema>;
 export type TAuthSchema = z.infer<typeof authSchema>;

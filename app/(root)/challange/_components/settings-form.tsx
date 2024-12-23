@@ -23,7 +23,6 @@ import {
 import { DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { useShallow } from "zustand/react/shallow";
-import { useStore } from "zustand";
 import { usePreferencesStore } from "@/stores/user-preferences-store";
 
 const formSchema = z.object({
@@ -36,8 +35,7 @@ export type FormSchema = z.infer<typeof formSchema>;
 export function SettingsForm() {
   const { toast } = useToast();
 
-  const { settings, updateSettings } = useStore(
-    usePreferencesStore,
+  const { settings, updateSettings } = usePreferencesStore(
     useShallow((state) => ({
       updateSettings: state.updateSettings,
       settings: state.settings,

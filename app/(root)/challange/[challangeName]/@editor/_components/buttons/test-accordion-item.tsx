@@ -1,7 +1,7 @@
-import TestAccordionTrigger from "@/app/(root)/challange/_components/buttons/test-accordion-trigger";
+import TestAccordionTrigger from "@/app/(root)/challange/[challangeName]/@editor/_components/buttons/test-accordion-trigger";
 import { AccordionContent, AccordionItem } from "@/components/ui/accordion";
 import { Tabs, TabsContent, TabsList } from "@/components/ui/tabs";
-import TestTabTrigger from "@/app/(root)/challange/_components/buttons/test-tab-trigger";
+import TestTabTrigger from "@/app/(root)/challange/[challangeName]/@editor/_components/buttons/test-tab-trigger";
 import {
   ResizableHandle,
   ResizablePanel,

@@ -13,8 +13,8 @@ import { cn } from "@/lib/utils";
 
 import PanelWrapper from "@/app/(root)/challange/_components/panel-wrapper";
 import PanelHeader from "@/app/(root)/challange/_components/panel-header";
-import ChallangeGroupLink from "@/app/(root)/challange/_components/buttons/challange-group-link";
-import ChallangeNavigator from "@/app/(root)/challange/_components/buttons/challange-navigator";
+import ChallangeGroupLink from "@/app/(root)/challange/[challangeName]/@resources/_components/challange-group-link";
+import ChallangeNavigator from "@/app/(root)/challange/[challangeName]/@resources/_components/challange-navigator";
 import TabTrigger from "@/app/(root)/challange/[challangeName]/@resources/_components/tab-trigger";
 import TabContentWrapper from "@/app/(root)/challange/[challangeName]/@resources/_components/tab-content-wrapper";
 
@@ -62,7 +62,7 @@ const ResourcesPanelWrapper = ({
       onExpand={() => setIsCollapsed(false)}
       defaultSize={50}
     >
-      <PanelWrapper>
+      <PanelWrapper className={"overflow-y-hidden"}>
         <PanelHeader
           className={cn(isCollapsed && direction === "vertical" && "hidden")}
         >

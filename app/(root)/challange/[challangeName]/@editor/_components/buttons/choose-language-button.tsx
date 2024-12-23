@@ -11,12 +11,10 @@ import { useShallow } from "zustand/react/shallow";
 import { Button } from "@/components/ui/button";
 import { ChevronDown } from "lucide-react";
 import { Icons } from "@/components/icons";
-import { useStore } from "zustand";
 import { Language } from "@prisma/client";
 
 const ChooseLanguageButton = () => {
-  const { language } = useStore(
-    useEditorStore,
+  const { language } = useEditorStore(
     useShallow((state) => ({
       language: state.language,
     })),
@@ -53,8 +51,7 @@ type DropdownButtonProps = {
 };
 
 const DropdownButton = ({ language }: DropdownButtonProps) => {
-  const { setLanguage } = useStore(
-    useEditorStore,
+  const { setLanguage } = useEditorStore(
     useShallow((state) => ({
       setLanguage: state.setLanguage,
     })),

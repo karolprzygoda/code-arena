@@ -1,11 +1,7 @@
-import MarkdownEditor from "@/app/(root)/create-challange/_components/markdown-editor";
+import CreateChallangeForm from "@/app/(root)/create-challange/_components/create-challange-form";
 
 const CreateChallangePage = () => {
-  return (
-    <div className={"h-full w-full px-4 pb-4"}>
-      <MarkdownEditor />
-    </div>
-  );
+  return <CreateChallangeForm />;
 };
 
 export default CreateChallangePage;

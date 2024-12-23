@@ -4,7 +4,6 @@ import { TabsTrigger } from "@/components/ui/tabs";
 import { ReactNode, useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import { useShallow } from "zustand/react/shallow";
-import { useStore } from "zustand/index";
 import { useTestResultsStore } from "@/stores/tests-results-store";
 
 type TestTabTriggerProps = {
@@ -19,8 +18,7 @@ const TestTabTrigger = ({
   notification,
 }: TestTabTriggerProps) => {
   const [visited, setVisited] = useState(false);
-  const { testsResults } = useStore(
-    useTestResultsStore,
+  const { testsResults } = useTestResultsStore(
     useShallow((state) => ({
       testsResults: state.testsResults,
     })),

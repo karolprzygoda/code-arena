@@ -2,7 +2,6 @@
 
 import { Button } from "@/components/ui/button";
 import { testChallenge } from "@/actions/actions";
-import { useStore } from "zustand/index";
 import { useEditorStore } from "@/stores/editor-store";
 import { useShallow } from "zustand/react/shallow";
 import { toast } from "@/hooks/use-toast";
@@ -21,8 +20,7 @@ const ChallangeSubmitButton = ({
   challengeId,
   defaultCode,
 }: ChallangeSubmitButtonProps) => {
-  const { code, language, isPending, setIsPending } = useStore(
-    useEditorStore,
+  const { code, language, isPending, setIsPending } = useEditorStore(
     useShallow((state) => ({
       code: state.code,
       language: state.language,
@@ -30,9 +28,7 @@ const ChallangeSubmitButton = ({
       setIsPending: state.setIsPending,
     })),
   );
-
-  const { setTestsResults, setGlobalError } = useStore(
-    useTestResultsStore,
+  const { setTestsResults, setGlobalError } = useTestResultsStore(
     useShallow((state) => ({
       setTestsResults: state.setTestsResults,
       setGlobalError: state.setGlobalError,

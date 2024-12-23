@@ -2,29 +2,26 @@
 
 import { ResizablePanel } from "@/components/ui/resizable";
 import { Accordion } from "@/components/ui/accordion";
-import { useStore } from "zustand/index";
 import { useTestResultsStore } from "@/stores/tests-results-store";
 import { useShallow } from "zustand/react/shallow";
 import TestTracker from "@/app/(root)/challange/[challangeName]/@editor/_components/test-tracker";
 import { useEditorStore } from "@/stores/editor-store";
 import { Icons } from "@/components/icons";
-import TestAccordionItem from "@/app/(root)/challange/[challangeName]/@editor/_components/test-accordion-item";
+import TestAccordionItem from "@/app/(root)/challange/[challangeName]/@editor/_components/buttons/test-accordion-item";
 
 type TestsPanelProps = {
   tests: PrismaJson.TestCasesType;
 };
 
 const TestsPanel = ({ tests }: TestsPanelProps) => {
-  const { testsResults, globalError } = useStore(
-    useTestResultsStore,
+  const { testsResults, globalError } = useTestResultsStore(
     useShallow((state) => ({
       testsResults: state.testsResults,
       globalError: state.globalError,
     })),
   );
 
-  const { isPending } = useStore(
-    useEditorStore,
+  const { isPending } = useEditorStore(
     useShallow((state) => ({
       isPending: state.isPending,
     })),

@@ -39,8 +39,6 @@ model Challenge {
   testCases   Json
   createdAt   DateTime     @default(now())
   submissions Submission[]
-  /// [DefaultCodeType]
-  defaultCode Json
 }
 
 model Submission {

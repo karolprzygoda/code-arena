@@ -6,7 +6,6 @@ import { useTheme } from "next-themes";
 import PanelWrapper from "@/app/(root)/challange/_components/panel-wrapper";
 import { useEditorStore } from "@/stores/editor-store";
 import { useShallow } from "zustand/react/shallow";
-import { useStore } from "zustand";
 import { usePreferencesStore } from "@/stores/user-preferences-store";
 import { useEffect } from "react";
 
@@ -16,8 +15,7 @@ type CodePanelProps = {
 
 const CodePanel = ({ defaultCode }: CodePanelProps) => {
   const { resolvedTheme } = useTheme();
-  const { code, language, setCode, isPending } = useStore(
-    useEditorStore,
+  const { code, language, setCode, isPending } = useEditorStore(
     useShallow((state) => ({
       code: state.code,
       language: state.language,
@@ -26,8 +24,7 @@ const CodePanel = ({ defaultCode }: CodePanelProps) => {
     })),
   );
 
-  const { settings } = useStore(
-    usePreferencesStore,
+  const { settings } = usePreferencesStore(
     useShallow((state) => ({
       settings: state.settings,
     })),

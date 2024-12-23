@@ -1,6 +1,11 @@
 "use server";
 
-import { authSchema, TAuthSchema, userCodeSchema } from "@/schemas/schema";
+import {
+  authSchema,
+  TAuthSchema,
+  TChallangeSchema,
+  userCodeSchema,
+} from "@/schemas/schema";
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
@@ -170,6 +175,33 @@ export async function testChallenge(
     });
   } catch (error) {
     console.error("Error in testChallenge:", error);
+    throw new Error(
+      "An unexpected error occurred try again or contact with support.",
+    );
+  }
+}
+
+export async function createNewChallange(data: TChallangeSchema) {
+  try {
+    const processedTestCases = data.challangeTestCases.map((testCase) => ({
+      ...testCase,
+      inputs: testCase.inputs.map((input) => ({
+        ...input,
+        value: JSON.parse(input.value),
+      })),
+      expectedOutput: JSON.parse(testCase.expectedOutput),
+    }));
+
+    return await prismadb.challenge.create({
+      data: {
+        title: data.challangeTitle.split(" ").join("-").toLowerCase(),
+        description: data.description,
+        difficulty: data.challangeDifficulty,
+        testCases: processedTestCases,
+      },
+    });
+  } catch (error) {
+    console.error("Error in createNewChallange:", error);
     throw new Error(
       "An unexpected error occurred try again or contact with support.",
     );

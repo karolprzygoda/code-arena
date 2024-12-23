@@ -11,6 +11,7 @@ type State = {
     fontSize: string;
     tabSize: string;
   };
+  _hasHydrated: boolean;
 };
 
 type Actions = {
@@ -18,6 +19,7 @@ type Actions = {
   toggleLayout: () => void;
   setFullScreenElement: (fullScreenElement: HTMLDivElement) => void;
   setIsFullScreen: (isFullScreen: boolean) => void;
+  setHasHydrated: (_hasHydrated: boolean) => void;
 };
 
 export const usePreferencesStore = create<State & Actions>()(
@@ -31,6 +33,7 @@ export const usePreferencesStore = create<State & Actions>()(
       layout: "classic",
       fullScreenElement: null,
       isFullScreen: false,
+      _hasHydrated: false,
       toggleLayout: () => {
         set((state) => ({
           layout: state.layout === "classic" ? "reversed" : "classic",
@@ -47,6 +50,11 @@ export const usePreferencesStore = create<State & Actions>()(
           settings: { ...state.settings, ...newSettings },
         }));
       },
+      setHasHydrated: (_hasHydrated) => {
+        set({
+          _hasHydrated,
+        });
+      },
     }),
     {
       name: "user-preferences",
@@ -56,6 +64,9 @@ export const usePreferencesStore = create<State & Actions>()(
             ([key]) => !["fullScreenElement", "isFullScreen"].includes(key),
           ),
         ),
+      onRehydrateStorage: (state) => {
+        return () => state.setHasHydrated(true);
+      },
     },
   ),
 );

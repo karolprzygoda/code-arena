@@ -6,6 +6,11 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
+/*wierd overflow on site without this style*/
+.katex .katex-mathml {
+  display: none;
+}
+
 @layer base {
   :root {
     --background: 0 0% 100%;

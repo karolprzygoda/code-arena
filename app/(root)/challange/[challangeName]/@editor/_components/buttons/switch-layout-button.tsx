@@ -2,7 +2,7 @@
 
 import { useShallow } from "zustand/react/shallow";
 import { ArrowRightLeft } from "lucide-react";
-import EditorButton from "@/app/(root)/challange/_components/buttons/editor-button";
+import EditorButton from "@/app/(root)/challange/[challangeName]/@editor/_components/buttons/editor-button";
 import { usePreferencesStore } from "@/stores/user-preferences-store";
 
 type SwitchLayoutButtonProps = {

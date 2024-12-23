@@ -9,7 +9,7 @@ const TabContentWrapper = ({ value, children }: TabContentWrapperProps) => {
   return (
     <TabsContent
       value={value}
-      className={"h-full w-full overflow-y-auto px-4 pb-36 pt-3 outline-none"}
+      className={"m-0 h-full w-full overflow-y-hidden outline-none"}
     >
       {children}
     </TabsContent>
