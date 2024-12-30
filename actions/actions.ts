@@ -262,3 +262,103 @@ export async function createNewChallenge(data: TChallengeSchema) {
     );
   }
 }
+
+export async function upVoteChallenge(challengeId: string) {
+  try {
+    const supabase = await createClient();
+
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser();
+
+    if (authError) throw authError;
+    if (!user) throw new Error("Unauthenticated: Please log in to vote.");
+
+    const existingVote = await prismadb.votes.findFirst({
+      where: {
+        challengeId: challengeId,
+        user_id: user.id,
+      },
+    });
+
+    if (existingVote) {
+      await prismadb.votes.delete({
+        where: {
+          id: existingVote.id,
+        },
+      });
+
+      if (existingVote.voteType !== "LIKE") {
+        await prismadb.votes.create({
+          data: {
+            challengeId: challengeId,
+            user_id: user.id,
+            voteType: "LIKE",
+          },
+        });
+      }
+    } else {
+      await prismadb.votes.create({
+        data: {
+          challengeId: challengeId,
+          user_id: user.id,
+          voteType: "LIKE",
+        },
+      });
+    }
+  } catch (error) {
+    console.error("Error in upVoteChallenge:", error);
+    throw new Error("An error occurred while voting. Please try again.");
+  }
+}
+
+export async function downVoteChallenge(challengeId: string) {
+  try {
+    const supabase = await createClient();
+
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser();
+
+    if (authError) throw authError;
+    if (!user) throw new Error("Unauthenticated: Please log in to vote.");
+
+    const existingVote = await prismadb.votes.findFirst({
+      where: {
+        challengeId: challengeId,
+        user_id: user.id,
+      },
+    });
+
+    if (existingVote) {
+      await prismadb.votes.delete({
+        where: {
+          id: existingVote.id,
+        },
+      });
+
+      if (existingVote.voteType !== "DISLIKE") {
+        await prismadb.votes.create({
+          data: {
+            challengeId: challengeId,
+            user_id: user.id,
+            voteType: "DISLIKE",
+          },
+        });
+      }
+    } else {
+      await prismadb.votes.create({
+        data: {
+          challengeId: challengeId,
+          user_id: user.id,
+          voteType: "DISLIKE",
+        },
+      });
+    }
+  } catch (error) {
+    console.error("Error in downVoteChallenge:", error);
+    throw new Error("An error occurred while voting. Please try again.");
+  }
+}

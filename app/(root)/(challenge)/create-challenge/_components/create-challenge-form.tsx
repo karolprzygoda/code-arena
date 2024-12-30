@@ -80,9 +80,9 @@ const CreateChallengeForm = () => {
   });
 
   async function onSubmit(data: TChallengeSchema) {
-    const challenge = await createNewChallenge(data);
+    try {
+      const challenge = await createNewChallenge(data);
 
-    if (challenge) {
       toast({
         variant: "success",
         title: "Success",
@@ -91,7 +91,7 @@ const CreateChallengeForm = () => {
 
       useMarkdownEditorStore.getState().setMarkdown("");
       router.push(`/challenge/${challenge.title}`);
-    } else {
+    } catch (error) {
       toast({
         variant: "destructive",
         title: "Error",

@@ -10,13 +10,14 @@ import DislikeButton from "@/app/(root)/(challenge)/challenge/[challengeName]/@r
 import ShareChallengeButton from "@/app/(root)/(challenge)/challenge/[challengeName]/@resources/_components/share-challenge-button";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import VotesStoreProvider from "@/app/(root)/(challenge)/challenge/[challengeName]/@resources/_components/votes-store-provider";
 
 type DescriptionPageProps = {
   params: Promise<{ challengeName: string }>;
 };
 
 const DescriptionPage = async ({ params }: DescriptionPageProps) => {
-  const data = await prismadb.challenge.findFirst({
+  const challengeData = await prismadb.challenge.findFirst({
     where: {
       title: (await params).challengeName.split(" ").join("-").toLowerCase(),
     },
@@ -26,10 +27,11 @@ const DescriptionPage = async ({ params }: DescriptionPageProps) => {
       createdAt: true,
       creatorId: true,
       difficulty: true,
+      id: true,
     },
   });
 
-  if (!data) {
+  if (!challengeData) {
     notFound();
   }
 
@@ -39,7 +41,7 @@ const DescriptionPage = async ({ params }: DescriptionPageProps) => {
   const {
     data: { user: challengeAuthor },
     error: getChallengeAuthorError,
-  } = await supabaseAdminClient.auth.admin.getUserById(data.creatorId);
+  } = await supabaseAdminClient.auth.admin.getUserById(challengeData.creatorId);
 
   const {
     data: { user: signedUser },
@@ -54,14 +56,36 @@ const DescriptionPage = async ({ params }: DescriptionPageProps) => {
     throw getChallengeAuthorError;
   }
 
-  const hasUserSolveChallenge = await prismadb.submission.findFirst({
+  const hasUserSolvedChallenge = await prismadb.submission.findFirst({
     where: {
       status: "SUCCESS",
       userId: signedUser?.id,
     },
   });
 
-  const title = data.title
+  const votes = await prismadb.votes.findMany({
+    where: {
+      challengeId: challengeData.id,
+    },
+    select: {
+      voteType: true,
+    },
+  });
+
+  const likes = votes.filter((vote) => vote.voteType === "LIKE");
+  const disLikes = votes.filter((vote) => vote.voteType === "DISLIKE");
+
+  const userVote = await prismadb.votes.findFirst({
+    where: {
+      challengeId: challengeData.id,
+      user_id: signedUser.id,
+    },
+    select: {
+      voteType: true,
+    },
+  });
+
+  const title = challengeData.title
     .split("-")
     .map((item) => item.slice(0, 1).toUpperCase() + item.slice(1))
     .join(" ");
@@ -92,19 +116,28 @@ const DescriptionPage = async ({ params }: DescriptionPageProps) => {
         </div>
         <div className={"mt-2 flex flex-wrap gap-2"}>
           <Badge
-            className={cn("rounded-2xl", difficultyColorMap[data.difficulty])}
+            className={cn(
+              "rounded-2xl",
+              difficultyColorMap[challengeData.difficulty],
+            )}
           >
-            {data.difficulty}
+            {challengeData.difficulty}
           </Badge>
-          {hasUserSolveChallenge && (
+          {hasUserSolvedChallenge && (
             <CircleCheck className={"flex-shrink-0 text-green-500"} />
           )}
-          <LikeButton />
-          <DislikeButton />
+          <VotesStoreProvider
+            vote={userVote ? userVote.voteType : null}
+            likes={likes.length}
+            dislikes={disLikes.length}
+          >
+            <LikeButton challengeId={challengeData.id} />
+            <DislikeButton challengeId={challengeData.id} />
+          </VotesStoreProvider>
           <ShareChallengeButton />
         </div>
       </div>
-      <MarkdownRenderer markdown={data.description} />
+      <MarkdownRenderer markdown={challengeData.description} />
     </div>
   );
 };
