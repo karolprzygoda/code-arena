@@ -40,6 +40,13 @@ export default {
           DEFAULT: "hsl(var(--destructive))",
           foreground: "hsl(var(--destructive-foreground))",
         },
+        difficulty: {
+          beginner: "hsl(var(--difficulty-beginner))",
+          easy: "hsl(var(--difficulty-easy))",
+          medium: "hsl(var(--difficulty-medium))",
+          hard: "hsl(var(--difficulty-hard))",
+          extreme: "hsl(var(--difficulty-extreme))",
+        },
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",

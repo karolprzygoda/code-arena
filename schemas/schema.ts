@@ -38,7 +38,7 @@ export const userCodeSchema = z.object({
     errorMap: () => ({ message: "Invalid language selected" }),
   }),
   challengeId: z
-    .string({ required_error: "Challange ID is required" })
+    .string({ required_error: "Challenge ID is required" })
     .uuid({ message: "Challenge ID must be a positive integer" }),
 });
 
@@ -49,30 +49,39 @@ const inputSchema = z
   })
   .array();
 
-const testCaseSchema = z.object({
-  inputs: inputSchema,
-  expectedOutput: z.string().min(1, "Expected output is required"),
-});
+export const testCasesSchema = z
+  .object({
+    inputs: inputSchema,
+    expectedOutput: z.string().min(1, "Expected output is required"),
+    hidden: z.boolean(),
+  })
+  .array();
 
-export const createChallangeSchema = z.object({
-  description: z.string().min(1, "Description is required"),
-  challangeTitle: z
+export const createChallengeSchema = z.object({
+  challengeDescription: z.string().min(1, "Description is required"),
+  challengeTitle: z
     .string()
     .min(1, "Challenge title is required")
     .max(50, "Challenge title cannot exceed 50 characters"),
-  challangeDifficulty: z.enum(["EASY", "MEDIUM", "HARD"], {
+  challengeDifficulty: z.enum(["EASY", "MEDIUM", "HARD"], {
     errorMap: () => ({
       message: "Please select a valid difficulty level (EASY, MEDIUM, HARD)",
     }),
   }),
-  challangeDescription: z
+  challengeSnippetDescription: z
     .string()
     .min(1, "Challenge quick description is required")
     .max(200, "Challenge description cannot exceed 200 characters"),
-  challangeTestCases: testCaseSchema
-    .array()
-    .min(5, "At least five test cases are required"),
+  challengeTestCases: testCasesSchema
+    .min(5, "At least five test cases are required")
+    .refine(
+      (testCases) => testCases.filter((test) => test.hidden).length >= 2,
+      {
+        message: "At least two hidden test cases are required",
+      },
+    ),
 });
 
-export type TChallangeSchema = z.infer<typeof createChallangeSchema>;
+export type TTestCasesSchema = z.infer<typeof testCasesSchema>;
+export type TChallengeSchema = z.infer<typeof createChallengeSchema>;
 export type TAuthSchema = z.infer<typeof authSchema>;

@@ -31,14 +31,16 @@ enum Status {
 }
 
 model Challenge {
-  id          String       @id @default(uuid())
-  title       String       @unique
-  description String
-  difficulty  Difficulty
+  id                 String       @id @default(uuid())
+  title              String       @unique
+  description        String
+  descriptionSnippet String
+  difficulty         Difficulty
   /// [TestCasesType]
-  testCases   Json
-  createdAt   DateTime     @default(now())
-  submissions Submission[]
+  testCases          Json
+  createdAt          DateTime     @default(now())
+  creatorId          String
+  submissions        Submission[]
 }
 
 model Submission {

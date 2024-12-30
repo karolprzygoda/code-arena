@@ -14,7 +14,9 @@ type Actions = {
 
 export const useTestResultsStore = create<State & Actions>()((set) => ({
   testsResults: [],
+  hiddenTestsResults: [],
   globalError: null,
+  testsResizablePanel: null,
   setTestsResults: (testsResults) => {
     set({
       testsResults,

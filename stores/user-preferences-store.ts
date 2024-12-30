@@ -22,7 +22,7 @@ type Actions = {
   setHasHydrated: (_hasHydrated: boolean) => void;
 };
 
-export const usePreferencesStore = create<State & Actions>()(
+export const useUserPreferencesStore = create<State & Actions>()(
   persist(
     (set) => ({
       settings: {

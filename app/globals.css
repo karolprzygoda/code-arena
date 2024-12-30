@@ -11,6 +11,10 @@ body {
   display: none;
 }
 
+.scrollbar-thin {
+  scrollbar-width: thin;
+}
+
 @layer base {
   :root {
     --background: 0 0% 100%;
@@ -38,6 +42,11 @@ body {
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
     --radius: 0.5rem;
+    --difficulty-beginner: 201 96% 32%;
+    --difficulty-easy: 150 100% 25%;
+    --difficulty-medium: 35 92% 33%;
+    --difficulty-hard: 0 72% 51%;
+    --difficulty-extreme: 262 83% 58%;
   }
   .dark {
     --background: 240 10% 3.9%;
@@ -64,6 +73,11 @@ body {
     --chart-3: 30 80% 55%;
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
+    --difficulty-beginner: 199 69% 72%;
+    --difficulty-easy: 142 77% 73%;
+    --difficulty-medium: 31 86% 60%;
+    --difficulty-hard: 0 91% 71%;
+    --difficulty-extreme: 269 97% 85%;
   }
 }
 

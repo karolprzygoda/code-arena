@@ -1,5 +1,5 @@
-import Header from "@/components/header/header";
 import { ReactNode } from "react";
+import Header from "@/components/header/header";
 
 type RootLayout = {
   children: Readonly<ReactNode>;
@@ -9,9 +9,7 @@ const RootLayout = ({ children }: RootLayout) => {
   return (
     <>
       <Header />
-      <main className={"flex h-full w-full flex-col overflow-hidden"}>
-        {children}
-      </main>
+      <main className={"h-full w-full px-4 pb-4"}>{children}</main>
     </>
   );
 };

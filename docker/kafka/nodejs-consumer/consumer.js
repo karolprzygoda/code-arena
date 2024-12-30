@@ -55,6 +55,7 @@ const executeCode = async (code, tests) => {
           error: errorOccurred
             ? { message: errorOccurred.message, stack: errorOccurred.stack }
             : null,
+          hidden: test.hidden,
         };
       }),
     );

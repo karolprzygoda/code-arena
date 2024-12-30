@@ -8,8 +8,9 @@ declare global {
     type TestCasesType = {
       inputs: InputType[];
       expectedOutput: unknown;
+      hidden: boolean;
     }[];
-    type DefaultCodeType = Record<Lowercase<Language>, string>;
+    export type DefaultCodeType = Record<Lowercase<Language>, string>;
     type TestResultsType = {
       input: unknown;
       expectedOutput: unknown;
@@ -17,6 +18,7 @@ declare global {
       passed: boolean;
       logs: string[];
       error?: ErrorType | null;
+      hidden: boolean;
     }[];
   }
 }

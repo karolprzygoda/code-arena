@@ -2,8 +2,9 @@
 
 import {
   authSchema,
+  createChallengeSchema,
   TAuthSchema,
-  TChallangeSchema,
+  TChallengeSchema,
   userCodeSchema,
 } from "@/schemas/schema";
 import { createClient } from "@/lib/supabase/server";
@@ -12,6 +13,7 @@ import { redirect } from "next/navigation";
 import prismadb from "@/lib/prismadb";
 import { Language, Submission } from "@prisma/client";
 import { pollSubmissionResult, sendKafkaMessage } from "@/lib/utils";
+import { AuthError } from "@supabase/auth-js";
 
 export async function signIn(formData: TAuthSchema) {
   const supabase = await createClient();
@@ -133,7 +135,7 @@ export async function testChallenge(
       },
     });
 
-    const challange = await prismadb.challenge.findFirst({
+    const challenge = await prismadb.challenge.findFirst({
       where: {
         id: challengeId,
       },
@@ -156,14 +158,14 @@ export async function testChallenge(
     await sendKafkaMessage(topic, {
       submissionId: submission.id,
       code: code,
-      testCases: challange!.testCases,
+      testCases: challenge!.testCases,
     });
 
     console.log("Message sent successfully");
 
     const result = await pollSubmissionResult(submission.id, language);
 
-    return await prismadb.submission.update({
+    const data = await prismadb.submission.update({
       where: {
         id: submission.id,
       },
@@ -173,6 +175,30 @@ export async function testChallenge(
         globalError: result.globalError,
       },
     });
+
+    const sanitizedTestResults = data.testResults
+      .map((testResult) =>
+        testResult.hidden
+          ? {
+              input: null,
+              expectedOutput: null,
+              actualOutput: null,
+              passed: testResult.passed,
+              logs: [],
+              error: null,
+              hidden: testResult.hidden,
+            }
+          : testResult,
+      )
+      .sort((a, b) => {
+        if (a.hidden === b.hidden) return 0;
+        return a.hidden ? 1 : -1;
+      });
+
+    return {
+      ...data,
+      testResults: sanitizedTestResults,
+    };
   } catch (error) {
     console.error("Error in testChallenge:", error);
     throw new Error(
@@ -181,9 +207,11 @@ export async function testChallenge(
   }
 }
 
-export async function createNewChallange(data: TChallangeSchema) {
+export async function createNewChallenge(data: TChallengeSchema) {
   try {
-    const processedTestCases = data.challangeTestCases.map((testCase) => ({
+    createChallengeSchema.parse(data);
+
+    const processedTestCases = data.challengeTestCases.map((testCase) => ({
       ...testCase,
       inputs: testCase.inputs.map((input) => ({
         ...input,
@@ -192,16 +220,43 @@ export async function createNewChallange(data: TChallangeSchema) {
       expectedOutput: JSON.parse(testCase.expectedOutput),
     }));
 
+    const supabase = await createClient();
+
+    const {
+      data: { user },
+      error,
+    } = await supabase.auth.getUser();
+
+    if (error) {
+      console.error("Authentication error:", error.message);
+      throw new AuthError(
+        "Authentication failed. Please log in and try again.",
+      );
+    }
+
+    if (!user) {
+      console.error("No user found.");
+      throw new AuthError(
+        "You are not authenticated. Please log in to proceed.",
+      );
+    }
+
     return await prismadb.challenge.create({
       data: {
-        title: data.challangeTitle.split(" ").join("-").toLowerCase(),
-        description: data.description,
-        difficulty: data.challangeDifficulty,
+        title: data.challengeTitle.split(" ").join("-").toLowerCase(),
+        description: data.challengeDescription,
+        descriptionSnippet: data.challengeSnippetDescription,
+        difficulty: data.challengeDifficulty,
         testCases: processedTestCases,
+        creatorId: user.id,
       },
     });
   } catch (error) {
-    console.error("Error in createNewChallange:", error);
+    console.log(error);
+    if (error instanceof AuthError) {
+      console.error("Error in createNewChallenge:", error);
+      redirect("/login");
+    }
     throw new Error(
       "An unexpected error occurred try again or contact with support.",
     );

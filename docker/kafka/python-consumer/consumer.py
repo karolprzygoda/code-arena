@@ -30,23 +30,6 @@ def execute_in_sandbox(code, inputs, return_dict):
             message = " ".join(map(str, args))
             logs.append(message)
 
-#     # Ogranicz dostępne funkcje w globalnym zasięgu
-#     sandbox_globals = {
-#         "__builtins__": {
-#             "abs": abs,
-#             "all": all,
-#             "any": any,
-#             "len": len,
-#             "max": max,
-#             "min": min,
-#             "sum": sum,
-#             "range": range,
-#             "enumerate": enumerate,
-#             "zip": zip,
-#             "print": custom_print  # Zezwól na użycie funkcji print
-#         },
-#         "solution": None  # Miejsce na funkcję użytkownika
-#     }
 
     sandbox_globals = create_sandbox_globals()
 
@@ -97,6 +80,7 @@ def execute_code(code, tests, timeout=5):
                         "passed": False,
                         "logs": [],
                         "error": {"message": "Execution timed out", "stack": None},
+                        "hidden" : test["hidden"]
                     }
                 else:
                     result = {
@@ -106,6 +90,7 @@ def execute_code(code, tests, timeout=5):
                         "passed": return_dict.get("actual_output") == test["expectedOutput"],
                         "logs": return_dict.get("logs", []),
                         "error": return_dict.get("error"),
+                        "hidden" : test["hidden"]
                     }
 
             results.append(result)
@@ -122,6 +107,7 @@ def execute_code(code, tests, timeout=5):
                 "message": str(global_error),
                 "stack": traceback.format_exc(),
             },
+
         }
 
 def run_consumer():
