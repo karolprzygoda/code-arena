@@ -28,7 +28,7 @@ const TestCaseFormField = ({
   showRemoveButton,
 }: TestCaseFormFieldProps) => {
   const { fields, append, remove } = useFieldArray({
-    name: `challengeTestCases.${testCaseIndex}.inputs`,
+    name: `testCases.${testCaseIndex}.inputs`,
     control: form.control,
   });
 
@@ -52,7 +52,7 @@ const TestCaseFormField = ({
         <div className="space-y-4">
           <FormField
             control={form.control}
-            name={`challengeTestCases.${testCaseIndex}.hidden`}
+            name={`testCases.${testCaseIndex}.hidden`}
             render={({ field }) => (
               <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
                 <div className="space-y-0.5">
@@ -77,7 +77,7 @@ const TestCaseFormField = ({
             >
               <FormField
                 control={form.control}
-                name={`challengeTestCases.${testCaseIndex}.inputs.${inputIndex}.name`}
+                name={`testCases.${testCaseIndex}.inputs.${inputIndex}.name`}
                 render={({ field }) => (
                   <FormItem className="flex-1 space-y-2">
                     <FormLabel>Input Name</FormLabel>
@@ -90,7 +90,7 @@ const TestCaseFormField = ({
               />
               <FormField
                 control={form.control}
-                name={`challengeTestCases.${testCaseIndex}.inputs.${inputIndex}.value`}
+                name={`testCases.${testCaseIndex}.inputs.${inputIndex}.value`}
                 render={({ field }) => (
                   <FormItem className="flex-1 space-y-2">
                     <FormLabel>Input Value</FormLabel>
@@ -130,7 +130,7 @@ const TestCaseFormField = ({
         </div>
         <FormField
           control={form.control}
-          name={`challengeTestCases.${testCaseIndex}.expectedOutput`}
+          name={`testCases.${testCaseIndex}.expectedOutput`}
           render={({ field }) => (
             <FormItem className={"space-y-2"}>
               <FormLabel>Expected Output</FormLabel>

@@ -1,6 +1,6 @@
 "use client";
 
-import MarkdownEditorHeaderToolbar from "@/app/(root)/(challenge)/create-challenge/edit-description/_components/markdown-editor-header-toolbar";
+import MarkdownEditorHeaderToolbar from "@/app/(root)/(challenge)/_components/form-components/markdown-editor-header-toolbar";
 import React, { useRef, useState } from "react";
 import { ContextMenu } from "@/components/ui/context-menu";
 import {
@@ -17,15 +17,15 @@ import {
   MessageSquareQuote,
   SquareChartGanttIcon,
   Strikethrough,
-  Table,
 } from "lucide-react";
 import { TypographyAction, TypographyVariant } from "@/lib/types";
-import AddMarkdownCodeBlockModal from "@/app/(root)/(challenge)/create-challenge/edit-description/_components/add-markdown-code-block-modal";
-import AddMarkdownLinkModal from "@/app/(root)/(challenge)/create-challenge/edit-description/_components/add-markdown-link-modal";
-import MarkdownEditorContextToolbar from "@/app/(root)/(challenge)/create-challenge/edit-description/_components/markdown-editor-context-toolbar";
-import MarkdownEditorTextarea from "@/app/(root)/(challenge)/create-challenge/edit-description/_components/markdown-editor-textarea";
-import AddMarkdownImageModal from "@/app/(root)/(challenge)/create-challenge/edit-description/_components/add-markdown-image-modal";
+import AddMarkdownCodeBlockModal from "@/app/(root)/(challenge)/_components/form-components/add-markdown-code-block-modal";
+import AddMarkdownLinkModal from "@/app/(root)/(challenge)/_components/form-components/add-markdown-link-modal";
+import MarkdownEditorContextToolbar from "@/app/(root)/(challenge)/_components/form-components/markdown-editor-context-toolbar";
+import MarkdownEditorTextarea from "@/app/(root)/(challenge)/_components/form-components/markdown-editor-textarea";
+import AddMarkdownImageModal from "@/app/(root)/(challenge)/_components/form-components/add-markdown-image-modal";
 import { useMarkdownEditorStore } from "@/stores/markdown-editor-store";
+import RootPanelWrapper from "@/app/(root)/(challenge)/_components/root-panel-wrapper";
 
 const typographyMap: Record<TypographyVariant, (text: string) => string> = {
   bold: (text) => `**${text}**`,
@@ -202,18 +202,12 @@ const MarkdownBuilder = () => {
       id: "codeBlock",
       label: "Code block snippet",
       Icon: SquareChartGanttIcon,
+      separator: true,
       onClick: () => handleOpenModal("codeModal"),
     },
     {
-      id: "table",
-      label: "Insert table",
-      Icon: Table,
-      separator: true,
-      onClick: () => console.log("XD"),
-    },
-    {
       id: "markdownLink",
-      label: "Insert table",
+      label: "Insert link",
       Icon: LinkIcon,
       onClick: () => handleOpenModal("linkModal"),
     },
@@ -226,7 +220,7 @@ const MarkdownBuilder = () => {
   ];
 
   return (
-    <>
+    <RootPanelWrapper className={"dark:bg-[#1e1e1e] lg:w-1/2"}>
       <MarkdownEditorHeaderToolbar actions={actions} />
       <ContextMenu modal={false}>
         <MarkdownEditorTextarea ref={textareaRef} />
@@ -247,7 +241,7 @@ const MarkdownBuilder = () => {
         onClose={() => handleCloseModal("imageModal")}
         textAreaElement={textareaRef.current!}
       />
-    </>
+    </RootPanelWrapper>
   );
 };
 

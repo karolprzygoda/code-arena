@@ -1,5 +1,6 @@
 import { Language } from "@prisma/client";
 import { LucideIcon } from "lucide-react";
+import { JwtPayload } from "jwt-decode";
 
 declare global {
   namespace PrismaJson {
@@ -19,6 +20,8 @@ declare global {
       logs: string[];
       error?: ErrorType | null;
       hidden: boolean;
+      executionTime: number;
+      memoryUsage: number;
     }[];
   }
 }
@@ -58,3 +61,7 @@ type ErrorSubmissionResponse = {
 export type SubmissionResponse =
   | SuccessSubmissionResponse
   | ErrorSubmissionResponse;
+
+export type JWTWithUserRole = {
+  user_role: string;
+} & JwtPayload;

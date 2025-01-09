@@ -11,8 +11,25 @@ import ThemeButton from "@/components/theme/theme-button";
 import SignOutButton from "@/components/header/sign-out-button";
 import HeaderLink from "@/components/header/header-link";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
+import { createClient } from "@/lib/supabase/server";
+import { JWTWithUserRole } from "@/lib/types";
+import { jwtDecode } from "jwt-decode";
 
-const MobileNavSheet = () => {
+const MobileNavSheet = async () => {
+  const supabase = await createClient();
+
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  let userRole = null;
+
+  if (session) {
+    const jwt: JWTWithUserRole = jwtDecode(session.access_token);
+
+    userRole = jwt.user_role;
+  }
+
   return (
     <Sheet>
       <SheetTrigger
@@ -33,8 +50,12 @@ const MobileNavSheet = () => {
         </SheetHeader>
         <div className={"flex flex-col"}>
           <div className={"flex flex-col gap-4 border-b py-4"}>
+            {userRole === "ADMIN" && (
+              <HeaderLink href={"/create-challenge"}>
+                Create Challenge
+              </HeaderLink>
+            )}
             <HeaderLink href={"/"}>Explore</HeaderLink>
-            <HeaderLink href={"/"}>Profile</HeaderLink>
           </div>
           <div className={"flex flex-col gap-4 pt-4"}>
             <div className={"flex items-center gap-4"}>

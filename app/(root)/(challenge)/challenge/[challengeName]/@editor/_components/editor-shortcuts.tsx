@@ -1,10 +1,10 @@
 "use client";
 
-import type { PropsWithChildren } from "react";
+import type { PropsWithChildren, ReactNode } from "react";
 
 interface Props {
   title: string;
-  description: React.ReactNode;
+  description: ReactNode;
 }
 
 function EditorShortcut(props: Props) {
@@ -70,6 +70,14 @@ export function EditorShortcuts() {
         description={
           <p>
             <Key>{cmdOrCtrl}</Key> + <Key>/</Key>
+          </p>
+        }
+      />
+      <EditorShortcut
+        title="Save code to local storage"
+        description={
+          <p>
+            <Key>{cmdOrCtrl}</Key> + <Key>s</Key>
           </p>
         }
       />

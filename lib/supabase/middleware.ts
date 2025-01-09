@@ -1,10 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
-import { jwtDecode, JwtPayload } from "jwt-decode";
-
-type JWTWithUserRole = {
-  user_role: string;
-} & JwtPayload;
+import { jwtDecode } from "jwt-decode";
+import { JWTWithUserRole } from "@/lib/types";
 
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
@@ -64,12 +61,22 @@ export async function updateSession(request: NextRequest) {
 
       const userRole = jwt.user_role;
 
-      if (userRole !== "admin") {
+      if (userRole !== "ADMIN") {
         const url = request.nextUrl.clone();
         url.pathname = "/";
         return NextResponse.redirect(url);
       }
     }
+  }
+
+  if (
+    user &&
+    (request.nextUrl.pathname.startsWith("/sign-in") ||
+      request.nextUrl.pathname.startsWith("/sign-up"))
+  ) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/";
+    return NextResponse.redirect(url);
   }
 
   // IMPORTANT: You *must* return the supabaseResponse object as it is. If you're

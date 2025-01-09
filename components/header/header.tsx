@@ -1,8 +1,7 @@
-import { Bell } from "lucide-react";
 import Link from "next/link";
-import { SearchButton } from "@/components/header/search-button";
 import HeaderDropdown from "@/components/header/header-dropdown";
 import MobileNavSheet from "@/components/header/mobile-nav-sheet";
+import { CommandMenu } from "@/components/header/search-challenge";
 
 const Header = () => {
   return (
@@ -13,10 +12,7 @@ const Header = () => {
             <Link href={"/"}>code-arena.com</Link>
           </div>
           <div className={"flex items-center justify-end gap-2"}>
-            <SearchButton />
-            <Link className={"ml-2"} href={"/"} title={"Notifications"}>
-              <Bell className={"h-5 w-5"} />
-            </Link>
+            <CommandMenu />
             <HeaderDropdown />
             <MobileNavSheet />
           </div>

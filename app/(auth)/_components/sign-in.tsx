@@ -24,7 +24,7 @@ import { authSchema, TAuthSchema } from "@/schemas/schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import { signIn, signInWithGithub, signInWithGoogle } from "@/actions/actions";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 
 const SignIn = () => {
   const form = useForm<TAuthSchema>({
@@ -38,33 +38,21 @@ const SignIn = () => {
   const onSubmit = async (data: TAuthSchema) => {
     const error = await signIn(data);
     if (error) {
-      toast({
-        title: "Authentication Error",
-        description: error.message,
-        variant: "destructive",
-      });
+      toast.error(error.message);
     }
   };
 
   const onGithubSignIn = async () => {
     const error = await signInWithGithub();
     if (error) {
-      toast({
-        title: "Authentication Error",
-        description: error.message,
-        variant: "destructive",
-      });
+      toast.error(error.message);
     }
   };
 
   async function onGoogleSignIn() {
     const error = await signInWithGoogle();
     if (error) {
-      toast({
-        title: "Authentication Error",
-        description: error.message,
-        variant: "destructive",
-      });
+      toast.error(error.message);
     }
   }
 

@@ -14,49 +14,6 @@ datasource db {
   schemas   = ["auth", "public"]
 }
 
-model Challenge {
-  id                 String       @id @default(uuid())
-  title              String       @unique
-  description        String
-  descriptionSnippet String
-  difficulty         Difficulty
-  /// [TestCasesType]
-  testCases          Json
-  createdAt          DateTime     @default(now())
-  creatorId          String
-  submissions        Submission[]
-  Votes              Votes[]
-
-  @@schema("public")
-}
-
-model Votes {
-  id          String    @id @default(uuid())
-  user_id     String
-  challengeId String
-  voteType    Vote
-  challenge   Challenge @relation(fields: [challengeId], references: [id], onDelete: Cascade)
-
-  @@schema("public")
-}
-
-model Submission {
-  id          String    @id @default(uuid())
-  userId      String
-  challengeId String
-  code        String
-  language    Language
-  status      Status
-  createdAt   DateTime  @default(now())
-  /// [TestResultsType]
-  testResults Json
-  /// [GlobalErrorType]
-  globalError Json?
-  challenge   Challenge @relation(fields: [challengeId], references: [id], onDelete: Cascade)
-
-  @@schema("public")
-}
-
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
 model audit_log_entries {
@@ -367,61 +324,87 @@ model users {
   mfa_factors                 mfa_factors[]
   one_time_tokens             one_time_tokens[]
   sessions                    sessions[]
-  user_roles                  user_roles[]
+  UserRoles                   UserRoles[]
+  Users                       Users?
 
   @@index([instance_id])
   @@index([is_anonymous])
   @@schema("auth")
 }
 
+model Challenge {
+  id                 String       @id @default(uuid())
+  title              String       @unique
+  description        String
+  descriptionSnippet String
+  difficulty         Difficulty
+  /// [TestCasesType]
+  testCases          Json
+  createdAt          DateTime     @default(now())
+  authorId           String       @db.Uuid
+  users              Users        @relation(fields: [authorId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  Submission         Submission[]
+
+  @@schema("public")
+}
+
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-model role_permissions {
-  id         BigInt         @id @default(autoincrement())
-  role       app_role
-  permission app_permission
+model RolePermissions {
+  id         BigInt        @id @default(autoincrement())
+  role       AppRole
+  permission AppPermission
 
   @@unique([role, permission])
   @@schema("public")
 }
 
+model Submission {
+  id          String    @id @default(uuid())
+  userId      String    @db.Uuid
+  challengeId String
+  code        String
+  language    Language
+  status      Status
+  createdAt   DateTime  @default(now())
+  /// [TestResultsType]
+  testResults Json
+  /// [GlobalErrorType]
+  globalError Json?
+  challenge   Challenge @relation(fields: [challengeId], references: [id], onDelete: Cascade)
+  users       Users     @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@schema("public")
+}
+
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-model user_roles {
-  id      BigInt   @id @default(autoincrement())
-  user_id String   @db.Uuid
-  role    app_role
-  users   users    @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+model UserRoles {
+  id     BigInt  @id @default(autoincrement())
+  userid String  @db.Uuid
+  role   AppRole
+  users  users   @relation(fields: [userid], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
-  @@unique([user_id, role])
+  @@unique([userid, role])
   @@schema("public")
 }
 
-enum Difficulty {
-  EASY
-  MEDIUM
-  HARD
-
-  @@schema("public")
-}
-
-enum Language {
-  JAVASCRIPT
-  PYTHON
-  JAVA
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model Users {
+  id         String       @id @db.Uuid
+  email      String?      @unique(map: "unique_email")
+  challenge  Challenge[]
+  submission Submission[]
+  users      users        @relation(fields: [id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  Votes      Votes[]
 
   @@schema("public")
 }
 
-enum Status {
-  PENDING
-  SUCCESS
-  FAIL
-
-  @@schema("public")
-}
-
-enum Vote {
-  LIKE
-  DISLIKE
+model Votes {
+  id       String @id @default(uuid())
+  userId   String @db.Uuid
+  itemId   String
+  voteType Vote
+  users    Users  @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@schema("public")
 }
@@ -467,7 +450,7 @@ enum one_time_token_type {
   @@schema("auth")
 }
 
-enum app_permission {
+enum AppPermission {
   Challenge_delete @map("Challenge.delete")
   Challenge_insert @map("Challenge.insert")
   Challenge_update @map("Challenge.update")
@@ -475,9 +458,40 @@ enum app_permission {
   @@schema("public")
 }
 
-enum app_role {
-  admin
-  moderator
+enum AppRole {
+  ADMIN
+  MODERATOR
+
+  @@schema("public")
+}
+
+enum Difficulty {
+  EASY
+  MEDIUM
+  HARD
+
+  @@schema("public")
+}
+
+enum Language {
+  JAVASCRIPT
+  PYTHON
+  JAVA
+
+  @@schema("public")
+}
+
+enum Status {
+  PENDING
+  SUCCESS
+  FAIL
+
+  @@schema("public")
+}
+
+enum Vote {
+  UPVOTE
+  DOWNVOTE
 
   @@schema("public")
 }

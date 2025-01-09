@@ -13,7 +13,7 @@ const useSaveShortcut = (onSave: () => void) => {
 
     window.addEventListener("keydown", handleSave);
     return () => window.removeEventListener("keydown", handleSave);
-  }, [onSave]);
+  }, []);
 };
 
 export default useSaveShortcut;

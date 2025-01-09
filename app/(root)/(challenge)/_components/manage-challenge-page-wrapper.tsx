@@ -4,7 +4,9 @@ type CreateChallengeWrapperProps = {
   children: ReactNode;
 };
 
-const CreateChallengeWrapper = ({ children }: CreateChallengeWrapperProps) => {
+const ManageChallengePageWrapper = ({
+  children,
+}: CreateChallengeWrapperProps) => {
   return (
     <div
       className={
@@ -16,4 +18,4 @@ const CreateChallengeWrapper = ({ children }: CreateChallengeWrapperProps) => {
   );
 };
 
-export default CreateChallengeWrapper;
+export default ManageChallengePageWrapper;

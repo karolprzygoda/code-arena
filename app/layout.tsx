@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme/theme-provider";
-import { Toaster } from "@/components/ui/toaster";
+import { Toaster } from "@/components/ui/sonner";
 import { ReactNode } from "react";
 
 const geistSans = localFont({
@@ -29,6 +29,7 @@ const AppLayout = ({ children }: AppLayout) => {
   return (
     <html lang="en" suppressHydrationWarning>
       <body
+        id={"root"}
         className={`${geistSans.variable} ${geistMono.variable} flex h-screen flex-col antialiased`}
       >
         <ThemeProvider
@@ -38,7 +39,7 @@ const AppLayout = ({ children }: AppLayout) => {
           disableTransitionOnChange
         >
           {children}
-          <Toaster />
+          <Toaster closeButton richColors />
         </ThemeProvider>
       </body>
     </html>

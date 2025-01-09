@@ -1,6 +1,6 @@
 import prismadb from "@/lib/prismadb";
 import { notFound } from "next/navigation";
-import EditorStoreProvider from "@/app/(root)/(challenge)/challenge/[challengeName]/@editor/_components/editor-store-provider";
+import EditorStoreProvider from "@/stores/store-providers/editor-store-provider";
 import CodeEditorWrapper from "@/app/(root)/(challenge)/challenge/[challengeName]/@editor/_components/code-editor-wrapper";
 import {
   ResizableHandle,

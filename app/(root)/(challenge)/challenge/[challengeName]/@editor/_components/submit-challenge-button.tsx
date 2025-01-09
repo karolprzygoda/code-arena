@@ -3,13 +3,14 @@
 import { Button } from "@/components/ui/button";
 import { testChallenge } from "@/actions/actions";
 import { useShallow } from "zustand/react/shallow";
-import { toast } from "@/hooks/use-toast";
 import { useTestResultsStore } from "@/stores/tests-results-store";
 import { Language } from "@prisma/client";
 import { useState } from "react";
 import { userCodeSchema } from "@/schemas/schema";
 import { getCodeSubmissionError } from "@/lib/utils";
 import useEditorContext from "@/hooks/use-editor-context";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 type SubmitChallengeButtonProps = {
   challengeId: string;
@@ -35,6 +36,8 @@ const SubmitChallengeButton = ({
     })),
   );
 
+  const router = useRouter();
+
   const [userCodeCache, setUserCodeCache] = useState(defaultCode[language]);
 
   const handleSubmit = async (code: string, language: Lowercase<Language>) => {
@@ -53,13 +56,12 @@ const SubmitChallengeButton = ({
         challengeId,
       );
 
+      console.log(response);
+
       setTestsResults(response.testResults);
 
       if (response.status === "FAIL") {
-        toast({
-          variant: "destructive",
-          title: "Uh oh! You still have errors.",
-        });
+        toast.error("Uh oh! You still have errors.");
 
         if (response.globalError) {
           setGlobalError(response.globalError);
@@ -67,19 +69,15 @@ const SubmitChallengeButton = ({
           setGlobalError(null);
         }
       } else {
-        toast({
-          title: "Success",
-          description: "All tests were passed successfully",
-          variant: "success",
-        });
+        toast.success("All tests were passed successfully");
         setGlobalError(null);
       }
+
+      router.push(
+        `/challenge/${response.challenge.title}/submissions/${response.id}`,
+      );
     } catch (error) {
-      toast({
-        variant: "destructive",
-        title: "An Error occurred!",
-        description: getCodeSubmissionError(error),
-      });
+      toast.error(getCodeSubmissionError(error));
     } finally {
       setIsPending(false);
       setUserCodeCache(code);

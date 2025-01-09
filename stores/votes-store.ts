@@ -4,17 +4,19 @@ import { create } from "zustand";
 import { createContext } from "react";
 
 export type VotesProps = {
-  vote: "LIKE" | "DISLIKE" | null;
+  vote: "UPVOTE" | "DOWNVOTE" | null;
   likes: number;
   dislikes: number;
+  itemId: string | null;
 };
 
 export type VotesState = {
-  setVote: (vote: "LIKE" | "DISLIKE" | null) => void;
+  setVote: (vote: "UPVOTE" | "DOWNVOTE" | null) => void;
   incrementLikes: () => void;
   decrementLikes: () => void;
   incrementDislikes: () => void;
   decrementDislikes: () => void;
+  setChallengeId: (challengeId: string) => void;
 } & VotesProps;
 
 export type VotesStore = ReturnType<typeof createVotesStore>;
@@ -24,6 +26,7 @@ export const createVotesStore = (initState?: Partial<VotesProps>) => {
     vote: null,
     likes: 0,
     dislikes: 0,
+    itemId: null,
   };
 
   return create<VotesProps & VotesState>()((set) => ({
@@ -32,34 +35,38 @@ export const createVotesStore = (initState?: Partial<VotesProps>) => {
     setVote: (vote) =>
       set((state) => {
         if (vote === state.vote) {
-          if (vote === "LIKE") {
+          if (vote === "UPVOTE") {
             return { vote: null, likes: state.likes - 1 };
           }
-          if (vote === "DISLIKE") {
+          if (vote === "DOWNVOTE") {
             return { vote: null, dislikes: state.dislikes - 1 };
           }
         }
 
-        if (vote === "LIKE") {
+        if (vote === "UPVOTE") {
           return {
             vote,
             likes: state.likes + 1,
             dislikes:
-              state.vote === "DISLIKE" ? state.dislikes - 1 : state.dislikes,
+              state.vote === "DOWNVOTE" ? state.dislikes - 1 : state.dislikes,
           };
         }
 
-        if (vote === "DISLIKE") {
+        if (vote === "DOWNVOTE") {
           return {
             vote,
             dislikes: state.dislikes + 1,
-            likes: state.vote === "LIKE" ? state.likes - 1 : state.likes,
+            likes: state.vote === "UPVOTE" ? state.likes - 1 : state.likes,
           };
         }
 
         return { vote };
       }),
-
+    setChallengeId: () => {
+      set((state) => ({
+        itemId: state.itemId,
+      }));
+    },
     incrementLikes: () =>
       set((state) => ({
         likes: state.likes + 1,

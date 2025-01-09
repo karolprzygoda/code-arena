@@ -41,7 +41,14 @@ const executeCode = async (code, tests) => {
         const script = new vm.Script(
           `try{${code}; actualOutput = solution(${test.inputs.map((input) => JSON.stringify(input.value)).join(", ")});}catch(error){errorOccurred = error}`,
         );
+        const initialMemory = process.memoryUsage().heapUsed;
+        const start = performance.now();
         await script.runInContext(context, { timeout: 4000 });
+        const end = performance.now();
+        const finalMemory = process.memoryUsage().heapUsed;
+
+        const executionTime = end - start;
+        const memoryUsage = (finalMemory - initialMemory) / (1024 * 1024);
 
         const { actualOutput, errorOccurred, logs } = sandbox;
 
@@ -56,6 +63,8 @@ const executeCode = async (code, tests) => {
             ? { message: errorOccurred.message, stack: errorOccurred.stack }
             : null,
           hidden: test.hidden,
+          executionTime: Number(executionTime.toFixed(2)),
+          memoryUsage: Number(memoryUsage.toFixed(2)),
         };
       }),
     );

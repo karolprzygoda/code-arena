@@ -8,19 +8,16 @@ import {
   useMarkdownTemporalStore,
 } from "@/stores/markdown-editor-store";
 import { useShallow } from "zustand/react/shallow";
-import useSaveShortcut from "@/hooks/use-save-shortcut";
-import { toast } from "@/hooks/use-toast";
 
 type MarkdownEditorTextareaProps = {
   ref: RefObject<HTMLTextAreaElement>;
 };
 
 const MarkdownEditorTextarea = ({ ref }: MarkdownEditorTextareaProps) => {
-  const { markdown, setMarkdown, saveMarkdown } = useMarkdownEditorStore(
+  const { markdown, setMarkdown } = useMarkdownEditorStore(
     useShallow((state) => ({
       markdown: state.markdown,
       setMarkdown: state.setMarkdown,
-      saveMarkdown: state.saveMarkdown,
     })),
   );
 
@@ -48,17 +45,6 @@ const MarkdownEditorTextarea = ({ ref }: MarkdownEditorTextareaProps) => {
     window.addEventListener("keydown", handleKeyPress);
     return () => window.removeEventListener("keydown", handleKeyPress);
   }, [undo, redo]);
-
-  const onSave = () => {
-    saveMarkdown();
-    toast({
-      variant: "success",
-      title: "Success",
-      description: "Successfully saved markdown",
-    });
-  };
-
-  useSaveShortcut(onSave);
 
   return (
     <ContextMenuTrigger className={"h-full w-full"}>

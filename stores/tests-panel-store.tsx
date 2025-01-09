@@ -14,30 +14,17 @@ type Actions = {
   setTestsResizablePanel: (testsResizablePanel: ImperativePanelHandle) => void;
 };
 
-export const useTestsPanelStore = create<State & Actions>()(
-  persist(
-    (set) => ({
-      isCollapsed: false,
-      testsResizablePanel: null,
-      setIsCollapsed: (isCollapsed) => {
-        set({
-          isCollapsed,
-        });
-      },
-      setTestsResizablePanel: (testsResizablePanel) => {
-        set({
-          testsResizablePanel,
-        });
-      },
-    }),
-    {
-      name: "tests-panel-store",
-      partialize: (state) =>
-        Object.fromEntries(
-          Object.entries(state).filter(
-            ([key]) => !["testsResizablePanel"].includes(key),
-          ),
-        ),
-    },
-  ),
-);
+export const useTestsPanelStore = create<State & Actions>()((set) => ({
+  isCollapsed: false,
+  testsResizablePanel: null,
+  setIsCollapsed: (isCollapsed) => {
+    set({
+      isCollapsed,
+    });
+  },
+  setTestsResizablePanel: (testsResizablePanel) => {
+    set({
+      testsResizablePanel,
+    });
+  },
+}));

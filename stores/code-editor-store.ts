@@ -6,19 +6,20 @@ import { persist } from "zustand/middleware";
 import { createContext } from "react";
 import debounce from "lodash.debounce";
 
-export type EditorProps = {
+export type CodeEditorProps = {
   code: { [K in keyof typeof Language as Lowercase<K>]: string };
   language: Lowercase<Language>;
   isPending: boolean;
 };
 
-export type EditorState = {
+export type CodeEditorState = {
   setCode: (language: Lowercase<Language>, value: string) => void;
   setLanguage: (defaultLanguage: Lowercase<Language>) => void;
   setIsPending: (isPending: boolean) => void;
-} & EditorProps;
+  saveCode: () => void;
+} & CodeEditorProps;
 
-export type EditorStore = ReturnType<typeof createEditorStore>;
+export type CodeEditorStore = ReturnType<typeof createEditorStore>;
 
 const debouncedLocalStorage = {
   getItem: (key: string) => {
@@ -35,9 +36,9 @@ const debouncedLocalStorage = {
 
 export const createEditorStore = (
   storageName: string,
-  initState?: Partial<EditorProps>,
+  initState?: Partial<CodeEditorProps>,
 ) => {
-  const DEFAULT_STATE: EditorProps = {
+  const DEFAULT_STATE: CodeEditorProps = {
     code: {
       javascript: "",
       java: "",
@@ -47,7 +48,7 @@ export const createEditorStore = (
     isPending: false,
   };
 
-  return create<EditorProps & EditorState>()(
+  return create<CodeEditorProps & CodeEditorState>()(
     persist(
       (set, get) => ({
         ...DEFAULT_STATE,
@@ -67,6 +68,13 @@ export const createEditorStore = (
             isPending,
           });
         },
+        saveCode: () => {
+          const { code } = get();
+          const key = storageName;
+          const existingData = JSON.parse(localStorage.getItem(key) || "{}");
+          existingData.state = { code };
+          localStorage.setItem(key, JSON.stringify(existingData));
+        },
       }),
       {
         name: storageName,
@@ -82,4 +90,4 @@ export const createEditorStore = (
   );
 };
 
-export const EditorContext = createContext<EditorStore | null>(null);
+export const EditorContext = createContext<CodeEditorStore | null>(null);

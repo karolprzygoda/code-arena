@@ -4,7 +4,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
-import { useToast } from "@/hooks/use-toast";
 import {
   Form,
   FormControl,
@@ -24,6 +23,7 @@ import { DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { useShallow } from "zustand/react/shallow";
 import { useUserPreferencesStore } from "@/stores/user-preferences-store";
+import { toast } from "sonner";
 
 const formSchema = z.object({
   fontSize: z.string(),
@@ -33,8 +33,6 @@ const formSchema = z.object({
 export type FormSchema = z.infer<typeof formSchema>;
 
 export function SettingsForm() {
-  const { toast } = useToast();
-
   const { settings, updateSettings } = useUserPreferencesStore(
     useShallow((state) => ({
       updateSettings: state.updateSettings,
@@ -48,10 +46,7 @@ export function SettingsForm() {
 
   function onSubmit(data: FormSchema) {
     updateSettings({ ...data });
-    toast({
-      title: "Settings updated!",
-      variant: "success",
-    });
+    toast.success("Settings updated!");
   }
 
   return (

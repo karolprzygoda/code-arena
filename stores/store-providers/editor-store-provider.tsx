@@ -4,12 +4,12 @@ import { PropsWithChildren, useRef } from "react";
 import {
   createEditorStore,
   EditorContext,
-  EditorProps,
-  EditorStore,
-} from "@/stores/editor-store";
+  CodeEditorProps,
+  CodeEditorStore,
+} from "@/stores/code-editor-store";
 
 type EditorProviderProps = PropsWithChildren<
-  EditorProps & { storageName: string }
+  CodeEditorProps & { storageName: string }
 >;
 
 const EditorStoreProvider = ({
@@ -17,7 +17,7 @@ const EditorStoreProvider = ({
   storageName,
   ...props
 }: EditorProviderProps) => {
-  const storeRef = useRef<EditorStore>();
+  const storeRef = useRef<CodeEditorStore>();
   if (!storeRef.current) {
     storeRef.current = createEditorStore(storageName, props);
   }

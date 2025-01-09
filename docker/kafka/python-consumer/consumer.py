@@ -1,3 +1,5 @@
+import time
+import tracemalloc
 from kafka import KafkaConsumer, KafkaProducer
 import json
 import traceback
@@ -63,11 +65,21 @@ def execute_code(code, tests, timeout=5):
         for test in tests:
             with Manager() as manager:
                 return_dict = manager.dict()
+
+                # Rozpocznij pomiar czasu i pamięci
+                tracemalloc.start()
+                start_snapshot = tracemalloc.take_snapshot()
+                start_time = time.perf_counter()
+
                 process = Process(target=execute_in_sandbox, args=(code, test["inputs"], return_dict))
 
                 # Uruchomienie procesu
                 process.start()
                 process.join(timeout)
+
+                # Zakończenie pomiarów
+                end_time = time.perf_counter()
+                end_snapshot = tracemalloc.take_snapshot()
 
                 # Sprawdzenie, czy proces zakończył się w czasie
                 if process.is_alive():
@@ -80,9 +92,17 @@ def execute_code(code, tests, timeout=5):
                         "passed": False,
                         "logs": [],
                         "error": {"message": "Execution timed out", "stack": None},
+                        "executionTime": None,
+                        "memoryUsage": None,
                         "hidden" : test["hidden"]
                     }
                 else:
+                    stats = end_snapshot.compare_to(start_snapshot, 'lineno')
+                    total_memory_usage = sum(stat.size for stat in stats)
+                    memory_usage_mb = round(total_memory_usage / (1024 * 1024), 2)
+                    # Oblicz czas wykonania
+                    execution_time_ms = round((end_time - start_time) * 1000, 2)
+
                     result = {
                         "input": test["inputs"],
                         "expectedOutput": test["expectedOutput"],
@@ -90,6 +110,8 @@ def execute_code(code, tests, timeout=5):
                         "passed": return_dict.get("actual_output") == test["expectedOutput"],
                         "logs": return_dict.get("logs", []),
                         "error": return_dict.get("error"),
+                        "executionTime": execution_time_ms,  # Całkowity czas w ms
+                        "memoryUsage": memory_usage_mb,  # Całkowite zużycie pamięci w MB
                         "hidden" : test["hidden"]
                     }
 

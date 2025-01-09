@@ -2,7 +2,7 @@
 
 import {
   authSchema,
-  createChallengeSchema,
+  challengeSchema,
   TAuthSchema,
   TChallengeSchema,
   userCodeSchema,
@@ -11,7 +11,7 @@ import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import prismadb from "@/lib/prismadb";
-import { Language, Submission } from "@prisma/client";
+import { Challenge, Language, Prisma, Submission } from "@prisma/client";
 import { pollSubmissionResult, sendKafkaMessage } from "@/lib/utils";
 import { AuthError } from "@supabase/auth-js";
 
@@ -106,7 +106,9 @@ export async function testChallenge(
   code: string,
   language: Language,
   challengeId: string,
-): Promise<Submission> {
+): Promise<Submission & { challenge: Challenge }> {
+  let submissionId: string | undefined = undefined;
+
   try {
     const supabase = await createClient();
     const {
@@ -134,6 +136,8 @@ export async function testChallenge(
         testResults: null as unknown as PrismaJson.TestResultsType,
       },
     });
+
+    submissionId = submission.id;
 
     const challenge = await prismadb.challenge.findFirst({
       where: {
@@ -174,6 +178,9 @@ export async function testChallenge(
         status: result.success ? "SUCCESS" : "FAIL",
         globalError: result.globalError,
       },
+      include: {
+        challenge: true,
+      },
     });
 
     const sanitizedTestResults = data.testResults
@@ -187,6 +194,8 @@ export async function testChallenge(
               logs: [],
               error: null,
               hidden: testResult.hidden,
+              memoryUsage: testResult.memoryUsage,
+              executionTime: testResult.executionTime,
             }
           : testResult,
       )
@@ -201,6 +210,21 @@ export async function testChallenge(
     };
   } catch (error) {
     console.error("Error in testChallenge:", error);
+
+    if (submissionId) {
+      try {
+        await prismadb.submission.delete({
+          where: {
+            id: submissionId,
+            status: "PENDING",
+          },
+        });
+        console.log(`Cleaned up pending submission ${submissionId}`);
+      } catch (cleanupError) {
+        console.error("Error cleaning up pending submission:", cleanupError);
+      }
+    }
+
     throw new Error(
       "An unexpected error occurred try again or contact with support.",
     );
@@ -209,9 +233,9 @@ export async function testChallenge(
 
 export async function createNewChallenge(data: TChallengeSchema) {
   try {
-    createChallengeSchema.parse(data);
+    challengeSchema.parse(data);
 
-    const processedTestCases = data.challengeTestCases.map((testCase) => ({
+    const processedTestCases = data.testCases.map((testCase) => ({
       ...testCase,
       inputs: testCase.inputs.map((input) => ({
         ...input,
@@ -241,21 +265,45 @@ export async function createNewChallenge(data: TChallengeSchema) {
       );
     }
 
-    return await prismadb.challenge.create({
-      data: {
-        title: data.challengeTitle.split(" ").join("-").toLowerCase(),
-        description: data.challengeDescription,
-        descriptionSnippet: data.challengeSnippetDescription,
-        difficulty: data.challengeDifficulty,
-        testCases: processedTestCases,
-        creatorId: user.id,
+    const isAdmin = await prismadb.userRoles.findFirst({
+      where: {
+        userid: user.id,
+        role: "ADMIN",
       },
     });
+
+    if (!isAdmin) {
+      throw new Error(
+        "Unauthenticated. You do not have permission to perform this action.",
+      );
+    }
+
+    const challenge = await prismadb.challenge.create({
+      data: {
+        title: data.title.split(" ").join("-").toLowerCase(),
+        description: data.description,
+        descriptionSnippet: data.descriptionSnippet,
+        difficulty: data.difficulty,
+        testCases: processedTestCases,
+        authorId: user.id,
+      },
+    });
+
+    return {
+      challenge,
+      message: "Successfully created new challenge",
+    };
   } catch (error) {
     console.log(error);
     if (error instanceof AuthError) {
       console.error("Error in createNewChallenge:", error);
       redirect("/login");
+    }
+    if (
+      error instanceof Prisma.PrismaClientKnownRequestError &&
+      error.code === "P2002"
+    ) {
+      throw new Error("Challenge with provided title already exists.");
     }
     throw new Error(
       "An unexpected error occurred try again or contact with support.",
@@ -263,7 +311,145 @@ export async function createNewChallenge(data: TChallengeSchema) {
   }
 }
 
-export async function upVoteChallenge(challengeId: string) {
+export async function updateChallenge(
+  data: TChallengeSchema,
+  challengeId: string,
+) {
+  try {
+    challengeSchema.parse(data);
+
+    const processedTestCases = data.testCases.map((testCase) => ({
+      ...testCase,
+      inputs: testCase.inputs.map((input) => ({
+        ...input,
+        value: JSON.parse(input.value),
+      })),
+      expectedOutput: JSON.parse(testCase.expectedOutput),
+    }));
+
+    const supabase = await createClient();
+
+    const {
+      data: { user },
+      error,
+    } = await supabase.auth.getUser();
+
+    if (error) {
+      console.error("Authentication error:", error.message);
+      throw new AuthError(
+        "Authentication failed. Please log in and try again.",
+      );
+    }
+
+    if (!user) {
+      console.error("No user found.");
+      throw new AuthError(
+        "You are not authenticated. Please log in to proceed.",
+      );
+    }
+
+    const isAdmin = await prismadb.userRoles.findFirst({
+      where: {
+        userid: user.id,
+        role: "ADMIN",
+      },
+    });
+
+    if (!isAdmin) {
+      throw new Error(
+        "Unauthenticated. You do not have permission to perform this action.",
+      );
+    }
+
+    const challenge = await prismadb.challenge.update({
+      where: {
+        id: challengeId,
+      },
+      data: {
+        title: data.title.split(" ").join("-").toLowerCase(),
+        description: data.description,
+        descriptionSnippet: data.descriptionSnippet,
+        difficulty: data.difficulty,
+        testCases: processedTestCases,
+        authorId: user.id,
+      },
+    });
+
+    return {
+      challenge,
+      message: `Successfully updated ${challenge.title
+        .split("-")
+        .map((item) => item.slice(0, 1).toUpperCase() + item.slice(1))
+        .join(" ")} challenge`,
+    };
+  } catch (error) {
+    console.log(error);
+    if (error instanceof AuthError) {
+      console.error("Error in createNewChallenge:", error);
+      redirect("/login");
+    }
+    if (
+      error instanceof Prisma.PrismaClientKnownRequestError &&
+      error.code === "P2002"
+    ) {
+      throw new Error("Challenge with provided title already exists.");
+    }
+    throw new Error(
+      "An unexpected error occurred try again or contact with support.",
+    );
+  }
+}
+
+export async function deleteChallenge(challengeId: string) {
+  try {
+    const supabase = await createClient();
+
+    const {
+      data: { user },
+      error,
+    } = await supabase.auth.getUser();
+
+    if (error) {
+      console.error("Authentication error:", error.message);
+      throw new AuthError(
+        "Authentication failed. Please log in and try again.",
+      );
+    }
+
+    if (!user) {
+      console.error("No user found.");
+      throw new AuthError(
+        "You are not authenticated. Please log in to proceed.",
+      );
+    }
+
+    const isAdmin = await prismadb.userRoles.findFirst({
+      where: {
+        userid: user.id,
+        role: "ADMIN",
+      },
+    });
+
+    if (!isAdmin) {
+      throw new Error(
+        "Unauthenticated. You do not have permission to perform this action.",
+      );
+    }
+
+    return await prismadb.challenge.delete({
+      where: {
+        id: challengeId,
+      },
+    });
+  } catch (error) {
+    console.log(error);
+    throw new Error(
+      "An error occurred while deleting challenge. Please try again.",
+    );
+  }
+}
+
+export async function upVote(itemId: string) {
   try {
     const supabase = await createClient();
 
@@ -277,8 +463,8 @@ export async function upVoteChallenge(challengeId: string) {
 
     const existingVote = await prismadb.votes.findFirst({
       where: {
-        challengeId: challengeId,
-        user_id: user.id,
+        itemId: itemId,
+        userId: user.id,
       },
     });
 
@@ -289,31 +475,31 @@ export async function upVoteChallenge(challengeId: string) {
         },
       });
 
-      if (existingVote.voteType !== "LIKE") {
+      if (existingVote.voteType !== "UPVOTE") {
         await prismadb.votes.create({
           data: {
-            challengeId: challengeId,
-            user_id: user.id,
-            voteType: "LIKE",
+            itemId: itemId,
+            userId: user.id,
+            voteType: "UPVOTE",
           },
         });
       }
     } else {
       await prismadb.votes.create({
         data: {
-          challengeId: challengeId,
-          user_id: user.id,
-          voteType: "LIKE",
+          itemId: itemId,
+          userId: user.id,
+          voteType: "UPVOTE",
         },
       });
     }
   } catch (error) {
-    console.error("Error in upVoteChallenge:", error);
+    console.error("Error in upVote:", error);
     throw new Error("An error occurred while voting. Please try again.");
   }
 }
 
-export async function downVoteChallenge(challengeId: string) {
+export async function downVote(itemId: string) {
   try {
     const supabase = await createClient();
 
@@ -327,8 +513,8 @@ export async function downVoteChallenge(challengeId: string) {
 
     const existingVote = await prismadb.votes.findFirst({
       where: {
-        challengeId: challengeId,
-        user_id: user.id,
+        itemId: itemId,
+        userId: user.id,
       },
     });
 
@@ -339,26 +525,26 @@ export async function downVoteChallenge(challengeId: string) {
         },
       });
 
-      if (existingVote.voteType !== "DISLIKE") {
+      if (existingVote.voteType !== "DOWNVOTE") {
         await prismadb.votes.create({
           data: {
-            challengeId: challengeId,
-            user_id: user.id,
-            voteType: "DISLIKE",
+            itemId: itemId,
+            userId: user.id,
+            voteType: "DOWNVOTE",
           },
         });
       }
     } else {
       await prismadb.votes.create({
         data: {
-          challengeId: challengeId,
-          user_id: user.id,
-          voteType: "DISLIKE",
+          itemId: itemId,
+          userId: user.id,
+          voteType: "DOWNVOTE",
         },
       });
     }
   } catch (error) {
-    console.error("Error in downVoteChallenge:", error);
+    console.error("Error in downVote", error);
     throw new Error("An error occurred while voting. Please try again.");
   }
 }

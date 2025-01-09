@@ -57,22 +57,22 @@ export const testCasesSchema = z
   })
   .array();
 
-export const createChallengeSchema = z.object({
-  challengeDescription: z.string().min(1, "Description is required"),
-  challengeTitle: z
+export const challengeSchema = z.object({
+  description: z.string().min(1, "Description is required"),
+  title: z
     .string()
     .min(1, "Challenge title is required")
     .max(50, "Challenge title cannot exceed 50 characters"),
-  challengeDifficulty: z.enum(["EASY", "MEDIUM", "HARD"], {
+  difficulty: z.enum(["EASY", "MEDIUM", "HARD"], {
     errorMap: () => ({
       message: "Please select a valid difficulty level (EASY, MEDIUM, HARD)",
     }),
   }),
-  challengeSnippetDescription: z
+  descriptionSnippet: z
     .string()
     .min(1, "Challenge quick description is required")
     .max(200, "Challenge description cannot exceed 200 characters"),
-  challengeTestCases: testCasesSchema
+  testCases: testCasesSchema
     .min(5, "At least five test cases are required")
     .refine(
       (testCases) => testCases.filter((test) => test.hidden).length >= 2,
@@ -83,5 +83,5 @@ export const createChallengeSchema = z.object({
 });
 
 export type TTestCasesSchema = z.infer<typeof testCasesSchema>;
-export type TChallengeSchema = z.infer<typeof createChallengeSchema>;
+export type TChallengeSchema = z.infer<typeof challengeSchema>;
 export type TAuthSchema = z.infer<typeof authSchema>;

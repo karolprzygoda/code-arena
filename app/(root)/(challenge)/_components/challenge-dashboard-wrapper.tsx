@@ -1,7 +1,6 @@
 "use client";
 
 import { ReactNode, useEffect, useRef } from "react";
-import { useMarkdownEditorStore } from "@/stores/markdown-editor-store";
 import { useUserPreferencesStore } from "@/stores/user-preferences-store";
 import { useShallow } from "zustand/react/shallow";
 import { cn } from "@/lib/utils";
@@ -14,7 +13,7 @@ type ChallengeWrapperProps = {
 
 const ChallengeDashboardWrapper = ({ children }: ChallengeWrapperProps) => {
   const dashboardRef = useRef<HTMLDivElement>(null);
-  const hasHydrated = useMarkdownEditorStore((state) => state._hasHydrated);
+  const hasHydrated = useUserPreferencesStore((state) => state._hasHydrated);
   const isDesktop = useMediaQuery("(min-width: 1024px)");
 
   const { setFullScreenElement, isFullScreen } = useUserPreferencesStore(

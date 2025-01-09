@@ -1,6 +1,11 @@
 "use client";
 
-import { ComponentPropsWithoutRef, ReactNode, useEffect } from "react";
+import {
+  ComponentPropsWithoutRef,
+  ReactNode,
+  useCallback,
+  useEffect,
+} from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   BrainCircuit,
@@ -17,6 +22,10 @@ import {
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import { usePathname, useRouter } from "next/navigation";
+import { useResourcesPanelStore } from "@/stores/resources-panel-store";
+import { useShallow } from "zustand/react/shallow";
+
+const POSSIBLE_TABS = ["solutions", "submissions", "ai-chatbot"];
 
 type ResourcesTabsContentProps = {
   value: string;
@@ -31,7 +40,7 @@ const ResourcesTabsContent = ({
       value={value}
       tabIndex={-1}
       className={
-        "m-0 h-[calc(100%-129px)] w-full overflow-y-auto overflow-x-hidden p-4 pb-8 focus-visible:ring-0 focus-visible:ring-offset-0 @[452px]/panel:h-[calc(100%-93px)]"
+        "relative m-0 w-full flex-1 focus-visible:ring-0 focus-visible:ring-offset-0"
       }
     >
       {children}
@@ -91,7 +100,7 @@ const ResourcesTabsList = ({
   return (
     <TabsList
       className={cn(
-        "grid h-auto w-full grid-cols-1 grid-rows-4 flex-wrap gap-1 rounded-b-none border-b border-zinc-300 py-2 outline-0 @[70px]/panel:grid-cols-2 @[70px]/panel:grid-rows-1 @[450px]/tabs:grid-cols-4 dark:border-zinc-700",
+        "grid h-auto w-full grid-cols-1 grid-rows-4 flex-wrap gap-1 rounded-b-none border-b border-zinc-300 bg-white py-2 outline-0 @[70px]/panel:grid-cols-2 @[70px]/panel:grid-rows-1 @[450px]/tabs:grid-cols-4 dark:border-zinc-700 dark:bg-transparent",
         isCollapsed && !isDesktop && "rounded-2xl border-0",
       )}
       {...props}
@@ -117,32 +126,40 @@ const ResourcesTabs = ({
   const router = useRouter();
   const pathName = usePathname();
 
-  const possible_tabs = ["solutions", "submissions", "ai-chatbot"];
+  const { resourcesResizablePanel } = useResourcesPanelStore(
+    useShallow((state) => ({
+      resourcesResizablePanel: state.resourcesResizablePanel,
+    })),
+  );
 
   const activeTab =
-    possible_tabs.find((item) => pathName.includes(item)) ?? "description";
+    POSSIBLE_TABS.find((item) => pathName.includes(item)) ?? "description";
 
-  const handleTabChange = (tab: string) => {
-    const newPath =
-      tab === "description"
-        ? `/challenge/${challengeName}`
-        : `/challenge/${challengeName}/${tab}`;
+  const handleTabChange = useCallback(
+    (tab: string) => {
+      const newPath =
+        tab === "description"
+          ? `/challenge/${challengeName}`
+          : `/challenge/${challengeName}/${tab}`;
 
-    router.replace(newPath);
-  };
+      router.push(newPath);
+      resourcesResizablePanel!.expand(30);
+    },
+    [challengeName, resourcesResizablePanel, router],
+  );
 
   useEffect(() => {
     const currentTab =
-      possible_tabs.find((item) => pathName.includes(item)) ?? "description";
-    if (currentTab !== activeTab) {
+      POSSIBLE_TABS.find((item) => pathName.includes(item)) ?? "description";
+    if (currentTab !== activeTab && resourcesResizablePanel) {
       handleTabChange(currentTab);
     }
-  }, [pathName]);
+  }, [activeTab, handleTabChange, pathName, resourcesResizablePanel]);
 
   return (
     <Tabs
       value={activeTab}
-      className={cn("h-full @container/tabs")}
+      className={cn("flex h-full flex-col @container/tabs")}
       onValueChange={handleTabChange}
     >
       <ResourcesTabsList isDesktop={isDesktop} isCollapsed={isCollapsed}>

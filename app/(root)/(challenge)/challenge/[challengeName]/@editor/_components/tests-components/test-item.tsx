@@ -44,8 +44,26 @@ const TestItem = ({ test, testIndex, testResult }: TestItemProps) => {
             <TestTabsList>
               <TestTabTrigger value={"inputs-tab"}>Inputs</TestTabTrigger>
               <TestTabTrigger value={"result-tab"}>Result</TestTabTrigger>
-              <TestTabTrigger value={"logs-tab"}>Console</TestTabTrigger>
-              <TestTabTrigger value={"errors-tab"}>Errors</TestTabTrigger>
+              <TestTabTrigger value={"logs-tab"}>
+                {testResult?.logs.length > 0 && (
+                  <div
+                    className={
+                      "absolute -right-3 top-0 h-2 w-2 rounded-full bg-orange-500"
+                    }
+                  ></div>
+                )}
+                Console
+              </TestTabTrigger>
+              <TestTabTrigger value={"errors-tab"}>
+                {testResult?.error && (
+                  <div
+                    className={
+                      "absolute -right-3 top-0 h-2 w-2 rounded-full bg-orange-500"
+                    }
+                  ></div>
+                )}
+                Error
+              </TestTabTrigger>
             </TestTabsList>
             <TestTabsContent value={"inputs-tab"}>
               <InputsTab test={test} />

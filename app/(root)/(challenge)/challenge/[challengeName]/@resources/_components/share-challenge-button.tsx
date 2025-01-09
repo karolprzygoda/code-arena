@@ -29,7 +29,7 @@ const ShareChallengeButton = () => {
     return (
       <Dialog>
         <DialogTrigger asChild>
-          <DescriptionActionButton>
+          <DescriptionActionButton tooltipMessage={"Share"}>
             <Share />
           </DescriptionActionButton>
         </DialogTrigger>
@@ -54,7 +54,7 @@ const ShareChallengeButton = () => {
   return (
     <Drawer>
       <DrawerTrigger asChild>
-        <DescriptionActionButton>
+        <DescriptionActionButton tooltipMessage={"Share"}>
           <Share />
         </DescriptionActionButton>
       </DrawerTrigger>

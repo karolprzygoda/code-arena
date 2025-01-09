@@ -6,15 +6,18 @@ import { useTheme } from "next-themes";
 import { useShallow } from "zustand/react/shallow";
 import { useUserPreferencesStore } from "@/stores/user-preferences-store";
 import useEditorContext from "@/hooks/use-editor-context";
+import useSaveShortcut from "@/hooks/use-save-shortcut";
+import { toast } from "sonner";
 
 const CodeEditorPanel = () => {
   const { resolvedTheme } = useTheme();
-  const { code, language, setCode, isPending } = useEditorContext(
+  const { code, language, setCode, isPending, saveCode } = useEditorContext(
     useShallow((state) => ({
       code: state.code,
       language: state.language,
       setCode: state.setCode,
       isPending: state.isPending,
+      saveCode: state.saveCode,
     })),
   );
 
@@ -23,6 +26,13 @@ const CodeEditorPanel = () => {
       settings: state.settings,
     })),
   );
+
+  const handleSave = () => {
+    saveCode();
+    toast.success("Successfully saved code to local storage");
+  };
+
+  useSaveShortcut(handleSave);
 
   return (
     <ResizablePanel id={"code-panel"} defaultSize={70}>

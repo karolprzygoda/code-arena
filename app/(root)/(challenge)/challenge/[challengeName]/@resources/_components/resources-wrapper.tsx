@@ -1,6 +1,6 @@
 "use client";
 
-import { ReactNode, useState } from "react";
+import { ReactNode, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useUserPreferencesStore } from "@/stores/user-preferences-store";
 import { useShallow } from "zustand/react/shallow";
 import { useMediaQuery } from "@/hooks/use-media-query";
@@ -11,6 +11,8 @@ import ChallengeNavigator from "@/app/(root)/(challenge)/challenge/[challengeNam
 import RootPanelWrapper from "@/app/(root)/(challenge)/_components/root-panel-wrapper";
 import { ResourcesTabs } from "@/app/(root)/(challenge)/challenge/[challengeName]/@resources/_components/resources-tabs";
 import PanelHeader from "@/app/(root)/(challenge)/_components/panel-header";
+import { useResourcesPanelStore } from "@/stores/resources-panel-store";
+import { ImperativePanelHandle } from "react-resizable-panels";
 
 type ResourcesWrapperProps = {
   children: ReactNode;
@@ -27,9 +29,25 @@ const ResourcesWrapper = ({
     })),
   );
 
+  const resourcesPanelRef = useRef<ImperativePanelHandle>(null);
+
   const isDesktop = useMediaQuery("(min-width: 1024px)");
   const isBigScreen = useMediaQuery("(min-width: 1440px)");
-  const [isCollapsed, setIsCollapsed] = useState(false);
+
+  const { isCollapsed, setIsCollapsed, setResourcesResizablePanel } =
+    useResourcesPanelStore(
+      useShallow((state) => ({
+        isCollapsed: state.isCollapsed,
+        setIsCollapsed: state.setIsCollapsed,
+        setResourcesResizablePanel: state.setResourcesResizablePanel,
+      })),
+    );
+
+  useLayoutEffect(() => {
+    if (resourcesPanelRef.current) {
+      setResourcesResizablePanel(resourcesPanelRef.current);
+    }
+  }, [setResourcesResizablePanel, resourcesPanelRef]);
 
   return (
     <ResizablePanel
@@ -41,6 +59,7 @@ const ResourcesWrapper = ({
       )}
       minSize={isDesktop ? (isBigScreen ? 15 : 50) : 32}
       collapsible
+      ref={resourcesPanelRef}
       onCollapse={() => setIsCollapsed(true)}
       onExpand={() => setIsCollapsed(false)}
       defaultSize={50}

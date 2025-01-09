@@ -1,16 +1,21 @@
 import prismadb from "@/lib/prismadb";
 import { notFound, redirect } from "next/navigation";
 import MarkdownRenderer from "@/app/(root)/(challenge)/_components/markdown-renderer";
-import { createAdminClient } from "@/lib/supabase/admin";
-import { Badge } from "@/components/ui/badge";
-import { CircleCheck } from "lucide-react";
+import { Calendar } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
-import LikeButton from "@/app/(root)/(challenge)/challenge/[challengeName]/@resources/_components/like-button";
-import DislikeButton from "@/app/(root)/(challenge)/challenge/[challengeName]/@resources/_components/dislike-button";
+import UpVoteChallengeButton from "@/app/(root)/(challenge)/challenge/[challengeName]/@resources/_components/up-vote-challenge-button";
+import DislikeButton from "@/app/(root)/(challenge)/challenge/[challengeName]/@resources/_components/down-vote-challenge-button";
 import ShareChallengeButton from "@/app/(root)/(challenge)/challenge/[challengeName]/@resources/_components/share-challenge-button";
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
-import VotesStoreProvider from "@/app/(root)/(challenge)/challenge/[challengeName]/@resources/_components/votes-store-provider";
+import VotesStoreProvider from "@/stores/store-providers/votes-store-provider";
+import ManageChallengeButton from "@/app/(root)/(challenge)/challenge/[challengeName]/@resources/_components/manage-challenge-button";
+import { formatDistanceToNow } from "date-fns";
+import TabWrapper from "@/app/(root)/(challenge)/challenge/[challengeName]/@resources/_components/tab-wrapper";
+import UserProfileLink from "@/components/user-profile-link";
+import DifficultyBadge from "@/app/(root)/(challenge)/challenge/[challengeName]/@resources/_components/difficulty-badge";
+import { Challenge, Users, Vote } from "@prisma/client";
+import { User } from "@supabase/supabase-js";
+import IsChallengePassedIndicator from "@/app/(root)/(challenge)/challenge/[challengeName]/@resources/_components/is-challenge-passed-indicator";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 type DescriptionPageProps = {
   params: Promise<{ challengeName: string }>;
@@ -21,13 +26,8 @@ const DescriptionPage = async ({ params }: DescriptionPageProps) => {
     where: {
       title: (await params).challengeName.split(" ").join("-").toLowerCase(),
     },
-    select: {
-      description: true,
-      title: true,
-      createdAt: true,
-      creatorId: true,
-      difficulty: true,
-      id: true,
+    include: {
+      users: true,
     },
   });
 
@@ -35,109 +35,137 @@ const DescriptionPage = async ({ params }: DescriptionPageProps) => {
     notFound();
   }
 
-  const supabaseAdminClient = await createAdminClient();
-  const supabaseServerClient = await createClient();
-
-  const {
-    data: { user: challengeAuthor },
-    error: getChallengeAuthorError,
-  } = await supabaseAdminClient.auth.admin.getUserById(challengeData.creatorId);
+  const supabaseClient = await createClient();
 
   const {
     data: { user: signedUser },
     error: authError,
-  } = await supabaseServerClient.auth.getUser();
+  } = await supabaseClient.auth.getUser();
 
   if (authError || !signedUser) {
     redirect("/sign-in");
   }
 
-  if (getChallengeAuthorError) {
-    throw getChallengeAuthorError;
-  }
+  const [hasUserSolvedChallenge, totalVotes, userVote] = await Promise.all([
+    prismadb.submission.findFirst({
+      where: { status: "SUCCESS", userId: signedUser?.id },
+    }),
+    prismadb.votes.findMany({
+      where: { itemId: challengeData.id },
+    }),
+    prismadb.votes.findFirst({
+      where: { itemId: challengeData.id, userId: signedUser.id },
+      select: {
+        voteType: true,
+      },
+    }),
+  ]);
 
-  const hasUserSolvedChallenge = await prismadb.submission.findFirst({
-    where: {
-      status: "SUCCESS",
-      userId: signedUser?.id,
-    },
-  });
-
-  const votes = await prismadb.votes.findMany({
-    where: {
-      challengeId: challengeData.id,
-    },
-    select: {
-      voteType: true,
-    },
-  });
-
-  const likes = votes.filter((vote) => vote.voteType === "LIKE");
-  const disLikes = votes.filter((vote) => vote.voteType === "DISLIKE");
-
-  const userVote = await prismadb.votes.findFirst({
-    where: {
-      challengeId: challengeData.id,
-      user_id: signedUser.id,
-    },
-    select: {
-      voteType: true,
-    },
-  });
+  const upVotes = totalVotes.filter(
+    (vote) => vote.voteType === "UPVOTE",
+  ).length;
+  const downVotes = totalVotes.filter(
+    (vote) => vote.voteType === "DOWNVOTE",
+  ).length;
 
   const title = challengeData.title
     .split("-")
     .map((item) => item.slice(0, 1).toUpperCase() + item.slice(1))
     .join(" ");
 
-  const userName = challengeAuthor?.email?.split("@").at(0);
+  const supabaseAdminClient = await createAdminClient();
 
-  const difficultyColorMap = {
-    BEGINNER: "bg-difficulty-beginner",
-    EASY: "bg-difficulty-easy",
-    MEDIUM: "bg-difficulty-medium",
-    HARD: "bg-difficulty-hard",
-    EXTREME: "bg-difficulty-easy",
-  };
+  const {
+    data: { user: author },
+    error: adminError,
+  } = await supabaseAdminClient.auth.admin.getUserById(challengeData.users.id);
+
+  if (adminError) {
+    throw adminError;
+  }
+
+  const isAdmin = await prismadb.userRoles.findFirst({
+    where: { userid: author?.id },
+  });
+
+  const authorWithRole =
+    author && author.id ? { ...author, isAdmin: !!isAdmin } : null;
 
   return (
-    <div className={"flex flex-col"}>
-      <div className={"mb-8 flex w-full flex-col gap-1"}>
+    <TabWrapper>
+      <div className={"flex flex-col p-4 pb-8"}>
+        <DescriptionPageHeader
+          upVotes={upVotes}
+          downVotes={downVotes}
+          userVote={userVote}
+          signedUser={signedUser}
+          author={authorWithRole}
+          title={title}
+          challengeData={challengeData}
+          hasUserSolvedChallenge={!!hasUserSolvedChallenge}
+        />
+        <MarkdownRenderer markdown={challengeData.description} />
+      </div>
+    </TabWrapper>
+  );
+};
+
+type DescriptionPageHeaderProps = {
+  challengeData: Challenge & { users: Users };
+  signedUser: User;
+  title: string;
+  upVotes: number;
+  downVotes: number;
+  author: (User & { isAdmin: boolean }) | null;
+  hasUserSolvedChallenge: boolean;
+  userVote: { voteType: Vote } | null;
+};
+
+const DescriptionPageHeader = ({
+  challengeData,
+  signedUser,
+  title,
+  upVotes,
+  downVotes,
+  author,
+  hasUserSolvedChallenge,
+  userVote,
+}: DescriptionPageHeaderProps) => {
+  return (
+    <div className={"mb-8 flex w-full flex-col gap-1"}>
+      <div className={"flex justify-between"}>
         <h2 className={"text-3xl font-bold"}>{title}</h2>
-        <div>
-          <Button
-            variant={"ghost"}
-            className={
-              "bg-gradient-to-r from-rose-400 to-orange-500 bg-clip-text p-0 text-xs font-semibold text-transparent dark:from-rose-400 dark:to-orange-300"
-            }
-          >
-            @{userName}
-          </Button>
-        </div>
-        <div className={"mt-2 flex flex-wrap gap-2"}>
-          <Badge
-            className={cn(
-              "rounded-2xl",
-              difficultyColorMap[challengeData.difficulty],
-            )}
-          >
-            {challengeData.difficulty}
-          </Badge>
-          {hasUserSolvedChallenge && (
-            <CircleCheck className={"flex-shrink-0 text-green-500"} />
-          )}
-          <VotesStoreProvider
-            vote={userVote ? userVote.voteType : null}
-            likes={likes.length}
-            dislikes={disLikes.length}
-          >
-            <LikeButton challengeId={challengeData.id} />
-            <DislikeButton challengeId={challengeData.id} />
-          </VotesStoreProvider>
-          <ShareChallengeButton />
+        {challengeData.authorId === signedUser.id && (
+          <ManageChallengeButton challengeId={challengeData.id} />
+        )}
+      </div>
+      <div className={"flex flex-wrap items-center"}>
+        <UserProfileLink user={author} />
+        <div
+          className={
+            "flex items-center gap-2 text-nowrap text-xs text-muted-foreground"
+          }
+        >
+          <Calendar className={"h-4 w-4"} /> Created{" "}
+          {formatDistanceToNow(new Date(challengeData.createdAt), {
+            addSuffix: true,
+          })}
         </div>
       </div>
-      <MarkdownRenderer markdown={challengeData.description} />
+      <div className={"mt-2 flex flex-wrap gap-2"}>
+        <DifficultyBadge difficulty={challengeData.difficulty} />
+        {hasUserSolvedChallenge && <IsChallengePassedIndicator />}
+        <VotesStoreProvider
+          vote={userVote ? userVote.voteType : null}
+          likes={upVotes}
+          dislikes={downVotes}
+          itemId={challengeData.id}
+        >
+          <UpVoteChallengeButton />
+          <DislikeButton />
+        </VotesStoreProvider>
+        <ShareChallengeButton />
+      </div>
     </div>
   );
 };
