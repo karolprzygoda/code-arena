@@ -55,54 +55,46 @@ const TestsPanel = ({ tests }: TestsPanelProps) => {
     );
   }
 
-  if (globalError) {
-    return (
-      <ResizablePanel id={"test-panel"} defaultSize={30}>
-        <div className="h-full overflow-y-auto p-4 dark:border-zinc-700">
-          <TestTracker testsPassed={0} testsNumber={tests.length} />
-          <div
-            className={
-              "scrollbar-thin overflow-auto border p-4 dark:border-zinc-700"
-            }
-          >
-            <pre className={"text-red-500"}>{globalError.stack}</pre>
-          </div>
-        </div>
-      </ResizablePanel>
-    );
-  }
-
   return (
     <ResizablePanel
-      onCollapse={() => {
-        setIsCollapsed(true);
-      }}
-      onExpand={() => {
-        setIsCollapsed(false);
-      }}
+      onCollapse={() => setIsCollapsed(true)}
+      onExpand={() => setIsCollapsed(false)}
       collapsible
       minSize={20}
       ref={testsPanelRef}
-      id={"test-panel"}
+      id="test-panel"
       defaultSize={30}
     >
       <div className="h-full overflow-y-auto p-3 dark:border-zinc-700">
-        {testsResults.length !== 0 && (
-          <TestTracker
-            testsPassed={testsResults.filter((result) => result.passed).length}
-            testsNumber={tests.length}
-          />
+        {globalError ? (
+          <>
+            <TestTracker testsPassed={0} testsNumber={tests.length} />
+            <div className="scrollbar-thin overflow-auto border p-4 dark:border-zinc-700">
+              <pre className="text-red-500">{globalError.stack}</pre>
+            </div>
+          </>
+        ) : (
+          <>
+            {testsResults.length > 0 && (
+              <TestTracker
+                testsPassed={
+                  testsResults.filter((result) => result.passed).length
+                }
+                testsNumber={tests.length}
+              />
+            )}
+            <TestAccordion>
+              {tests.map((test, index) => (
+                <TestItem
+                  key={`test-item-${index}`}
+                  test={test}
+                  testResult={testsResults[index] || null}
+                  testIndex={index}
+                />
+              ))}
+            </TestAccordion>
+          </>
         )}
-        <TestAccordion>
-          {tests.map((test, index) => (
-            <TestItem
-              key={`test-item-${index}`}
-              test={test}
-              testResult={testsResults[index]}
-              testIndex={index}
-            />
-          ))}
-        </TestAccordion>
       </div>
     </ResizablePanel>
   );

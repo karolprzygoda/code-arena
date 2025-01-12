@@ -26,6 +26,12 @@ declare global {
   }
 }
 
+export type KafkaMessageType = {
+  kafkaMessageId: string;
+  code: string;
+  testCases: PrismaJson.TestCasesType;
+};
+
 export type TypographyVariant =
   | "bold"
   | "italic"
@@ -65,3 +71,22 @@ export type SubmissionResponse =
 export type JWTWithUserRole = {
   user_role: string;
 } & JwtPayload;
+
+export type MetricRange = {
+  start: number;
+  end: number;
+  percentage: number;
+};
+
+export type ProcessedMetric = {
+  range: string;
+  solutions: number;
+  isActive: boolean;
+};
+
+export type MetricData = {
+  data: ProcessedMetric[];
+  current: number;
+  beat: number;
+  unit: string;
+};

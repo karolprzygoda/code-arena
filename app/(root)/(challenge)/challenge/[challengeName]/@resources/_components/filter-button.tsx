@@ -8,38 +8,39 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
-import { Language, Status } from "@prisma/client";
 
 type StatusFilterButtonProps = {
-  setter:
-    | ((state: Language | "LANGUAGE") => void)
-    | ((state: Status | "STATUS") => void);
-  values: string[];
-  defaultValue: string;
+  setter: (value: string) => void;
+  selectItems: [
+    { label: string; value: string },
+    ...{ label: string; value: string }[],
+  ];
   className?: string;
 };
 
 const FilterButton = ({
   setter,
-  values,
-  defaultValue,
+  selectItems,
   className,
 }: StatusFilterButtonProps) => {
   return (
     <Select onValueChange={setter}>
       <div className={cn(className)}>
         <SelectTrigger className="h-fit w-fit shrink-0 gap-4 border-0 p-0 shadow-none outline-0 ring-0 focus:ring-0">
-          <SelectValue placeholder={defaultValue} defaultValue={defaultValue} />
+          <SelectValue
+            placeholder={selectItems[0].label}
+            defaultValue={selectItems[0].value}
+          />
         </SelectTrigger>
       </div>
       <SelectContent>
-        {values.map((value) => (
+        {selectItems.map((item) => (
           <SelectItem
-            key={`select-${value.toUpperCase()}`}
+            key={`select-${item.value}`}
             className={"cursor-pointer"}
-            value={value.toUpperCase()}
+            value={item.value}
           >
-            {value}
+            {item.label}
           </SelectItem>
         ))}
       </SelectContent>

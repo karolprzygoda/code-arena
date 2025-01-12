@@ -13,24 +13,10 @@ import CodeEditorPanel from "@/app/(root)/(challenge)/challenge/[challengeName]/
 import TestsPanel from "@/app/(root)/(challenge)/challenge/[challengeName]/@editor/_components/tests-components/tests-panel";
 import PanelFooter from "@/app/(root)/(challenge)/_components/panel-footer";
 import SubmitChallengeButton from "@/app/(root)/(challenge)/challenge/[challengeName]/@editor/_components/submit-challenge-button";
-import ExpandTestsPanelButton from "@/app/(root)/(challenge)/challenge/[challengeName]/@editor/_components/expand-tests-panel-button";
+import ExpandTestsPanelButton from "@/app/(root)/(challenge)/challenge/[challengeName]/@editor/_components/tests-components/expand-tests-panel-button";
 
 type EditorPageComponentProps = {
   challengeName: string;
-};
-
-const javaTypesMap = (value: unknown) => {
-  const jsType = typeof value;
-  switch (jsType) {
-    case "number":
-      return "int";
-    case "string":
-      return "String";
-    case "boolean":
-      return "boolean";
-    default:
-      return "Object";
-  }
 };
 
 const EditorPageComponent = async ({
@@ -60,10 +46,6 @@ const EditorPageComponent = async ({
       .at(0)!
       .inputs.map((input) => input.name)
       .join(",")}):\n    # Write your code here\n    pass`,
-    java: `public class Solution {\n    public static void solution(${data.testCases
-      .at(0)!
-      .inputs.map((input) => `${javaTypesMap(input.value)} ${input.name}`)
-      .join(", ")}) {\n        // Write your code here\n    }\n}`,
   };
 
   const sanitizedHiddenTests = data.testCases

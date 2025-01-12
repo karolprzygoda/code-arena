@@ -114,7 +114,7 @@ const runConsumer = async () => {
             messages: [
               {
                 value: JSON.stringify({
-                  submissionId: payload.submissionId,
+                  kafkaMessageId: payload.kafkaMessageId,
                   result,
                 }),
               },

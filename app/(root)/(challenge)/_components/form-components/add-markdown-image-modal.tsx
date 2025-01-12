@@ -11,7 +11,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Label } from "@/components/ui/label";
-import { ChangeEvent, useState } from "react";
+import { ChangeEvent, RefObject, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import {
@@ -23,35 +23,38 @@ import {
   DrawerTitle,
 } from "@/components/ui/drawer";
 import { Button } from "@/components/ui/button";
-import { useMarkdownEditorStore } from "@/stores/markdown-editor-store";
+import useMarkdownContext from "@/hooks/use-markdown-context";
+import { useShallow } from "zustand/react/shallow";
+import { editor } from "monaco-editor";
+import { getSelectionStartEnd } from "@/lib/utils";
 
 type AddMarkdownImageModalProps = {
   isOpen: boolean;
   onClose: () => void;
-  textAreaElement: HTMLTextAreaElement;
+  editorRef: RefObject<editor.IStandaloneCodeEditor>;
 };
 
 const AddMarkdownImageModal = ({
   isOpen,
   onClose,
-  textAreaElement,
+  editorRef,
 }: AddMarkdownImageModalProps) => {
   const [url, setUrl] = useState("");
   const [description, setDescription] = useState("");
   const isDesktop = useMediaQuery("(min-width: 1024px)");
 
-  const handleAddImage = () => {
-    const { selectionStart, selectionEnd } = textAreaElement!;
-    const markdownLink = `![${description}](${url})`;
-    const markdownStore = useMarkdownEditorStore.getState();
+  const { addToMarkdown } = useMarkdownContext(
+    useShallow((state) => ({
+      addToMarkdown: state.addToMarkdown,
+    })),
+  );
 
-    const updatedMarkdown =
-      markdownStore.markdown.slice(0, selectionStart) +
-      markdownLink +
-      markdownStore.markdown.slice(selectionEnd);
+  const handleAddImage = () => {
+    const { selectionStart, selectionEnd } = getSelectionStartEnd(editorRef)!;
+    const markdownLink = `![${description}](${url})`;
+    addToMarkdown(selectionStart, selectionEnd, markdownLink);
     setDescription("");
     setUrl("");
-    markdownStore.setMarkdown(updatedMarkdown);
     onClose();
   };
 

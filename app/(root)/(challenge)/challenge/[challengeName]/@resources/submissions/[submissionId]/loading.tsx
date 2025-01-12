@@ -24,7 +24,7 @@ const Loading = () => {
         </div>
 
         <div className="grid grid-cols-2 gap-4">
-          <div className="rounded-lg bg-gray-800 p-4">
+          <div className="rounded-lg bg-gray-300 p-4 dark:bg-gray-800">
             <div className="mb-2 flex items-center gap-2">
               <Skeleton className="h-4 w-16" />
             </div>
@@ -34,7 +34,7 @@ const Loading = () => {
             </div>
           </div>
 
-          <div className="rounded-lg bg-gray-800 p-4">
+          <div className="rounded-lg bg-gray-300 p-4 dark:bg-gray-800">
             <div className="mb-2 flex items-center gap-2">
               <Skeleton className="h-4 w-16" />
             </div>
@@ -45,8 +45,7 @@ const Loading = () => {
           </div>
         </div>
 
-        {/* Graph skeleton */}
-        <div className="rounded-lg bg-gray-800 p-4">
+        <div className="rounded-lg bg-gray-300 p-4 dark:bg-gray-800">
           <div className="flex h-48 items-end gap-1">
             {Array.from({ length: 15 }).map((_, i) => (
               <Skeleton

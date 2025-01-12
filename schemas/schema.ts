@@ -34,7 +34,7 @@ export const userCodeSchema = z.object({
     .refine((code) => new TextEncoder().encode(code).length <= MAX_SIZE_BYTES, {
       message: `Code must not exceed ${MAX_SIZE_KB} KB`,
     }),
-  language: z.enum(["javascript", "python", "java"], {
+  language: z.enum(["javascript", "python"], {
     errorMap: () => ({ message: "Invalid language selected" }),
   }),
   challengeId: z
@@ -82,6 +82,22 @@ export const challengeSchema = z.object({
     ),
 });
 
+export const solutionSchema = z.object({
+  challengeId: z.string().uuid("not walid uuid"),
+  language: z.enum(["JAVASCRIPT", "PYTHON"], {
+    errorMap: () => ({ message: "Invalid language selected" }),
+  }),
+  title: z
+    .string()
+    .min(1, "Title is required")
+    .max(50, "Solution title cannot exceed 50 characters"),
+  description: z
+    .string()
+    .min(1, "Description is required")
+    .max(20000, "Solution description cannot exceed 20000 characters"),
+});
+
+export type TSolutionSchema = z.infer<typeof solutionSchema>;
 export type TTestCasesSchema = z.infer<typeof testCasesSchema>;
 export type TChallengeSchema = z.infer<typeof challengeSchema>;
 export type TAuthSchema = z.infer<typeof authSchema>;

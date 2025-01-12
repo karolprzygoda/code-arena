@@ -54,14 +54,10 @@ export function PerformanceChart({
 
   const user = useUser();
 
-  if (!currentRuntime || !currentMemory) {
-    return null;
-  }
-
   return (
     <Card
       className={
-        "min-w-[275px] rounded-xl border-zinc-300 bg-transparent shadow-none dark:border-zinc-700"
+        "mb-2 min-w-[275px] rounded-xl border-zinc-300 bg-transparent shadow-none dark:border-zinc-700"
       }
     >
       <CardHeader className={"p-4"}>

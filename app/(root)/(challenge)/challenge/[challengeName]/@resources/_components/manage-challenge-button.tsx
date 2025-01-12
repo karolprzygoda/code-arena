@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { Ellipsis, FilePenLine, Trash } from "lucide-react";
-import { deleteChallenge } from "@/actions/actions";
+import { deleteChallenge } from "@/actions/challenge-actions";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import {

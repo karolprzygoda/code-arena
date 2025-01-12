@@ -5,9 +5,9 @@ import {
   getStatusClass,
 } from "@/lib/utils";
 import { Calendar, Clock, Cpu } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
 import { Submission } from "@prisma/client";
 import Link from "next/link";
+import LanguageBadge from "@/app/(root)/(challenge)/challenge/[challengeName]/@resources/_components/language-badge";
 
 type SubmissionRowProps = {
   submission: Submission;
@@ -43,13 +43,7 @@ const SubmissionRow = ({
           </span>
         </div>
         <div className={"w-44 shrink-0"}>
-          <Badge
-            className={
-              "rounded-2xl bg-muted text-muted-foreground dark:bg-neutral-700 dark:text-white"
-            }
-          >
-            {submission.language}
-          </Badge>
+          <LanguageBadge language={submission.language} />
         </div>
         <div className={"flex w-44 shrink-0 items-center gap-2"}>
           <Clock className={"h-4 w-4"} />

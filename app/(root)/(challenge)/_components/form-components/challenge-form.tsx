@@ -1,6 +1,5 @@
 "use client";
 
-import { useMarkdownEditorStore } from "@/stores/markdown-editor-store";
 import { FieldErrors, useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -30,17 +29,19 @@ import {
   testCasesSchema,
   TTestCasesSchema,
 } from "@/schemas/schema";
-import { ChangeEvent, FormEvent, useLayoutEffect, useRef } from "react";
-import { createNewChallenge, updateChallenge } from "@/actions/actions";
+import { ChangeEvent, FormEvent, useRef } from "react";
+import {
+  createNewChallenge,
+  updateChallenge,
+} from "@/actions/challenge-actions";
 import { useRouter } from "next/navigation";
 import TestCaseFormField from "@/app/(root)/(challenge)/_components/form-components/test-case-form-field";
 import RootPanelWrapper from "@/app/(root)/(challenge)/_components/root-panel-wrapper";
 import PanelHeader from "@/app/(root)/(challenge)/_components/panel-header";
 import PanelFooter from "@/app/(root)/(challenge)/_components/panel-footer";
-import MarkdownBuilder from "@/app/(root)/(challenge)/_components/form-components/markdown-builder";
 import { useShallow } from "zustand/react/shallow";
-import { useChallengeFormStore } from "@/stores/challenge-form-store";
 import { toast } from "sonner";
+import useMarkdownContext from "@/hooks/use-markdown-context";
 
 type CreateChallengeFormProps = {
   initialData?: TChallengeSchema;
@@ -54,15 +55,9 @@ const ChallengeForm = ({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
 
-  const { isEditingDescription } = useChallengeFormStore(
+  const { markdown } = useMarkdownContext(
     useShallow((state) => ({
-      isEditingDescription: state.isEditingDescription,
-    })),
-  );
-
-  const { setMarkdown } = useMarkdownEditorStore(
-    useShallow((state) => ({
-      setMarkdown: state.setMarkdown,
+      markdown: state.markdown,
     })),
   );
 
@@ -82,12 +77,6 @@ const ChallengeForm = ({
       ],
     },
   });
-
-  useLayoutEffect(() => {
-    if (initialData) {
-      setMarkdown(initialData.description);
-    }
-  }, [initialData, setMarkdown]);
 
   const isSubmitting = form.formState.isSubmitting;
 
@@ -159,16 +148,14 @@ const ChallengeForm = ({
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    form.setValue("description", useMarkdownEditorStore.getState().markdown);
+    form.setValue("description", markdown);
     form.handleSubmit(onSubmit, onError)();
   };
 
   return (
     <Form {...form}>
-      {isEditingDescription ? (
-        <MarkdownBuilder />
-      ) : (
-        <form onSubmit={handleSubmit} className="w-full lg:w-1/2">
+      <form onSubmit={handleSubmit} className="w-full lg:w-1/2">
+        <fieldset className={"h-full w-full"} disabled={isSubmitting}>
           <RootPanelWrapper>
             <PanelHeader>
               <span className={"ms-3 text-xs font-semibold"}>
@@ -309,8 +296,8 @@ const ChallengeForm = ({
               </Button>
             </PanelFooter>
           </RootPanelWrapper>
-        </form>
-      )}
+        </fieldset>
+      </form>
     </Form>
   );
 };

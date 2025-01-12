@@ -1,10 +1,10 @@
 import { notFound, redirect } from "next/navigation";
 import TabWrapper from "@/app/(root)/(challenge)/challenge/[challengeName]/@resources/_components/tab-wrapper";
-import SubmissionsStoreProvider from "@/stores/store-providers/submissions-store-provider";
 import { createClient } from "@/lib/supabase/server";
 import prismadb from "@/lib/prismadb";
 import SubmissionsWrapper from "@/app/(root)/(challenge)/challenge/[challengeName]/@resources/submissions/_components/submissions-wrapper";
-import FilterButtonsWrapper from "@/app/(root)/(challenge)/challenge/[challengeName]/@resources/submissions/_components/filter-buttons-wrapper";
+import SubmissionsFilterButtonsWrapper from "@/app/(root)/(challenge)/challenge/[challengeName]/@resources/submissions/_components/submissions-filter-buttons-wrapper";
+import FilteredDataStoreProvider from "@/stores/store-providers/filtered-data-store-provider";
 
 type SubmissionsPageProps = {
   params: Promise<{ challengeName: string }>;
@@ -29,9 +29,6 @@ const SubmissionsPage = async ({ params }: SubmissionsPageProps) => {
       challenge: {
         title: challengeName,
       },
-      NOT: {
-        status: "PENDING",
-      },
     },
     orderBy: {
       createdAt: "desc",
@@ -49,23 +46,29 @@ const SubmissionsPage = async ({ params }: SubmissionsPageProps) => {
           "flex h-full w-full min-w-[784px] flex-col text-sm font-semibold text-muted-foreground"
         }
       >
-        <SubmissionsStoreProvider
-          submissions={submissions}
-          initialSubmissions={submissions}
-          language={"LANGUAGE"}
-          status={"STATUS"}
+        <FilteredDataStoreProvider
+          data={submissions}
+          initialData={submissions}
+          defaultFilters={{
+            language: "LANGUAGE",
+            status: "STATUS",
+          }}
+          filters={{
+            language: "LANGUAGE",
+            status: "STATUS",
+          }}
         >
           <div
             className={
               "flex w-full border-b border-zinc-300 py-2 dark:border-zinc-700"
             }
           >
-            <FilterButtonsWrapper />
+            <SubmissionsFilterButtonsWrapper />
             <div className={"w-44 shrink-0"}>Runtime</div>
             <div className={"w-44 shrink-0"}>Memory</div>
           </div>
           <SubmissionsWrapper challengeName={challengeName} />
-        </SubmissionsStoreProvider>
+        </FilteredDataStoreProvider>
       </div>
     </TabWrapper>
   );

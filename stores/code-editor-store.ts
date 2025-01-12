@@ -41,7 +41,6 @@ export const createEditorStore = (
   const DEFAULT_STATE: CodeEditorProps = {
     code: {
       javascript: "",
-      java: "",
       python: "",
     },
     language: "javascript",

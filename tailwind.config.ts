@@ -10,6 +10,9 @@ export default {
   ],
   theme: {
     extend: {
+      fontSize: {
+        "2xs": "0.65rem",
+      },
       colors: {
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",

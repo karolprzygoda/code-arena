@@ -2,10 +2,11 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 
 type SubmissionHeaderProps = {
-  challengeName: string;
+  href: string;
+  title: string;
 };
 
-const SubmissionHeader = ({ challengeName }: SubmissionHeaderProps) => {
+const GoBackTabHeader = ({ href, title }: SubmissionHeaderProps) => {
   return (
     <div
       className={
@@ -13,16 +14,16 @@ const SubmissionHeader = ({ challengeName }: SubmissionHeaderProps) => {
       }
     >
       <Link
-        href={`/challenge/${challengeName}/submissions`}
+        href={href}
         className={
           "flex items-center gap-1 hover:text-black dark:hover:text-white"
         }
       >
         <ArrowLeft className={"h-4 w-4"} />
-        All Submissions
+        {title}
       </Link>
     </div>
   );
 };
 
-export default SubmissionHeader;
+export default GoBackTabHeader;

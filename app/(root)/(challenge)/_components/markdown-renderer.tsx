@@ -9,9 +9,11 @@ import {
 import Markdown from "react-markdown";
 import { useTheme } from "next-themes";
 import remarkMath from "remark-math";
+import remarkRemoveComments from "remark-remove-comments";
 import rehypeKatex from "rehype-katex";
 import "katex/dist/katex.min.css";
 import { Icons } from "@/components/icons";
+import { useEffect, useState } from "react";
 
 type MarkdownRendererProps = {
   markdown: string;
@@ -19,6 +21,16 @@ type MarkdownRendererProps = {
 
 const MarkdownRenderer = ({ markdown }: MarkdownRendererProps) => {
   const { resolvedTheme } = useTheme();
+
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  if (!isMounted) {
+    return null;
+  }
 
   if (markdown === "") {
     return (
@@ -35,7 +47,7 @@ const MarkdownRenderer = ({ markdown }: MarkdownRendererProps) => {
 
   return (
     <Markdown
-      remarkPlugins={[remarkGfm, remarkMath]}
+      remarkPlugins={[remarkGfm, remarkMath, remarkRemoveComments]}
       rehypePlugins={[rehypeKatex]}
       className="prose-invert overflow-x-hidden leading-7"
       components={{

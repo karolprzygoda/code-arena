@@ -20,7 +20,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { ChangeEvent, useState } from "react";
+import { ChangeEvent, RefObject, useState } from "react";
 import { Language } from "@prisma/client";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import {
@@ -32,18 +32,21 @@ import {
   DrawerTitle,
 } from "@/components/ui/drawer";
 import { Button } from "@/components/ui/button";
-import { useMarkdownEditorStore } from "@/stores/markdown-editor-store";
+import useMarkdownContext from "@/hooks/use-markdown-context";
+import { useShallow } from "zustand/react/shallow";
+import { editor } from "monaco-editor";
+import { getSelectionStartEnd } from "@/lib/utils";
 
 type AddCodeBlockModalProps = {
   isOpen: boolean;
   onClose: () => void;
-  textAreaElement: HTMLTextAreaElement;
+  editorRef: RefObject<editor.IStandaloneCodeEditor>;
 };
 
 const AddMarkdownCodeBlockModal = ({
   isOpen,
   onClose,
-  textAreaElement,
+  editorRef,
 }: AddCodeBlockModalProps) => {
   const [code, setCode] = useState("");
   const [language, setLanguage] = useState<Lowercase<Language> | "graph">(
@@ -51,18 +54,18 @@ const AddMarkdownCodeBlockModal = ({
   );
   const isDesktop = useMediaQuery("(min-width: 1024px)");
 
-  const handleAddCodeBlock = () => {
-    const { selectionStart, selectionEnd } = textAreaElement!;
-    const markdownCodeBlock = `\`\`\`${language}\n${code}\n\`\`\``;
-    const markdownStore = useMarkdownEditorStore.getState();
+  const { addToMarkdown } = useMarkdownContext(
+    useShallow((state) => ({
+      addToMarkdown: state.addToMarkdown,
+    })),
+  );
 
-    const updatedMarkdown =
-      markdownStore.markdown.slice(0, selectionStart) +
-      markdownCodeBlock +
-      markdownStore.markdown.slice(selectionEnd);
+  const handleAddCodeBlock = () => {
+    const { selectionStart, selectionEnd } = getSelectionStartEnd(editorRef)!;
+    const markdownCodeBlock = `\`\`\`${language}\n${code}\n\`\`\``;
+    addToMarkdown(selectionStart, selectionEnd, markdownCodeBlock);
     setCode("");
     setLanguage("javascript");
-    markdownStore.setMarkdown(updatedMarkdown);
     onClose();
   };
 

@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { ChangeEvent, useState } from "react";
+import { ChangeEvent, RefObject, useState } from "react";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import {
   Drawer,
@@ -23,35 +23,38 @@ import {
   DrawerTitle,
 } from "@/components/ui/drawer";
 import { Button } from "@/components/ui/button";
-import { useMarkdownEditorStore } from "@/stores/markdown-editor-store";
+import useMarkdownContext from "@/hooks/use-markdown-context";
+import { useShallow } from "zustand/react/shallow";
+import { editor } from "monaco-editor";
+import { getSelectionStartEnd } from "@/lib/utils";
 
 type AddMarkdownLinkModalProps = {
   isOpen: boolean;
   onClose: () => void;
-  textAreaElement: HTMLTextAreaElement;
+  editorRef: RefObject<editor.IStandaloneCodeEditor>;
 };
 
 const AddMarkdownLinkModal = ({
   isOpen,
   onClose,
-  textAreaElement,
+  editorRef,
 }: AddMarkdownLinkModalProps) => {
   const [url, setUrl] = useState("");
   const [anchorText, setAnchorText] = useState("");
   const isDesktop = useMediaQuery("(min-width: 1024px)");
 
-  const handleAddLink = () => {
-    const { selectionStart, selectionEnd } = textAreaElement!;
-    const markdownLink = `[${anchorText}](${url})`;
-    const markdownStore = useMarkdownEditorStore.getState();
+  const { addToMarkdown } = useMarkdownContext(
+    useShallow((state) => ({
+      addToMarkdown: state.addToMarkdown,
+    })),
+  );
 
-    const updatedMarkdown =
-      markdownStore.markdown.slice(0, selectionStart) +
-      markdownLink +
-      markdownStore.markdown.slice(selectionEnd);
+  const handleAddLink = () => {
+    const { selectionStart, selectionEnd } = getSelectionStartEnd(editorRef)!;
+    const markdownLink = `[${anchorText}](${url})`;
+    addToMarkdown(selectionStart, selectionEnd, markdownLink);
     setAnchorText("");
     setUrl("");
-    markdownStore.setMarkdown(updatedMarkdown);
     onClose();
   };
 

@@ -167,7 +167,7 @@ def run_consumer():
             producer.send(
                 output_topic,
                 {
-                    "submissionId": payload["submissionId"],
+                    "kafkaMessageId": payload["kafkaMessageId"],
                     "result": result,
                 },
             )

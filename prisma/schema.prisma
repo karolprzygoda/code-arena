@@ -344,6 +344,7 @@ model Challenge {
   authorId           String       @db.Uuid
   users              Users        @relation(fields: [authorId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   Submission         Submission[]
+  Solution           Solution[]
 
   @@schema("public")
 }
@@ -367,11 +368,26 @@ model Submission {
   status      Status
   createdAt   DateTime  @default(now())
   /// [TestResultsType]
-  testResults Json
+  testResults Json?
   /// [GlobalErrorType]
   globalError Json?
   challenge   Challenge @relation(fields: [challengeId], references: [id], onDelete: Cascade)
   users       Users     @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@schema("public")
+}
+
+model Solution {
+  id          String   @id @default(uuid())
+  authorId    String   @db.Uuid
+  challengeId String
+  language    Language
+  description String
+  title       String
+  createdAt   DateTime @default(now())
+
+  challenge Challenge @relation(fields: [challengeId], references: [id], onDelete: Cascade)
+  users     Users     @relation(fields: [authorId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@schema("public")
 }
@@ -395,6 +411,7 @@ model Users {
   submission Submission[]
   users      users        @relation(fields: [id], references: [id], onDelete: Cascade, onUpdate: NoAction)
   Votes      Votes[]
+  Solution   Solution[]
 
   @@schema("public")
 }
@@ -476,13 +493,11 @@ enum Difficulty {
 enum Language {
   JAVASCRIPT
   PYTHON
-  JAVA
 
   @@schema("public")
 }
 
 enum Status {
-  PENDING
   SUCCESS
   FAIL
 

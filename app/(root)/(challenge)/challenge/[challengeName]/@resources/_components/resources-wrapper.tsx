@@ -1,6 +1,6 @@
 "use client";
 
-import { ReactNode, useEffect, useLayoutEffect, useRef, useState } from "react";
+import { ReactNode, useLayoutEffect, useRef } from "react";
 import { useUserPreferencesStore } from "@/stores/user-preferences-store";
 import { useShallow } from "zustand/react/shallow";
 import { useMediaQuery } from "@/hooks/use-media-query";

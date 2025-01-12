@@ -1,31 +1,40 @@
 "use client";
 
-import { Textarea } from "@/components/ui/textarea";
 import { ContextMenuTrigger } from "@/components/ui/context-menu";
-import { ChangeEvent, RefObject, useEffect } from "react";
-import {
-  useMarkdownEditorStore,
-  useMarkdownTemporalStore,
-} from "@/stores/markdown-editor-store";
+import { MutableRefObject, useEffect } from "react";
 import { useShallow } from "zustand/react/shallow";
+import useMarkdownContext from "@/hooks/use-markdown-context";
+import { useMarkdownTemporalStore } from "@/hooks/use-markdown-temporal-store";
+import { Editor, OnMount } from "@monaco-editor/react";
+import { useTheme } from "next-themes";
+import { editor } from "monaco-editor";
 
 type MarkdownEditorTextareaProps = {
-  ref: RefObject<HTMLTextAreaElement>;
+  ref: MutableRefObject<editor.IStandaloneCodeEditor | null>;
 };
 
 const MarkdownEditorTextarea = ({ ref }: MarkdownEditorTextareaProps) => {
-  const { markdown, setMarkdown } = useMarkdownEditorStore(
+  const { markdown, setMarkdown } = useMarkdownContext(
     useShallow((state) => ({
       markdown: state.markdown,
       setMarkdown: state.setMarkdown,
     })),
   );
 
-  const handleMarkdownChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
-    setMarkdown(e.target.value);
+  const { resolvedTheme } = useTheme();
+
+  const handleEditorDidMount: OnMount = (editor) => {
+    if (ref) {
+      ref.current = editor;
+    }
+    editor.focus();
   };
 
-  const { undo, redo } = useMarkdownTemporalStore((state) => state);
+  const handleMarkdownChange = (text: string) => {
+    setMarkdown(text);
+  };
+
+  const { undo, redo } = useMarkdownTemporalStore().temporal.getState();
 
   useEffect(() => {
     const handleKeyPress = (event: KeyboardEvent) => {
@@ -48,15 +57,21 @@ const MarkdownEditorTextarea = ({ ref }: MarkdownEditorTextareaProps) => {
 
   return (
     <ContextMenuTrigger className={"h-full w-full"}>
-      <Textarea
-        ref={ref}
-        autoFocus
+      <Editor
         value={markdown}
-        onChange={handleMarkdownChange}
-        className={
-          "h-full w-full resize-none rounded-xl border-0 p-4 focus-visible:ring-0 active:border-0"
-        }
-        placeholder="Write your Markdown here..."
+        onChange={(e) => handleMarkdownChange(e as string)}
+        onMount={handleEditorDidMount}
+        theme={resolvedTheme === "dark" ? "vs-dark" : "light"}
+        options={{
+          minimap: { enabled: false },
+          fontLigatures: true,
+          wordWrap: "on",
+          bracketPairColorization: {
+            enabled: true,
+          },
+          formatOnPaste: true,
+        }}
+        language={"markdown"}
       />
     </ContextMenuTrigger>
   );

@@ -24,31 +24,27 @@ import AddMarkdownLinkModal from "@/app/(root)/(challenge)/_components/form-comp
 import MarkdownEditorContextToolbar from "@/app/(root)/(challenge)/_components/form-components/markdown-editor-context-toolbar";
 import MarkdownEditorTextarea from "@/app/(root)/(challenge)/_components/form-components/markdown-editor-textarea";
 import AddMarkdownImageModal from "@/app/(root)/(challenge)/_components/form-components/add-markdown-image-modal";
-import { useMarkdownEditorStore } from "@/stores/markdown-editor-store";
 import RootPanelWrapper from "@/app/(root)/(challenge)/_components/root-panel-wrapper";
-
-const typographyMap: Record<TypographyVariant, (text: string) => string> = {
-  bold: (text) => `**${text}**`,
-  italic: (text) => `*${text}*`,
-  strike: (text) => `~~${text}~~`,
-  inlineCode: (text) => `\`${text}\``,
-  quote: (text) => `> ${text}`,
-  unorderedList: (text) => `- ${text}`,
-  orderedList: (text) => `1. ${text}`,
-  h1: (text) => `# ${text}`,
-  h2: (text) => `## ${text}`,
-  h3: (text) => `### ${text}`,
-};
-
-const getUpdatedText = (typographyVariant: TypographyVariant, text: string) =>
-  typographyMap[typographyVariant](text);
+import { useShallow } from "zustand/react/shallow";
+import {
+  cn,
+  getSelectionStartEnd,
+  setSelectionFromStartEnd,
+  typographyMap,
+} from "@/lib/utils";
+import useMarkdownContext from "@/hooks/use-markdown-context";
+import { editor } from "monaco-editor";
 
 const getFormatLength = (
-  updatedText: string,
-  selectedText: string,
+  selectionStart: number,
+  selectionEnd: number,
   typographyVariant: TypographyVariant,
 ) => {
-  const formatChars = updatedText.length - selectedText.length;
+  const formatChars =
+    selectionStart -
+    selectionEnd +
+    typographyMap[typographyVariant].length -
+    (selectionStart - selectionEnd);
 
   const singleWrapVariants: TypographyVariant[] = [
     "bold",
@@ -62,39 +58,24 @@ const getFormatLength = (
     : formatChars;
 };
 
-const getSelectedText = (
-  markdown: string,
-  textAreaElement: HTMLTextAreaElement,
-) => {
-  const { selectionStart, selectionEnd } = textAreaElement;
-  return {
-    selectionStart,
-    selectionEnd,
-    selectedText: markdown.slice(selectionStart, selectionEnd),
-  };
+type MarkdownBuilderProps = {
+  className?: string;
 };
 
-const getUpdatedMarkdown = (
-  updatedText: string,
-  selectionStart: number,
-  selectionEnd: number,
-  markdown: string,
-) => {
-  return (
-    markdown.slice(0, selectionStart) +
-    updatedText +
-    markdown.slice(selectionEnd)
-  );
-};
-
-const MarkdownBuilder = () => {
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
+const MarkdownBuilder = ({ className }: MarkdownBuilderProps) => {
+  const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);
 
   const [isModalOpen, setIsModalOpen] = useState({
     codeModal: false,
     linkModal: false,
     imageModal: false,
   });
+
+  const { updateMarkdown } = useMarkdownContext(
+    useShallow((state) => ({
+      updateMarkdown: state.updateMarkdown,
+    })),
+  );
 
   const handleOpenModal = (modalName: string) => {
     setIsModalOpen({ ...isModalOpen, [modalName]: true });
@@ -105,31 +86,20 @@ const MarkdownBuilder = () => {
   };
 
   const handleAddTypography = (typographyVariant: TypographyVariant) => {
-    const markdownStore = useMarkdownEditorStore.getState();
-    const { selectedText, selectionStart, selectionEnd } = getSelectedText(
-      markdownStore.markdown,
-      textareaRef.current!,
-    );
-    const updatedText = getUpdatedText(typographyVariant, selectedText);
-    const updatedMarkdown = getUpdatedMarkdown(
-      updatedText,
+    const { selectionStart, selectionEnd } = getSelectionStartEnd(editorRef)!;
+    updateMarkdown(typographyVariant, selectionStart, selectionEnd);
+
+    const selectionRange = getFormatLength(
       selectionStart,
       selectionEnd,
-      markdownStore.markdown,
-    );
-    const formatLength = getFormatLength(
-      updatedText,
-      selectedText,
       typographyVariant,
     );
 
-    markdownStore.setMarkdown(updatedMarkdown);
-
     setTimeout(() => {
-      textareaRef.current?.focus();
-      textareaRef.current?.setSelectionRange(
-        selectionStart + formatLength,
-        selectionEnd + formatLength,
+      setSelectionFromStartEnd(
+        editorRef,
+        selectionStart + selectionRange,
+        selectionEnd + selectionRange,
       );
     }, 0);
   };
@@ -220,26 +190,26 @@ const MarkdownBuilder = () => {
   ];
 
   return (
-    <RootPanelWrapper className={"dark:bg-[#1e1e1e] lg:w-1/2"}>
+    <RootPanelWrapper className={cn("min-h-full dark:bg-[#1e1e1e]", className)}>
       <MarkdownEditorHeaderToolbar actions={actions} />
       <ContextMenu modal={false}>
-        <MarkdownEditorTextarea ref={textareaRef} />
+        <MarkdownEditorTextarea ref={editorRef} />
         <MarkdownEditorContextToolbar actions={actions} />
       </ContextMenu>
       <AddMarkdownCodeBlockModal
         isOpen={isModalOpen.codeModal}
         onClose={() => handleCloseModal("codeModal")}
-        textAreaElement={textareaRef.current!}
+        editorRef={editorRef}
       />
       <AddMarkdownLinkModal
         isOpen={isModalOpen.linkModal}
         onClose={() => handleCloseModal("linkModal")}
-        textAreaElement={textareaRef.current!}
+        editorRef={editorRef}
       />
       <AddMarkdownImageModal
         isOpen={isModalOpen.imageModal}
         onClose={() => handleCloseModal("imageModal")}
-        textAreaElement={textareaRef.current!}
+        editorRef={editorRef}
       />
     </RootPanelWrapper>
   );

@@ -5,8 +5,8 @@ import { createContext } from "react";
 
 export type VotesProps = {
   vote: "UPVOTE" | "DOWNVOTE" | null;
-  likes: number;
-  dislikes: number;
+  upVotes: number;
+  downVotes: number;
   itemId: string | null;
 };
 
@@ -24,8 +24,8 @@ export type VotesStore = ReturnType<typeof createVotesStore>;
 export const createVotesStore = (initState?: Partial<VotesProps>) => {
   const DEFAULT_STATE: VotesProps = {
     vote: null,
-    likes: 0,
-    dislikes: 0,
+    upVotes: 0,
+    downVotes: 0,
     itemId: null,
   };
 
@@ -36,27 +36,28 @@ export const createVotesStore = (initState?: Partial<VotesProps>) => {
       set((state) => {
         if (vote === state.vote) {
           if (vote === "UPVOTE") {
-            return { vote: null, likes: state.likes - 1 };
+            return { vote: null, upVotes: state.upVotes - 1 };
           }
           if (vote === "DOWNVOTE") {
-            return { vote: null, dislikes: state.dislikes - 1 };
+            return { vote: null, downVotes: state.downVotes - 1 };
           }
         }
 
         if (vote === "UPVOTE") {
           return {
             vote,
-            likes: state.likes + 1,
-            dislikes:
-              state.vote === "DOWNVOTE" ? state.dislikes - 1 : state.dislikes,
+            upVotes: state.upVotes + 1,
+            downVotes:
+              state.vote === "DOWNVOTE" ? state.downVotes - 1 : state.downVotes,
           };
         }
 
         if (vote === "DOWNVOTE") {
           return {
             vote,
-            dislikes: state.dislikes + 1,
-            likes: state.vote === "UPVOTE" ? state.likes - 1 : state.likes,
+            downVotes: state.downVotes + 1,
+            upVotes:
+              state.vote === "UPVOTE" ? state.upVotes - 1 : state.upVotes,
           };
         }
 
@@ -69,19 +70,19 @@ export const createVotesStore = (initState?: Partial<VotesProps>) => {
     },
     incrementLikes: () =>
       set((state) => ({
-        likes: state.likes + 1,
+        upVotes: state.upVotes + 1,
       })),
     decrementLikes: () =>
       set((state) => ({
-        likes: state.likes > 0 ? state.likes - 1 : 0,
+        upVotes: state.upVotes > 0 ? state.upVotes - 1 : 0,
       })),
     incrementDislikes: () =>
       set((state) => ({
-        dislikes: state.dislikes + 1,
+        downVotes: state.downVotes + 1,
       })),
     decrementDislikes: () =>
       set((state) => ({
-        dislikes: state.dislikes > 0 ? state.dislikes - 1 : 0,
+        downVotes: state.downVotes > 0 ? state.downVotes - 1 : 0,
       })),
   }));
 };

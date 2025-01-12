@@ -23,7 +23,11 @@ import { useForm } from "react-hook-form";
 import { authSchema, TAuthSchema } from "@/schemas/schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
-import { signInWithGithub, signInWithGoogle, signUp } from "@/actions/actions";
+import {
+  signInWithGithub,
+  signInWithGoogle,
+  signUp,
+} from "@/actions/auth-actions";
 import { toast } from "sonner";
 
 const SignUp = () => {
@@ -56,7 +60,7 @@ const SignUp = () => {
     }
   }
 
-  const isLoading = form.formState.isSubmitting;
+  const isSubmitting = form.formState.isSubmitting;
 
   return (
     <Form {...form}>
@@ -74,7 +78,7 @@ const SignUp = () => {
               <Button
                 onClick={onGithubSignIn}
                 type={"button"}
-                disabled={isLoading}
+                disabled={isSubmitting}
                 variant="outline"
               >
                 <Icons.gitHub className="mr-2 h-4 w-4" />
@@ -83,7 +87,7 @@ const SignUp = () => {
               <Button
                 onClick={onGoogleSignIn}
                 type={"button"}
-                disabled={isLoading}
+                disabled={isSubmitting}
                 variant="outline"
               >
                 <Icons.google className="mr-2 h-4 w-4" />
@@ -108,7 +112,7 @@ const SignUp = () => {
                   <FormLabel>Email</FormLabel>
                   <FormControl>
                     <Input
-                      disabled={isLoading}
+                      disabled={isSubmitting}
                       type={"email"}
                       placeholder="example@gmail.com"
                       {...field}
@@ -126,7 +130,7 @@ const SignUp = () => {
                   <FormLabel>Password</FormLabel>
                   <FormControl>
                     <Input
-                      disabled={isLoading}
+                      disabled={isSubmitting}
                       type={"password"}
                       placeholder="****************"
                       {...field}
@@ -140,10 +144,10 @@ const SignUp = () => {
           <CardFooter className={"flex flex-col"}>
             <Button
               type={"submit"}
-              disabled={isLoading}
+              disabled={isSubmitting}
               className="w-full font-semibold"
             >
-              {isLoading ? "Authentication..." : "Sign Up"}
+              {isSubmitting ? "Authentication..." : "Sign Up"}
             </Button>
             <div className="mt-4 text-center text-sm">
               Already have an account?{" "}

@@ -3,9 +3,10 @@ import RootPanelWrapper from "@/app/(root)/(challenge)/_components/root-panel-wr
 import PanelHeader from "@/app/(root)/(challenge)/_components/panel-header";
 import SwitchFormFieldsButton from "@/app/(root)/(challenge)/_components/form-components/switch-form-fields-button";
 import ChallengeDescriptionViewer from "@/app/(root)/(challenge)/_components/form-components/challenge-description-viewer";
-import ChallengeForm from "@/app/(root)/(challenge)/_components/form-components/challenge-form";
 import prismadb from "@/lib/prismadb";
 import { notFound } from "next/navigation";
+import MarkdownStoreProvider from "@/stores/store-providers/markdown-store-provider";
+import ChallengeFormWrapper from "@/app/(root)/(challenge)/_components/form-components/challenge-form-wrapper";
 
 type UpdateChallengePageParams = {
   params: Promise<{ challengeId: string }>;
@@ -53,16 +54,18 @@ const UpdateChallengePage = async ({ params }: UpdateChallengePageParams) => {
 
   return (
     <ManageChallengePageWrapper>
-      <RootPanelWrapper className={"min-h-full dark:bg-zinc-800 lg:w-1/2"}>
-        <PanelHeader>
-          <SwitchFormFieldsButton />
-        </PanelHeader>
-        <ChallengeDescriptionViewer />
-      </RootPanelWrapper>
-      <ChallengeForm
-        initialData={sanitizedChallengeData}
-        challengeId={challengeId}
-      />
+      <MarkdownStoreProvider markdown={challengeData.description}>
+        <RootPanelWrapper className={"min-h-full dark:bg-zinc-800 lg:w-1/2"}>
+          <PanelHeader>
+            <SwitchFormFieldsButton />
+          </PanelHeader>
+          <ChallengeDescriptionViewer />
+        </RootPanelWrapper>
+        <ChallengeFormWrapper
+          initialData={sanitizedChallengeData}
+          challengeId={challengeId}
+        />
+      </MarkdownStoreProvider>
     </ManageChallengePageWrapper>
   );
 };

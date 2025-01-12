@@ -1,30 +1,33 @@
+"use client";
+
 import {
   HoverCard,
   HoverCardContent,
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
 import { Portal } from "@radix-ui/react-hover-card";
-import { User } from "@supabase/supabase-js";
-import Image from "next/image";
-import { getUserProfilePicture } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
-import { ShieldHalf, UserIcon } from "lucide-react";
+import { ShieldHalf } from "lucide-react";
+import UserProfileImage from "@/components/user-profile-image";
 
 type UserProfileLinkProps = {
-  user: (User & { isAdmin: boolean }) | null;
+  user: {
+    id: string;
+    email: string;
+    profileImageSrc: string | null;
+    isAdmin: boolean;
+  };
 };
 
 const UserProfileLink = ({ user }: UserProfileLinkProps) => {
   const userName = user?.email?.split("@").at(0);
-
-  const userProfilePicture = getUserProfilePicture(user);
 
   return (
     <HoverCard>
       <HoverCardTrigger
         href={`/profile/${user?.id}`}
         className={
-          "me-4 flex h-9 items-center bg-[linear-gradient(to_right,theme(colors.purple.700),theme(colors.purple.500),theme(colors.pink.600),theme(colors.orange.700),theme(colors.pink.600),theme(colors.purple.500),theme(colors.purple.700))] bg-[length:200%_auto] bg-clip-text p-0 text-xs font-semibold text-transparent hover:animate-gradient dark:bg-[linear-gradient(to_right,theme(colors.purple.400),theme(colors.purple.300),theme(colors.pink.300),theme(colors.orange.400),theme(colors.pink.300),theme(colors.purple.300),theme(colors.purple.400))]"
+          "flex items-center bg-[linear-gradient(to_right,theme(colors.purple.700),theme(colors.purple.500),theme(colors.pink.600),theme(colors.orange.700),theme(colors.pink.600),theme(colors.purple.500),theme(colors.purple.700))] bg-[length:200%_auto] bg-clip-text p-0 text-xs font-semibold text-transparent hover:animate-gradient dark:bg-[linear-gradient(to_right,theme(colors.purple.400),theme(colors.purple.300),theme(colors.pink.300),theme(colors.orange.400),theme(colors.pink.300),theme(colors.purple.300),theme(colors.purple.400))]"
         }
       >
         @{userName}
@@ -50,21 +53,10 @@ const UserProfileLink = ({ user }: UserProfileLinkProps) => {
                     "relative flex h-12 w-12 shrink-0 overflow-hidden rounded-full"
                   }
                 >
-                  {userProfilePicture ? (
-                    <Image
-                      src={userProfilePicture}
-                      alt={"user profile picture"}
-                      fill
-                    />
-                  ) : (
-                    <div
-                      className={
-                        "flex h-full w-full items-center justify-center bg-zinc-100 dark:bg-zinc-900"
-                      }
-                    >
-                      <UserIcon />
-                    </div>
-                  )}
+                  <UserProfileImage
+                    profileImageSrc={user.profileImageSrc}
+                    noProfileImageClassName={"bg-zinc-100 dark:bg-zinc-900 p-2"}
+                  />
                 </span>
               </div>
             </div>
@@ -76,7 +68,7 @@ const UserProfileLink = ({ user }: UserProfileLinkProps) => {
               >
                 @{userName}
               </h2>
-              {user?.isAdmin && (
+              {user.isAdmin && (
                 <div className={"flex flex-wrap gap-2"}>
                   <Badge
                     className={

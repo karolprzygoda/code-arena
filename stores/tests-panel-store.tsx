@@ -2,7 +2,6 @@
 
 import { create } from "zustand";
 import { ImperativePanelHandle } from "react-resizable-panels";
-import { persist } from "zustand/middleware";
 
 type State = {
   isCollapsed: boolean;

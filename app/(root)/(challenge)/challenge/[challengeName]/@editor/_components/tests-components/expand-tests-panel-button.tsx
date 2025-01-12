@@ -15,9 +15,10 @@ const ExpandTestsPanelButton = () => {
     })),
   );
 
-  const { testResults } = useTestResultsStore(
+  const { testResults, globalError } = useTestResultsStore(
     useShallow((state) => ({
       testResults: state.testsResults,
+      globalError: state.globalError,
     })),
   );
 
@@ -41,12 +42,16 @@ const ExpandTestsPanelButton = () => {
         className={cn("transition-transform", !isCollapsed && "rotate-180")}
       />
       <span className={"mr-3"}>Tests</span>
-      {testResults.length > 0 &&
+      {!testResults || globalError ? (
+        <CircleX className={"text-red-500"} />
+      ) : (
+        testResults.length > 0 &&
         (testResults.every((testResults) => testResults.passed) ? (
           <CircleCheck className={"text-green-500"} />
         ) : (
           <CircleX className={"text-red-500"} />
-        ))}
+        ))
+      )}
     </Button>
   );
 };

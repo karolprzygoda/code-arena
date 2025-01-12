@@ -7,7 +7,7 @@ const Loading = () => {
         {Array.from({ length: 4 }).map((_, i) => (
           <Skeleton
             key={`header-skeleton-${i}`}
-            className="h-10 w-48 rounded-2xl"
+            className="h-6 w-48 rounded-2xl"
           />
         ))}
       </div>

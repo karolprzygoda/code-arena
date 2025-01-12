@@ -5,15 +5,16 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { LucideIcon, Palette, SquarePen, User } from "lucide-react";
+import { LucideIcon, Palette, SquarePen } from "lucide-react";
 import ThemeButton from "@/components/theme/theme-button";
 import SignOutButton from "@/components/header/sign-out-button";
 import { createClient } from "@/lib/supabase/server";
 import { jwtDecode } from "jwt-decode";
 import { JWTWithUserRole } from "@/lib/types";
 import Link from "next/link";
+import UserProfileImage from "@/components/user-profile-image";
+import { redirect } from "next/navigation";
 import { getUserProfilePicture } from "@/lib/utils";
-import Image from "next/image";
 
 const HeaderDropdown = async () => {
   const supabase = await createClient();
@@ -24,7 +25,12 @@ const HeaderDropdown = async () => {
 
   const {
     data: { user },
+    error,
   } = await supabase.auth.getUser();
+
+  if (!user || error) {
+    redirect("/sign-in");
+  }
 
   let userRole = null;
 
@@ -34,27 +40,16 @@ const HeaderDropdown = async () => {
     userRole = jwt.user_role;
   }
 
-  const userProfileImage = getUserProfilePicture(user);
+  const profileImageSrc = getUserProfilePicture(user);
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
         className={
-          "hidden items-center justify-center rounded-lg p-2 duration-300 focus:outline-none focus-visible:ring-2 md:flex"
+          "relative m-2 hidden h-7 w-7 items-center justify-center overflow-hidden rounded-full duration-300 focus:outline-none focus-visible:ring-2 md:flex"
         }
       >
-        {userProfileImage ? (
-          <div className={"relative h-7 w-7 rounded-full"}>
-            <Image
-              className={"aspect-square rounded-full"}
-              src={userProfileImage}
-              alt={"user profile image"}
-              fill
-            />
-          </div>
-        ) : (
-          <User />
-        )}
+        <UserProfileImage profileImageSrc={profileImageSrc} />
       </DropdownMenuTrigger>
       <DropdownMenuContent
         align="end"

@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { testChallenge } from "@/actions/actions";
+import { handleNewSubmission } from "@/actions/challenge-actions";
 import { useShallow } from "zustand/react/shallow";
 import { useTestResultsStore } from "@/stores/tests-results-store";
 import { Language } from "@prisma/client";
@@ -42,35 +42,31 @@ const SubmitChallengeButton = ({
 
   const handleSubmit = async (code: string, language: Lowercase<Language>) => {
     try {
-      setIsPending(true);
-
       userCodeSchema.parse({ code, language, challengeId });
 
       if (userCodeCache === code) {
         throw new Error("Your code has no changes.");
       }
 
-      const response = await testChallenge(
+      setIsPending(true);
+      setGlobalError(null);
+
+      const response = await handleNewSubmission(
         code,
         language.toUpperCase() as Language,
         challengeId,
       );
 
-      console.log(response);
-
-      setTestsResults(response.testResults);
+      if (response.globalError || !response.testResults) {
+        setGlobalError(response.globalError);
+      } else {
+        setTestsResults(response.testResults);
+      }
 
       if (response.status === "FAIL") {
         toast.error("Uh oh! You still have errors.");
-
-        if (response.globalError) {
-          setGlobalError(response.globalError);
-        } else {
-          setGlobalError(null);
-        }
       } else {
         toast.success("All tests were passed successfully");
-        setGlobalError(null);
       }
 
       router.push(

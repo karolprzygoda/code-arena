@@ -22,7 +22,7 @@ import { Share } from "lucide-react";
 import CopyToClipBoardButton from "@/components/copy-to-clipboard-button";
 import DescriptionActionButton from "@/app/(root)/(challenge)/challenge/[challengeName]/@resources/_components/description-action-button";
 
-const ShareChallengeButton = () => {
+const ShareCurrentPathButton = () => {
   const isDesktop = useMediaQuery("(min-width: 1024px)");
 
   if (isDesktop) {
@@ -82,4 +82,4 @@ const ShareChallengeButton = () => {
   );
 };
 
-export default ShareChallengeButton;
+export default ShareCurrentPathButton;

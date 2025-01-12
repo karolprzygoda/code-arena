@@ -1,41 +1,40 @@
 "use client";
 
-import { ThumbsDown } from "lucide-react";
+import { ThumbsUp } from "lucide-react";
 import DescriptionActionButton from "@/app/(root)/(challenge)/challenge/[challengeName]/@resources/_components/description-action-button";
-
 import { cn } from "@/lib/utils";
-import useVotesContext from "@/hooks/use-votes-context";
 import { useShallow } from "zustand/react/shallow";
-import { downVote } from "@/actions/actions";
+import useVotesContext from "@/hooks/use-votes-context";
+import { upVote } from "@/actions/utils-actions";
 
-const DownVoteChallengeButton = () => {
-  const { dislikes, vote, setVote, challengeId } = useVotesContext(
+const UpVoteButton = () => {
+  const { likes, vote, setVote, challengeId } = useVotesContext(
     useShallow((state) => ({
       vote: state.vote,
-      dislikes: state.dislikes,
+      likes: state.upVotes,
       setVote: state.setVote,
       challengeId: state.itemId,
     })),
   );
 
-  const handleDownVote = async () => {
-    setVote("DOWNVOTE");
-    await downVote(challengeId!);
+  const handleUpVote = async () => {
+    setVote("UPVOTE");
+    await upVote(challengeId!);
   };
 
   return (
     <DescriptionActionButton
-      tooltipMessage={"Down vote"}
+      tooltipMessage={"Up vote"}
       className={cn(
-        vote === "DOWNVOTE" &&
+        vote === "UPVOTE" &&
           "bg-secondary/80 dark:bg-zinc-700 dark:hover:bg-zinc-900 [&:not(:disabled)]:border-emerald-600 [&:not(:disabled)]:text-emerald-600",
       )}
-      onClick={handleDownVote}
+      onClick={handleUpVote}
     >
-      <ThumbsDown />
-      {dislikes}
+      <ThumbsUp />
+      {likes}
     </DescriptionActionButton>
   );
 };
 
-export default DownVoteChallengeButton;
+export default UpVoteButton;

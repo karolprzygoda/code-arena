@@ -3,9 +3,9 @@ import { notFound, redirect } from "next/navigation";
 import MarkdownRenderer from "@/app/(root)/(challenge)/_components/markdown-renderer";
 import { Calendar } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
-import UpVoteChallengeButton from "@/app/(root)/(challenge)/challenge/[challengeName]/@resources/_components/up-vote-challenge-button";
-import DislikeButton from "@/app/(root)/(challenge)/challenge/[challengeName]/@resources/_components/down-vote-challenge-button";
-import ShareChallengeButton from "@/app/(root)/(challenge)/challenge/[challengeName]/@resources/_components/share-challenge-button";
+import UpVoteButton from "@/app/(root)/(challenge)/challenge/[challengeName]/@resources/_components/up-vote-button";
+import DislikeButton from "@/app/(root)/(challenge)/challenge/[challengeName]/@resources/_components/down-vote-button";
+import ShareCurrentPathButton from "@/app/(root)/(challenge)/challenge/[challengeName]/@resources/_components/share-current-path-button";
 import VotesStoreProvider from "@/stores/store-providers/votes-store-provider";
 import ManageChallengeButton from "@/app/(root)/(challenge)/challenge/[challengeName]/@resources/_components/manage-challenge-button";
 import { formatDistanceToNow } from "date-fns";
@@ -15,7 +15,8 @@ import DifficultyBadge from "@/app/(root)/(challenge)/challenge/[challengeName]/
 import { Challenge, Users, Vote } from "@prisma/client";
 import { User } from "@supabase/supabase-js";
 import IsChallengePassedIndicator from "@/app/(root)/(challenge)/challenge/[challengeName]/@resources/_components/is-challenge-passed-indicator";
-import { createAdminClient } from "@/lib/supabase/admin";
+import { getUserById } from "@/actions/auth-actions";
+import { getUserProfilePicture } from "@/lib/utils";
 
 type DescriptionPageProps = {
   params: Promise<{ challengeName: string }>;
@@ -73,23 +74,9 @@ const DescriptionPage = async ({ params }: DescriptionPageProps) => {
     .map((item) => item.slice(0, 1).toUpperCase() + item.slice(1))
     .join(" ");
 
-  const supabaseAdminClient = await createAdminClient();
+  const authorUser = await getUserById(challengeData.authorId);
 
-  const {
-    data: { user: author },
-    error: adminError,
-  } = await supabaseAdminClient.auth.admin.getUserById(challengeData.users.id);
-
-  if (adminError) {
-    throw adminError;
-  }
-
-  const isAdmin = await prismadb.userRoles.findFirst({
-    where: { userid: author?.id },
-  });
-
-  const authorWithRole =
-    author && author.id ? { ...author, isAdmin: !!isAdmin } : null;
+  const authorProfilePicture = await getUserProfilePicture(authorUser);
 
   return (
     <TabWrapper>
@@ -99,7 +86,12 @@ const DescriptionPage = async ({ params }: DescriptionPageProps) => {
           downVotes={downVotes}
           userVote={userVote}
           signedUser={signedUser}
-          author={authorWithRole}
+          authorUser={{
+            email: authorUser.email!,
+            id: authorUser.id,
+            isAdmin: authorUser.isAdmin,
+            profileImageSrc: authorProfilePicture,
+          }}
           title={title}
           challengeData={challengeData}
           hasUserSolvedChallenge={!!hasUserSolvedChallenge}
@@ -113,10 +105,15 @@ const DescriptionPage = async ({ params }: DescriptionPageProps) => {
 type DescriptionPageHeaderProps = {
   challengeData: Challenge & { users: Users };
   signedUser: User;
+  authorUser: {
+    id: string;
+    email: string;
+    profileImageSrc: string | null;
+    isAdmin: boolean;
+  };
   title: string;
   upVotes: number;
   downVotes: number;
-  author: (User & { isAdmin: boolean }) | null;
   hasUserSolvedChallenge: boolean;
   userVote: { voteType: Vote } | null;
 };
@@ -124,23 +121,23 @@ type DescriptionPageHeaderProps = {
 const DescriptionPageHeader = ({
   challengeData,
   signedUser,
+  authorUser,
   title,
   upVotes,
   downVotes,
-  author,
   hasUserSolvedChallenge,
   userVote,
 }: DescriptionPageHeaderProps) => {
   return (
-    <div className={"mb-8 flex w-full flex-col gap-1"}>
+    <div className={"mb-8 flex w-full flex-col gap-2"}>
       <div className={"flex justify-between"}>
         <h2 className={"text-3xl font-bold"}>{title}</h2>
         {challengeData.authorId === signedUser.id && (
           <ManageChallengeButton challengeId={challengeData.id} />
         )}
       </div>
-      <div className={"flex flex-wrap items-center"}>
-        <UserProfileLink user={author} />
+      <div className={"flex flex-wrap items-center gap-4"}>
+        <UserProfileLink user={authorUser} />
         <div
           className={
             "flex items-center gap-2 text-nowrap text-xs text-muted-foreground"
@@ -157,14 +154,14 @@ const DescriptionPageHeader = ({
         {hasUserSolvedChallenge && <IsChallengePassedIndicator />}
         <VotesStoreProvider
           vote={userVote ? userVote.voteType : null}
-          likes={upVotes}
-          dislikes={downVotes}
+          upVotes={upVotes}
+          downVotes={downVotes}
           itemId={challengeData.id}
         >
-          <UpVoteChallengeButton />
+          <UpVoteButton />
           <DislikeButton />
         </VotesStoreProvider>
-        <ShareChallengeButton />
+        <ShareCurrentPathButton />
       </div>
     </div>
   );
