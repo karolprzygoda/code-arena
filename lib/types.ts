@@ -1,4 +1,4 @@
-import { Language } from "@prisma/client";
+import { Challenge, Language, Submission, Users, Votes } from "@prisma/client";
 import { LucideIcon } from "lucide-react";
 import { JwtPayload } from "jwt-decode";
 
@@ -90,3 +90,17 @@ export type MetricData = {
   beat: number;
   unit: string;
 };
+
+export type ChallengeCardType = Omit<
+  Challenge,
+  "description" | "testCases" | "authorId"
+> & {
+  submission: Array<Pick<Submission, "userId" | "challengeId">>;
+  users: Pick<Users, "email">;
+  votes: Votes[];
+};
+
+export type SelectionRange = {
+  selectionStart: number;
+  selectionEnd: number;
+} | null;

@@ -15,11 +15,31 @@ body {
   scrollbar-width: thin;
 }
 
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+  scrollbar-width: none;
+}
+
+.container {
+  @apply mx-auto max-w-[1400px] px-4 md:px-24;
+}
+
+.home-cards-container {
+  mask: linear-gradient(90deg, #0000, #000 10% 80%, #0000);
+}
+
+@media (min-width: 1400px) {
+  .carousel {
+    padding-left: calc(((100vw - 1400px) + 12rem) / 2) !important;
+  }
+}
+
 @layer base {
   :root {
     --background: 0 0% 100%;
     --foreground: 240 10% 3.9%;
     --card: 0 0% 100%;
+    --card-hovered: 0 0% 98%;
     --card-foreground: 240 10% 3.9%;
     --popover: 0 0% 100%;
     --popover-foreground: 240 10% 3.9%;
@@ -52,6 +72,7 @@ body {
     --background: 240 10% 3.9%;
     --foreground: 0 0% 98%;
     --card: 240 10% 3.9%;
+    --card-hovered: 240 10% 6.9%;
     --card-foreground: 0 0% 98%;
     --popover: 240 10% 3.9%;
     --popover-foreground: 0 0% 98%;

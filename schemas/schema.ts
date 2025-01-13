@@ -63,7 +63,7 @@ export const challengeSchema = z.object({
     .string()
     .min(1, "Challenge title is required")
     .max(50, "Challenge title cannot exceed 50 characters"),
-  difficulty: z.enum(["EASY", "MEDIUM", "HARD"], {
+  difficulty: z.enum(["BEGINNER", "EASY", "MEDIUM", "HARD", "EXTREME"], {
     errorMap: () => ({
       message: "Please select a valid difficulty level (EASY, MEDIUM, HARD)",
     }),

@@ -3,7 +3,10 @@
 import { createClient } from "@/lib/supabase/server";
 import prismadb from "@/lib/prismadb";
 
-export async function upVote(itemId: string) {
+export async function upVote(
+  itemId: string,
+  itemType: "challengeId" | "solutionId",
+) {
   try {
     const supabase = await createClient();
 
@@ -17,7 +20,7 @@ export async function upVote(itemId: string) {
 
     const existingVote = await prismadb.votes.findFirst({
       where: {
-        itemId: itemId,
+        [itemType]: itemId,
         userId: user.id,
       },
     });
@@ -32,7 +35,7 @@ export async function upVote(itemId: string) {
       if (existingVote.voteType !== "UPVOTE") {
         await prismadb.votes.create({
           data: {
-            itemId: itemId,
+            [itemType]: itemId,
             userId: user.id,
             voteType: "UPVOTE",
           },
@@ -41,7 +44,7 @@ export async function upVote(itemId: string) {
     } else {
       await prismadb.votes.create({
         data: {
-          itemId: itemId,
+          [itemType]: itemId,
           userId: user.id,
           voteType: "UPVOTE",
         },
@@ -53,7 +56,10 @@ export async function upVote(itemId: string) {
   }
 }
 
-export async function downVote(itemId: string) {
+export async function downVote(
+  itemId: string,
+  itemType: "challengeId" | "solutionId",
+) {
   try {
     const supabase = await createClient();
 
@@ -67,7 +73,7 @@ export async function downVote(itemId: string) {
 
     const existingVote = await prismadb.votes.findFirst({
       where: {
-        itemId: itemId,
+        [itemType]: itemId,
         userId: user.id,
       },
     });
@@ -82,7 +88,7 @@ export async function downVote(itemId: string) {
       if (existingVote.voteType !== "DOWNVOTE") {
         await prismadb.votes.create({
           data: {
-            itemId: itemId,
+            [itemType]: itemId,
             userId: user.id,
             voteType: "DOWNVOTE",
           },
@@ -91,7 +97,7 @@ export async function downVote(itemId: string) {
     } else {
       await prismadb.votes.create({
         data: {
-          itemId: itemId,
+          [itemType]: itemId,
           userId: user.id,
           voteType: "DOWNVOTE",
         },

@@ -5,14 +5,14 @@ import { createContext } from "react";
 
 export type FilteredDataProps<T extends Record<string, unknown>> = {
   initialData: T[];
-  data: T[];
-  defaultFilters: Partial<Record<keyof T, unknown>>;
   filters: Partial<Record<keyof T, unknown>>;
   sortKey?: keyof T;
   sortOrder?: "asc" | "desc";
 };
 
 export type FilteredDataState<T extends Record<string, unknown>> = {
+  data: T[];
+  defaultFilters: Partial<Record<keyof T, unknown>>;
   clearFilters: () => void;
   setFilters: (filters: Partial<Record<keyof T, unknown>>) => void;
   setSort: (key: keyof T, order: "asc" | "desc") => void;
@@ -25,28 +25,37 @@ export type FilteredDataStore<T extends Record<string, unknown>> = ReturnType<
 export const createFilteredDataStore = <T extends Record<string, unknown>>(
   initState?: Partial<FilteredDataProps<T>>,
 ) => {
-  const DEFAULT_STATE: Partial<FilteredDataProps<T>> = {
+  const DEFAULT_STATE: FilteredDataProps<T> & {
+    data: T[];
+    defaultFilters: Partial<Record<keyof T, unknown>>;
+  } = {
     initialData: [],
-    data: [],
     filters: {},
+    data: [],
     defaultFilters: {},
     sortKey: undefined,
     sortOrder: undefined,
   };
 
   return create<FilteredDataState<T>>()((set) => ({
-    ...(DEFAULT_STATE as FilteredDataProps<T>),
+    ...DEFAULT_STATE,
     ...initState,
+    data: initState?.initialData ?? [],
+    defaultFilters: initState?.filters ?? {},
     clearFilters: () => {
-      set({ filters: {} });
+      set((state) => ({
+        ...state,
+        filters: {},
+      }));
     },
     setFilters: (newFilters) => {
       set((state) => ({
+        ...state,
         filters: { ...state.filters, ...newFilters },
       }));
 
-      set((state) => ({
-        data: state.initialData.filter((item) => {
+      set((state) => {
+        const filteredData = state.initialData.filter((item) => {
           return Object.entries(state.filters).every(([key, value]) => {
             const itemKey = key as keyof T;
             const defaultValue = state.defaultFilters[itemKey];
@@ -55,11 +64,17 @@ export const createFilteredDataStore = <T extends Record<string, unknown>>(
             }
             return item[itemKey] === value;
           });
-        }),
-      }));
+        });
+
+        return {
+          ...state,
+          data: filteredData,
+        };
+      });
     },
     setSort: (key, order) => {
-      set(() => ({
+      set((state) => ({
+        ...state,
         sortKey: key,
         sortOrder: order,
       }));
@@ -88,7 +103,10 @@ export const createFilteredDataStore = <T extends Record<string, unknown>>(
           return 0;
         });
 
-        return { data: sortedData };
+        return {
+          ...state,
+          data: sortedData,
+        };
       });
     },
   }));

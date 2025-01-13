@@ -14,7 +14,7 @@ import UserProfileLink from "@/components/user-profile-link";
 import DifficultyBadge from "@/app/(root)/(challenge)/challenge/[challengeName]/@resources/_components/difficulty-badge";
 import { Challenge, Users, Vote } from "@prisma/client";
 import { User } from "@supabase/supabase-js";
-import IsChallengePassedIndicator from "@/app/(root)/(challenge)/challenge/[challengeName]/@resources/_components/is-challenge-passed-indicator";
+import IsChallengePassedIndicator from "@/app/(root)/_components/is-challenge-passed-indicator";
 import { getUserById } from "@/actions/auth-actions";
 import { getUserProfilePicture } from "@/lib/utils";
 
@@ -29,6 +29,7 @@ const DescriptionPage = async ({ params }: DescriptionPageProps) => {
     },
     include: {
       users: true,
+      votes: true,
     },
   });
 
@@ -47,25 +48,26 @@ const DescriptionPage = async ({ params }: DescriptionPageProps) => {
     redirect("/sign-in");
   }
 
-  const [hasUserSolvedChallenge, totalVotes, userVote] = await Promise.all([
+  const [hasUserSolvedChallenge, userVote] = await Promise.all([
     prismadb.submission.findFirst({
-      where: { status: "SUCCESS", userId: signedUser?.id },
-    }),
-    prismadb.votes.findMany({
-      where: { itemId: challengeData.id },
+      where: {
+        status: "SUCCESS",
+        userId: signedUser?.id,
+        challengeId: challengeData.id,
+      },
     }),
     prismadb.votes.findFirst({
-      where: { itemId: challengeData.id, userId: signedUser.id },
+      where: { challengeId: challengeData.id, userId: signedUser.id },
       select: {
         voteType: true,
       },
     }),
   ]);
 
-  const upVotes = totalVotes.filter(
+  const upVotes = challengeData.votes.filter(
     (vote) => vote.voteType === "UPVOTE",
   ).length;
-  const downVotes = totalVotes.filter(
+  const downVotes = challengeData.votes.filter(
     (vote) => vote.voteType === "DOWNVOTE",
   ).length;
 
@@ -149,7 +151,7 @@ const DescriptionPageHeader = ({
           })}
         </div>
       </div>
-      <div className={"mt-2 flex flex-wrap gap-2"}>
+      <div className={"mt-2 flex flex-wrap gap-2 gap-y-4"}>
         <DifficultyBadge difficulty={challengeData.difficulty} />
         {hasUserSolvedChallenge && <IsChallengePassedIndicator />}
         <VotesStoreProvider
@@ -158,10 +160,12 @@ const DescriptionPageHeader = ({
           downVotes={downVotes}
           itemId={challengeData.id}
         >
-          <UpVoteButton />
-          <DislikeButton />
+          <div className={"flex gap-2"}>
+            <UpVoteButton itemType={"challengeId"} />
+            <DislikeButton itemType={"challengeId"} />
+            <ShareCurrentPathButton />
+          </div>
         </VotesStoreProvider>
-        <ShareCurrentPathButton />
       </div>
     </div>
   );

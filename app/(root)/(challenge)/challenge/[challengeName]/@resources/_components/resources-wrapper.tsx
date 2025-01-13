@@ -6,22 +6,25 @@ import { useShallow } from "zustand/react/shallow";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { ResizablePanel } from "@/components/ui/resizable";
 import { cn } from "@/lib/utils";
-import ChallengeGroupLink from "@/app/(root)/(challenge)/challenge/[challengeName]/@resources/_components/challenge-group-link";
+import MoreChallengesSheet from "@/app/(root)/(challenge)/challenge/[challengeName]/@resources/_components/more-challenges-sheet";
 import ChallengeNavigator from "@/app/(root)/(challenge)/challenge/[challengeName]/@resources/_components/challenge-navigator";
 import RootPanelWrapper from "@/app/(root)/(challenge)/_components/root-panel-wrapper";
 import { ResourcesTabs } from "@/app/(root)/(challenge)/challenge/[challengeName]/@resources/_components/resources-tabs";
 import PanelHeader from "@/app/(root)/(challenge)/_components/panel-header";
 import { useResourcesPanelStore } from "@/stores/resources-panel-store";
 import { ImperativePanelHandle } from "react-resizable-panels";
+import { Challenge } from "@prisma/client";
 
 type ResourcesWrapperProps = {
   children: ReactNode;
   challengeName: string;
+  challenges: Array<Pick<Challenge, "title" | "difficulty">>;
 };
 
 const ResourcesWrapper = ({
   children,
   challengeName,
+  challenges,
 }: ResourcesWrapperProps) => {
   const { layout } = useUserPreferencesStore(
     useShallow((state) => ({
@@ -68,7 +71,7 @@ const ResourcesWrapper = ({
         <PanelHeader
           className={cn("px-1", isCollapsed && !isDesktop && "hidden")}
         >
-          <ChallengeGroupLink href={"/"} name={"More Challenges"} />
+          <MoreChallengesSheet challenges={challenges} />
           <span className={"hidden gap-1 @[70px]/panel:flex"}>
             <ChallengeNavigator
               tooltipMessage={"Previous"}

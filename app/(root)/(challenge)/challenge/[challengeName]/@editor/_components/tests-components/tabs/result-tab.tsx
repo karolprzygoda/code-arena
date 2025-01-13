@@ -28,7 +28,7 @@ const ResultTab = ({ test, testResult }: ResultTabProps) => {
         defaultSize={50}
         className={"scrollbar-thin !overflow-y-auto"}
       >
-        <div className="h-full w-full p-4">
+        <div className="w-full p-4">
           <div className="font-bold text-blue-500">Your return value</div>
           <div className="mt-3 font-semibold">
             {!testResult

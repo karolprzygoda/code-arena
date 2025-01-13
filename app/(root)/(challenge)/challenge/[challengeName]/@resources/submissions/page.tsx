@@ -47,12 +47,7 @@ const SubmissionsPage = async ({ params }: SubmissionsPageProps) => {
         }
       >
         <FilteredDataStoreProvider
-          data={submissions}
           initialData={submissions}
-          defaultFilters={{
-            language: "LANGUAGE",
-            status: "STATUS",
-          }}
           filters={{
             language: "LANGUAGE",
             status: "STATUS",

@@ -2,7 +2,12 @@ import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { ZodError } from "zod";
 import { User } from "@supabase/supabase-js";
-import { MetricData, MetricRange, TypographyVariant } from "@/lib/types";
+import {
+  MetricData,
+  MetricRange,
+  SelectionRange,
+  TypographyVariant,
+} from "@/lib/types";
 import { RefObject } from "react";
 import { editor } from "monaco-editor";
 
@@ -55,6 +60,18 @@ export function getCodeSubmissionError(error: unknown) {
   return "An unknown error occurred";
 }
 
+export const getUserProfilePicture = (user: User | null) => {
+  if (!user) {
+    return null;
+  }
+
+  if (user.user_metadata.avatar_url) {
+    return user.user_metadata.avatar_url;
+  } else {
+    return null;
+  }
+};
+
 export const getStatusClass = (status: string) =>
   status === "SUCCESS"
     ? "text-emerald-600 dark:text-emerald-400"
@@ -76,6 +93,16 @@ export const getMaxMemoryUsage = (
 
 export function calculateRanges(values: number[]): MetricRange[] {
   if (values.length === 0) return [];
+
+  if (values.length === 1) {
+    return [
+      {
+        start: values[0],
+        end: values[0] + 1,
+        percentage: 100,
+      },
+    ];
+  }
 
   const minValue = Math.min(...values);
   const maxValue = Math.max(...values);
@@ -105,6 +132,10 @@ export function calculateBeatPercentage(
   currentValue: number,
   values: number[],
 ): number {
+  if (values.length === 1) {
+    return currentValue < values[0] ? 0 : 100;
+  }
+
   const totalValues = values.length;
   const beatenValues = values.filter((value) => currentValue < value).length;
   return Number(((beatenValues / totalValues) * 100).toFixed(2));
@@ -120,7 +151,7 @@ export function processMetricData(
   const data = timeRanges.map((range) => ({
     range: `${range.start.toFixed(2) + (type === "executionTime" ? " ms" : " MB")}`,
     solutions: Number(range.percentage.toFixed(2)),
-    isActive: currentValue >= range.start && currentValue < range.end, // Nowe pole
+    isActive: currentValue >= range.start && currentValue < range.end,
   }));
 
   return {
@@ -130,18 +161,6 @@ export function processMetricData(
     unit: type === "executionTime" ? " ms" : " MB",
   };
 }
-
-export const getUserProfilePicture = (user: User | null) => {
-  if (!user) {
-    return null;
-  }
-
-  if (user.user_metadata.avatar_url) {
-    return user.user_metadata.avatar_url;
-  } else {
-    return null;
-  }
-};
 
 export const processTestCases = (testCases: PrismaJson.TestCasesType) => {
   return testCases.map((testCase) => ({
@@ -199,8 +218,6 @@ export const typographyMap: Record<
     length: 4,
   },
 };
-
-type SelectionRange = { selectionStart: number; selectionEnd: number } | null;
 
 export const getSelectionStartEnd = (
   editorRef: RefObject<editor.IStandaloneCodeEditor>,

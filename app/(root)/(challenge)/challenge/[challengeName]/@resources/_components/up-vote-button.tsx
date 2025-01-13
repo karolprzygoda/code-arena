@@ -7,7 +7,11 @@ import { useShallow } from "zustand/react/shallow";
 import useVotesContext from "@/hooks/use-votes-context";
 import { upVote } from "@/actions/utils-actions";
 
-const UpVoteButton = () => {
+type UpVoteButtonProps = {
+  itemType: "challengeId" | "solutionId";
+};
+
+const UpVoteButton = ({ itemType }: UpVoteButtonProps) => {
   const { likes, vote, setVote, challengeId } = useVotesContext(
     useShallow((state) => ({
       vote: state.vote,
@@ -19,7 +23,7 @@ const UpVoteButton = () => {
 
   const handleUpVote = async () => {
     setVote("UPVOTE");
-    await upVote(challengeId!);
+    await upVote(challengeId!, itemType);
   };
 
   return (

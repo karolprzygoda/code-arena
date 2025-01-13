@@ -204,9 +204,11 @@ const ChallengeForm = ({
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
+                              <SelectItem value="BEGINER">Easy</SelectItem>
                               <SelectItem value="EASY">Easy</SelectItem>
                               <SelectItem value="MEDIUM">Medium</SelectItem>
                               <SelectItem value="HARD">Hard</SelectItem>
+                              <SelectItem value="EXTREME">Hard</SelectItem>
                             </SelectContent>
                           </Select>
                           <FormDescription>

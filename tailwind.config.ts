@@ -16,6 +16,7 @@ export default {
       colors: {
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
+        "card-hovered": "hsl(var(--card-hovered))",
         card: {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
@@ -66,6 +67,13 @@ export default {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
+      },
+      boxShadow: {
+        beginner: "0 0 1rem -0.15rem hsl(var(--difficulty-beginner))",
+        easy: "0 0 1rem -0.15rem hsl(var(--difficulty-easy))",
+        medium: "0 0 1rem -0.15rem hsl(var(--difficulty-medium))",
+        hard: "0 0 1rem -0.15rem hsl(var(--difficulty-hard))",
+        extreme: "0 0 1rem -0.15rem hsl(var(--difficulty-extreme))",
       },
       keyframes: {
         "accordion-down": {

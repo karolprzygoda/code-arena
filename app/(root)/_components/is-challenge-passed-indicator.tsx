@@ -1,4 +1,4 @@
-import { CircleCheck } from "lucide-react";
+import { CircleCheckBig } from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
@@ -11,7 +11,7 @@ const IsChallengePassedIndicator = () => {
     <TooltipProvider>
       <Tooltip>
         <TooltipTrigger>
-          <CircleCheck className={"flex-shrink-0 text-green-500"} />
+          <CircleCheckBig className={"flex-shrink-0 text-emerald-500"} />
         </TooltipTrigger>
         <TooltipContent>Solved</TooltipContent>
       </Tooltip>

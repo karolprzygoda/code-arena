@@ -34,13 +34,8 @@ const SolutionsPage = async ({ params }: SolutionsPageParams) => {
     orderBy: {
       createdAt: "desc",
     },
-  });
-
-  const votes = await prismadb.votes.findMany({
-    where: {
-      itemId: {
-        in: solutions.map((solution) => solution.id),
-      },
+    include: {
+      votes: true,
     },
   });
 
@@ -57,11 +52,12 @@ const SolutionsPage = async ({ params }: SolutionsPageParams) => {
 
     return {
       ...solution,
-      upVotes: votes.filter(
-        (vote) => vote.itemId === solution.id && vote.voteType === "UPVOTE",
+      upVotes: solution.votes.filter(
+        (vote) => vote.solutionId === solution.id && vote.voteType === "UPVOTE",
       ).length,
-      downVotes: votes.filter(
-        (vote) => vote.itemId === solution.id && vote.voteType === "DOWNVOTE",
+      downVotes: solution.votes.filter(
+        (vote) =>
+          vote.solutionId === solution.id && vote.voteType === "DOWNVOTE",
       ).length,
       author: {
         id: author.id,
@@ -80,10 +76,6 @@ const SolutionsPage = async ({ params }: SolutionsPageParams) => {
     <TabWrapper>
       <FilteredDataStoreProvider
         initialData={data}
-        data={data}
-        defaultFilters={{
-          language: "LANGUAGE",
-        }}
         filters={{
           language: "LANGUAGE",
         }}

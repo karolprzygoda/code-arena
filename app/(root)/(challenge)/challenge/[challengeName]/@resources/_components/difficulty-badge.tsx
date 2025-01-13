@@ -7,7 +7,7 @@ const difficultyColorMap = {
   EASY: "bg-difficulty-easy",
   MEDIUM: "bg-difficulty-medium",
   HARD: "bg-difficulty-hard",
-  EXTREME: "bg-difficulty-easy",
+  EXTREME: "bg-difficulty-extreme",
 };
 
 type DifficultyBadgeProps = {

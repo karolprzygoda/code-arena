@@ -34,7 +34,7 @@ const CurrentSolutionPage = async ({ params }: CurrentSolutionPageParams) => {
     redirect("/sign-in");
   }
 
-  const [solution, totalVotes, userVote] = await Promise.all([
+  const [solution, userVote] = await Promise.all([
     prismadb.solution.findFirst({
       where: {
         id: solutionId,
@@ -45,29 +45,27 @@ const CurrentSolutionPage = async ({ params }: CurrentSolutionPageParams) => {
             title: true,
           },
         },
+        votes: true,
       },
     }),
-    prismadb.votes.findMany({
-      where: { itemId: solutionId },
-    }),
     prismadb.votes.findFirst({
-      where: { itemId: solutionId, userId: user.id },
+      where: { solutionId: solutionId, userId: user.id },
       select: {
         voteType: true,
       },
     }),
   ]);
 
-  const upVotes = totalVotes.filter(
-    (vote) => vote.voteType === "UPVOTE",
-  ).length;
-  const downVotes = totalVotes.filter(
-    (vote) => vote.voteType === "DOWNVOTE",
-  ).length;
-
   if (!solution) {
     notFound();
   }
+
+  const upVotes = solution.votes.filter(
+    (vote) => vote.voteType === "UPVOTE",
+  ).length;
+  const downVotes = solution.votes.filter(
+    (vote) => vote.voteType === "DOWNVOTE",
+  ).length;
 
   const solutionUser = await getUserById(solution.authorId);
 
@@ -118,8 +116,8 @@ const CurrentSolutionPage = async ({ params }: CurrentSolutionPageParams) => {
                   itemId={solution.id}
                 >
                   <div className={"flex gap-2"}>
-                    <UpVoteButton />
-                    <DownVoteButton />
+                    <UpVoteButton itemType={"solutionId"} />
+                    <DownVoteButton itemType={"solutionId"} />
                     <ShareCurrentPathButton />
                   </div>
                 </VotesStoreProvider>

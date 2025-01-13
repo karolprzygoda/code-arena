@@ -8,7 +8,11 @@ import useVotesContext from "@/hooks/use-votes-context";
 import { useShallow } from "zustand/react/shallow";
 import { downVote } from "@/actions/utils-actions";
 
-const DownVoteButton = () => {
+type DownVoteButtonProps = {
+  itemType: "challengeId" | "solutionId";
+};
+
+const DownVoteButton = ({ itemType }: DownVoteButtonProps) => {
   const { dislikes, vote, setVote, challengeId } = useVotesContext(
     useShallow((state) => ({
       vote: state.vote,
@@ -20,7 +24,7 @@ const DownVoteButton = () => {
 
   const handleDownVote = async () => {
     setVote("DOWNVOTE");
-    await downVote(challengeId!);
+    await downVote(challengeId!, itemType);
   };
 
   return (
