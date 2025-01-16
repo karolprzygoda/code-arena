@@ -7,12 +7,13 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
-import { getUserProfilePicture, processMetricData } from "@/lib/utils";
+import { getUserProfilePicture } from "@/lib/utils";
 import { Clock, Cpu, LucideIcon, UserIcon } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import useUser from "@/hooks/use-user";
 import { User } from "@supabase/supabase-js";
 import { useState } from "react";
+import { MetricData, MetricRange } from "@/lib/types";
 
 const chartConfig = {
   runtime: {
@@ -26,6 +27,77 @@ const chartConfig = {
     icon: Cpu,
   },
 } satisfies ChartConfig;
+
+export function calculateRanges(values: number[]): MetricRange[] {
+  if (values.length === 0) return [];
+
+  if (values.length === 1) {
+    return [
+      {
+        start: values[0],
+        end: values[0] + 1,
+        percentage: 100,
+      },
+    ];
+  }
+
+  const minValue = Math.min(...values);
+  const maxValue = Math.max(...values);
+
+  const rangeSize = Number((maxValue - minValue).toFixed(2)) / 50;
+
+  const ranges: MetricRange[] = [];
+  let start = minValue;
+
+  do {
+    const end = Number((start + rangeSize).toFixed(2));
+    const count = values.filter(
+      (value) =>
+        Number(value.toFixed(2)) >= Number(start.toFixed(2)) &&
+        Number(value.toFixed(2)) < Number(end.toFixed(2)),
+    ).length;
+
+    const percentage = (count / values.length) * 100;
+    ranges.push({ start, end, percentage });
+    start = end;
+  } while (start <= maxValue);
+
+  return ranges;
+}
+
+export function calculateBeatPercentage(
+  currentValue: number,
+  values: number[],
+): number {
+  if (values.length === 1) {
+    return currentValue < values[0] ? 0 : 100;
+  }
+
+  const totalValues = values.length;
+  const beatenValues = values.filter((value) => currentValue < value).length;
+  return Number(((beatenValues / totalValues) * 100).toFixed(2));
+}
+
+export function processMetricData(
+  values: number[],
+  currentValue: number,
+  type: "memoryUsage" | "executionTime",
+): MetricData {
+  const timeRanges = calculateRanges(values);
+
+  const data = timeRanges.map((range) => ({
+    range: `${range.start.toFixed(2) + (type === "executionTime" ? " ms" : " MB")}`,
+    solutions: Number(range.percentage.toFixed(2)),
+    isActive: currentValue >= range.start && currentValue < range.end,
+  }));
+
+  return {
+    data,
+    current: currentValue,
+    beat: calculateBeatPercentage(currentValue, values),
+    unit: type === "executionTime" ? " ms" : " MB",
+  };
+}
 
 type PerformanceChartProps = {
   executionTimes: number[];

@@ -10,7 +10,8 @@ import {
 } from "@/schemas/schema";
 import prismadb from "@/lib/prismadb";
 import {
-  processTestCases,
+  formPascalCaseToKebabCase,
+  parseTestCases,
   sanitizeTestResults,
   submissionTopicMap,
 } from "@/lib/utils";
@@ -18,12 +19,20 @@ import { randomUUID } from "node:crypto";
 import { AuthError } from "@supabase/auth-js";
 import { pollSubmissionResult, sendKafkaMessage } from "@/lib/kafka/client";
 import { authorizeUser } from "@/actions/auth-actions";
+import { revalidatePath } from "next/cache";
 
 export async function handleNewSubmission(
   code: string,
   language: Language,
   challengeId: string,
-): Promise<Submission & { challenge: Pick<Challenge, "title"> }> {
+): Promise<{
+  submission:
+    | (Submission & {
+        challenge: Pick<Challenge, "title">;
+      })
+    | null;
+  error: string | null;
+}> {
   try {
     const supabase = await createClient();
     const {
@@ -51,7 +60,10 @@ export async function handleNewSubmission(
     });
 
     if (!challenge) {
-      throw new Error(`Could not find challenge with id: ${challengeId}`);
+      return {
+        submission: null,
+        error: `Could not find challenge with id: ${challengeId}`,
+      };
     }
 
     const topic = submissionTopicMap[language.toLowerCase()];
@@ -92,21 +104,25 @@ export async function handleNewSubmission(
     });
 
     if (data.globalError || !data.testResults) {
-      return data;
+      return { submission: data, error: null };
     }
 
     const sanitizedTestResults = sanitizeTestResults(data.testResults);
 
     return {
-      ...data,
-      testResults: sanitizedTestResults,
+      submission: {
+        ...data,
+        testResults: sanitizedTestResults,
+      },
+      error: null,
     };
   } catch (error) {
     console.error("Error in testChallenge:", error);
 
-    throw new Error(
-      "An unexpected error occurred try again or contact with support.",
-    );
+    return {
+      submission: null,
+      error: "Unknown Error Occurred",
+    };
   }
 }
 
@@ -114,7 +130,7 @@ export async function createNewChallenge(data: TChallengeSchema) {
   try {
     challengeSchema.parse(data);
 
-    const processedTestCases = processTestCases(data.testCases);
+    const processedTestCases = parseTestCases(data.testCases);
 
     const { user } = await authorizeUser();
 
@@ -129,9 +145,13 @@ export async function createNewChallenge(data: TChallengeSchema) {
       },
     });
 
+    revalidatePath(`/explore/${challenge.difficulty.toLowerCase()}`);
+    revalidatePath(`/challenge/${challenge.title}`);
+
     return {
       challenge,
       message: "Successfully created new challenge",
+      error: null,
     };
   } catch (error) {
     console.log(error);
@@ -143,11 +163,17 @@ export async function createNewChallenge(data: TChallengeSchema) {
       error instanceof Prisma.PrismaClientKnownRequestError &&
       error.code === "P2002"
     ) {
-      throw new Error("Challenge with provided title already exists.");
+      return {
+        challenge: null,
+        message: null,
+        error: "Challenge with provided title already exists.",
+      };
     }
-    throw new Error(
-      "An unexpected error occurred try again or contact with support.",
-    );
+    return {
+      challenge: null,
+      message: null,
+      error: "An unexpected error occurred try again or contact with support.",
+    };
   }
 }
 
@@ -158,7 +184,7 @@ export async function updateChallenge(
   try {
     challengeSchema.parse(data);
 
-    const processedTestCases = processTestCases(data.testCases);
+    const processedTestCases = parseTestCases(data.testCases);
 
     const { user } = await authorizeUser();
 
@@ -168,7 +194,7 @@ export async function updateChallenge(
         authorId: user.id,
       },
       data: {
-        title: data.title.split(" ").join("-").toLowerCase(),
+        title: formPascalCaseToKebabCase(data.title),
         description: data.description,
         descriptionSnippet: data.descriptionSnippet,
         difficulty: data.difficulty,
@@ -176,28 +202,36 @@ export async function updateChallenge(
       },
     });
 
+    revalidatePath(`/`);
+    revalidatePath(`/explore/${challenge.difficulty.toLowerCase()}`);
+    revalidatePath(`/challenge/${challenge.title}`);
+
     return {
       challenge,
-      message: `Successfully updated ${challenge.title
-        .split("-")
-        .map((item) => item.slice(0, 1).toUpperCase() + item.slice(1))
-        .join(" ")} challenge`,
+      message: `Successfully updated ${data.title} challenge`,
+      error: null,
     };
   } catch (error) {
     console.log(error);
     if (error instanceof AuthError) {
-      console.error("Error in createNewChallenge:", error);
+      console.error("Error in updateChallenge:", error);
       redirect("/sign-in");
     }
     if (
       error instanceof Prisma.PrismaClientKnownRequestError &&
       error.code === "P2002"
     ) {
-      throw new Error("Challenge with provided title already exists.");
+      return {
+        challenge: null,
+        message: null,
+        error: "Challenge with provided title already exists.",
+      };
     }
-    throw new Error(
-      "An unexpected error occurred try again or contact with support.",
-    );
+    return {
+      challenge: null,
+      message: null,
+      error: "An unexpected error occurred try again or contact with support.",
+    };
   }
 }
 
@@ -205,16 +239,26 @@ export async function deleteChallenge(challengeId: string) {
   try {
     const { user } = await authorizeUser();
 
-    return await prismadb.challenge.delete({
+    const deletedChallenge = await prismadb.challenge.delete({
       where: {
         id: challengeId,
         authorId: user.id,
       },
     });
+
+    revalidatePath(`/`);
+    revalidatePath(`/explore/${deletedChallenge.difficulty.toLowerCase()}`);
+    revalidatePath(`/challenge/${deletedChallenge.title}`);
+
+    return {
+      deletedChallenge,
+      error: null,
+    };
   } catch (error) {
     console.log(error);
-    throw new Error(
-      "An error occurred while deleting challenge. Please try again.",
-    );
+    return {
+      deletedChallenge: null,
+      error: "An error occurred while deleting challenge. Please try again.",
+    };
   }
 }

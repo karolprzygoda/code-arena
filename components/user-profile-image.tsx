@@ -1,22 +1,23 @@
-"use client";
-
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 import { UserIcon } from "lucide-react";
 
 type UserProfileImageProps = {
-  profileImageSrc: string | null;
-
   noProfileImageClassName?: string;
+  profileImageSrc: string | null;
 };
 
 const UserProfileImage = ({
-  profileImageSrc,
-
   noProfileImageClassName,
+  profileImageSrc,
 }: UserProfileImageProps) => {
   return profileImageSrc ? (
-    <Image src={profileImageSrc} alt={"user profile image"} fill />
+    <Image
+      src={profileImageSrc}
+      alt={"user profile image"}
+      width={100}
+      height={100}
+    />
   ) : (
     <div
       className={cn(

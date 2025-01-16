@@ -14,6 +14,7 @@ import TestsPanel from "@/app/(root)/(challenge)/challenge/[challengeName]/@edit
 import PanelFooter from "@/app/(root)/(challenge)/_components/panel-footer";
 import SubmitChallengeButton from "@/app/(root)/(challenge)/challenge/[challengeName]/@editor/_components/submit-challenge-button";
 import ExpandTestsPanelButton from "@/app/(root)/(challenge)/challenge/[challengeName]/@editor/_components/tests-components/expand-tests-panel-button";
+import { sanitizeTestCases } from "@/lib/utils";
 
 type EditorPageComponentProps = {
   challengeName: string;
@@ -22,7 +23,7 @@ type EditorPageComponentProps = {
 const EditorPageComponent = async ({
   challengeName,
 }: EditorPageComponentProps) => {
-  const data = await prismadb.challenge.findFirst({
+  const challengeData = await prismadb.challenge.findFirst({
     where: {
       title: challengeName,
     },
@@ -33,35 +34,22 @@ const EditorPageComponent = async ({
     },
   });
 
-  if (data === null) {
+  if (challengeData === null) {
     notFound();
   }
 
   const defaultCode = {
-    javascript: `function solution(${data.testCases
+    javascript: `function solution(${challengeData.testCases
       .at(0)!
       .inputs.map((input) => input.name)
       .join(",")}) {\n    // Write your code here\n}`,
-    python: `def solution(${data.testCases
+    python: `def solution(${challengeData.testCases
       .at(0)!
       .inputs.map((input) => input.name)
       .join(",")}):\n    # Write your code here\n    pass`,
   };
 
-  const sanitizedHiddenTests = data.testCases
-    .map((testCase) =>
-      testCase.hidden
-        ? {
-            inputs: null as unknown as PrismaJson.InputType[],
-            expectedOutput: null,
-            hidden: testCase.hidden,
-          }
-        : testCase,
-    )
-    .sort((a, b) => {
-      if (a.hidden === b.hidden) return 0;
-      return a.hidden ? 1 : -1;
-    });
+  const sanitizedTests = sanitizeTestCases(challengeData.testCases);
 
   return (
     <EditorStoreProvider
@@ -83,12 +71,12 @@ const EditorPageComponent = async ({
             }
             withCustomHandle
           />
-          <TestsPanel tests={sanitizedHiddenTests} />
+          <TestsPanel tests={sanitizedTests} />
           <PanelFooter>
             <ExpandTestsPanelButton />
             <SubmitChallengeButton
               defaultCode={defaultCode}
-              challengeId={data.id}
+              challengeId={challengeData.id}
             />
           </PanelFooter>
         </ResizablePanelGroup>

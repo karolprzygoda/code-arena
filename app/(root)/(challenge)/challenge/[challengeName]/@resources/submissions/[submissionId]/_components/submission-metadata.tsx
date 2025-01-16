@@ -1,18 +1,14 @@
-import { cn, getStatusClass } from "@/lib/utils";
-import UserProfileLink from "@/components/user-profile-link";
+import { cn, STATUS_STYLE } from "@/lib/utils";
 import { Challenge, Submission } from "@prisma/client";
 import { Button } from "@/components/ui/button";
 import { SquarePen } from "lucide-react";
 import Link from "next/link";
+import { TUserRoles } from "@/lib/types";
+import UserProfileLink from "@/components/user-profile-link";
 
 type SubmissionMetadataProps = {
   submission: Submission & { challenge: Challenge };
-  user: {
-    id: string;
-    email: string;
-    profileImageSrc: string | null;
-    isAdmin: boolean;
-  };
+  user: TUserRoles;
 };
 
 const getNumberOfPassedTests = (
@@ -42,7 +38,7 @@ const SubmissionMetadata = ({ submission, user }: SubmissionMetadataProps) => {
     <div className={"flex w-full flex-wrap justify-between gap-2"}>
       <div className={"flex flex-col gap-2"}>
         <div className={"flex items-center gap-2"}>
-          <div className={cn(getStatusClass(submission.status))}>
+          <div className={cn(STATUS_STYLE[submission.status])}>
             {submission.status}
           </div>
           <div className={"text-xs text-muted-foreground"}>

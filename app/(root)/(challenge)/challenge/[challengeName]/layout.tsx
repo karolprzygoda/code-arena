@@ -2,6 +2,34 @@ import { ReactNode } from "react";
 import type { Metadata } from "next";
 import { ResizableHandle } from "@/components/ui/resizable";
 import ChallengeDashboardWrapper from "@/app/(root)/(challenge)/_components/challenge-dashboard-wrapper";
+import prismadb from "@/lib/prismadb";
+import { fromKebabCaseToPascalCase } from "@/lib/utils";
+
+export async function generateStaticParams() {
+  const challenges = await prismadb.challenge.findMany({
+    select: {
+      title: true,
+      solution: {
+        select: {
+          id: true,
+        },
+      },
+    },
+  });
+
+  const paths = challenges.flatMap((challenge) => {
+    const mainPath = [{ challengeName: challenge.title }];
+
+    const solutionPaths = challenge.solution.map((solution) => ({
+      challengeName: challenge.title,
+      solutionId: solution.id,
+    }));
+
+    return [...mainPath, ...solutionPaths];
+  });
+
+  return paths;
+}
 
 type CurrentChallengeLayoutProps = {
   editor: ReactNode;
@@ -15,10 +43,7 @@ export const generateMetadata = async ({
   const name = (await params).challengeName;
 
   return {
-    title: `${name
-      .split("-")
-      .map((item) => item.slice(0, 1).toUpperCase() + item.slice(1))
-      .join(" ")} - CodeArena`,
+    title: `${fromKebabCaseToPascalCase(name)} - CodeArena`,
   };
 };
 

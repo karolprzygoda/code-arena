@@ -6,16 +6,12 @@ import SubmissionCode from "@/app/(root)/(challenge)/challenge/[challengeName]/@
 import GoBackTabHeader from "@/app/(root)/(challenge)/challenge/[challengeName]/@resources/_components/go-back-tab-header";
 import SubmissionMetadata from "@/app/(root)/(challenge)/challenge/[challengeName]/@resources/submissions/[submissionId]/_components/submission-metadata";
 import SubmissionContentWrapper from "@/app/(root)/(challenge)/challenge/[challengeName]/@resources/submissions/[submissionId]/_components/submission-content-wrapper";
-import {
-  getMaxExecutionTime,
-  getMaxMemoryUsage,
-  getUserProfilePicture,
-} from "@/lib/utils";
+import { getMaxExecutionTime, getMaxMemoryUsage } from "@/lib/utils";
 import PerformanceChart from "@/app/(root)/(challenge)/challenge/[challengeName]/@resources/submissions/[submissionId]/_components/performance-chart";
 import SubmissionLogs from "@/app/(root)/(challenge)/challenge/[challengeName]/@resources/submissions/[submissionId]/_components/submission-logs";
 import SubmissionErrors from "@/app/(root)/(challenge)/challenge/[challengeName]/@resources/submissions/[submissionId]/_components/submission-errors";
 import { Prisma } from "@prisma/client";
-import SubmissionGlobalError from "@/app/(root)/(challenge)/challenge/[challengeName]/@resources/submissions/[submissionId]/_components/submission-global-error";
+import SubmissionGlobalErrorComponent from "@/app/(root)/(challenge)/challenge/[challengeName]/@resources/submissions/[submissionId]/_components/submission-global-error-component";
 
 type SubmissionPageParams = {
   params: Promise<{ challengeName: string; submissionId: string }>;
@@ -34,28 +30,33 @@ const SubmissionPage = async ({ params }: SubmissionPageParams) => {
     redirect("/sign-in");
   }
 
-  const [submission, isUserAdmin] = await Promise.all([
-    prismadb.submission.findFirst({
-      where: {
-        id: submissionId,
-        userId: user.id,
+  const submission = await prismadb.submission.findFirst({
+    where: {
+      id: submissionId,
+      userId: user.id,
+    },
+    include: {
+      challenge: true,
+      users: {
+        select: {
+          id: true,
+          profile_picture: true,
+          email: true,
+          userRoles: {
+            select: {
+              role: true,
+            },
+          },
+        },
       },
-      include: {
-        challenge: true,
-      },
-    }),
-    prismadb.userRoles.findFirst({
-      where: {
-        userid: user.id,
-      },
-    }),
-  ]);
+    },
+  });
 
   if (!submission) {
     redirect(`/challenge/${challengeName}/submissions`);
   }
 
-  const allSubmissions = await prismadb.submission.findMany({
+  const allSuccessSubmissions = await prismadb.submission.findMany({
     where: {
       challengeId: submission.challengeId,
       status: "SUCCESS",
@@ -65,11 +66,7 @@ const SubmissionPage = async ({ params }: SubmissionPageParams) => {
     },
   });
 
-  if (!allSubmissions) {
-    redirect(`/challenge/${challengeName}/submissions`);
-  }
-
-  const runtimes = allSubmissions
+  const runtimes = allSuccessSubmissions
     .flatMap((submission) =>
       getMaxExecutionTime(
         submission.testResults!.map((testResult) => testResult),
@@ -77,7 +74,7 @@ const SubmissionPage = async ({ params }: SubmissionPageParams) => {
     )
     .map((item) => Number(item?.split(" ").at(0)));
 
-  const memoryUsage = allSubmissions
+  const memoryUsage = allSuccessSubmissions
     .flatMap((submission) =>
       getMaxMemoryUsage(
         submission.testResults!.map((testResult) => testResult),
@@ -95,8 +92,6 @@ const SubmissionPage = async ({ params }: SubmissionPageParams) => {
     getMaxExecutionTime(submission.testResults).split(" ").at(0),
   );
 
-  const userProfilePicture = getUserProfilePicture(user);
-
   return (
     <TabWrapper>
       <GoBackTabHeader
@@ -104,15 +99,7 @@ const SubmissionPage = async ({ params }: SubmissionPageParams) => {
         title={"All submissions"}
       />
       <SubmissionContentWrapper>
-        <SubmissionMetadata
-          submission={submission}
-          user={{
-            id: user.id,
-            email: user.email!,
-            isAdmin: !!isUserAdmin,
-            profileImageSrc: userProfilePicture,
-          }}
-        />
+        <SubmissionMetadata submission={submission} user={submission.users} />
         {!isNaN(submissionMemoryUsage) && !isNaN(submissionExecutionTime) && (
           <PerformanceChart
             memoryUsages={memoryUsage}
@@ -134,7 +121,9 @@ const SubmissionPage = async ({ params }: SubmissionPageParams) => {
             />
           </>
         ) : (
-          <SubmissionGlobalError globalError={submission.globalError} />
+          <SubmissionGlobalErrorComponent
+            globalError={submission.globalError}
+          />
         )}
       </SubmissionContentWrapper>
     </TabWrapper>

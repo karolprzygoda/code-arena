@@ -4,26 +4,32 @@ import { ThumbsUp } from "lucide-react";
 import DescriptionActionButton from "@/app/(root)/(challenge)/challenge/[challengeName]/@resources/_components/description-action-button";
 import { cn } from "@/lib/utils";
 import { useShallow } from "zustand/react/shallow";
-import useVotesContext from "@/hooks/use-votes-context";
 import { upVote } from "@/actions/utils-actions";
+import useVotesContext from "@/hooks/use-votes-context";
+import { VotableItems } from "@/lib/types";
+import { toast } from "sonner";
 
 type UpVoteButtonProps = {
-  itemType: "challengeId" | "solutionId";
+  itemType: VotableItems;
+  paths?: string[];
 };
 
-const UpVoteButton = ({ itemType }: UpVoteButtonProps) => {
-  const { likes, vote, setVote, challengeId } = useVotesContext(
+const UpVoteButton = ({ itemType, paths }: UpVoteButtonProps) => {
+  const { upVotes, vote, setVote, itemId } = useVotesContext(
     useShallow((state) => ({
       vote: state.vote,
-      likes: state.upVotes,
+      upVotes: state.upVotes,
       setVote: state.setVote,
-      challengeId: state.itemId,
+      itemId: state.itemId,
     })),
   );
 
   const handleUpVote = async () => {
     setVote("UPVOTE");
-    await upVote(challengeId!, itemType);
+    const { error } = await upVote(itemId!, itemType, paths);
+    if (error) {
+      toast.error(error);
+    }
   };
 
   return (
@@ -36,7 +42,7 @@ const UpVoteButton = ({ itemType }: UpVoteButtonProps) => {
       onClick={handleUpVote}
     >
       <ThumbsUp />
-      {likes}
+      {upVotes}
     </DescriptionActionButton>
   );
 };

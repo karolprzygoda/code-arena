@@ -1,5 +1,5 @@
 import { ReactNode } from "react";
-import Header from "@/components/header/header";
+import Header from "@/app/(root)/_components/header/header";
 
 type RootLayout = {
   children: Readonly<ReactNode>;

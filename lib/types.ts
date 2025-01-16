@@ -1,4 +1,11 @@
-import { Challenge, Language, Submission, Users, Votes } from "@prisma/client";
+import {
+  Challenge,
+  Language,
+  Submission,
+  UserRoles,
+  Users,
+  Votes,
+} from "@prisma/client";
 import { LucideIcon } from "lucide-react";
 import { JwtPayload } from "jwt-decode";
 
@@ -91,7 +98,7 @@ export type MetricData = {
   unit: string;
 };
 
-export type ChallengeCardType = Omit<
+export type TChallengeCard = Omit<
   Challenge,
   "description" | "testCases" | "authorId"
 > & {
@@ -104,3 +111,23 @@ export type SelectionRange = {
   selectionStart: number;
   selectionEnd: number;
 } | null;
+
+export type MoreChallengesSheetType = Array<
+  Pick<Challenge, "title" | "difficulty"> & {
+    submission: Array<Pick<Submission, "challengeId" | "userId">>;
+  }
+>;
+
+export type VotableItems = "challengeTitle" | "solutionId";
+
+export type TUserRoles = Users & {
+  userRoles: Array<Pick<UserRoles, "role">>;
+};
+
+export type TChallengeData = Challenge & {
+  users: Users & TUserRoles;
+} & {
+  submission: Array<Pick<Submission, "userId" | "challengeId">>;
+};
+
+export type TChallengesSolvedByUser = Array<Pick<Challenge, "difficulty">>;

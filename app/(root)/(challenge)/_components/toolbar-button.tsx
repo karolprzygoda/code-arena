@@ -32,6 +32,7 @@ const ToolbarButton = ({
         <TooltipTrigger asChild>
           <button
             {...props}
+            aria-label={tooltipMessage}
             className={cn("flex h-auto items-center gap-2", props.className)}
           >
             <Icon

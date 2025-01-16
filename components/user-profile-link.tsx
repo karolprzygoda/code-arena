@@ -9,14 +9,10 @@ import { Portal } from "@radix-ui/react-hover-card";
 import { Badge } from "@/components/ui/badge";
 import { ShieldHalf } from "lucide-react";
 import UserProfileImage from "@/components/user-profile-image";
+import { UserRoles, Users } from "@prisma/client";
 
 type UserProfileLinkProps = {
-  user: {
-    id: string;
-    email: string;
-    profileImageSrc: string | null;
-    isAdmin: boolean;
-  };
+  user: Users & { userRoles: Array<Pick<UserRoles, "role">> };
 };
 
 const UserProfileLink = ({ user }: UserProfileLinkProps) => {
@@ -54,7 +50,7 @@ const UserProfileLink = ({ user }: UserProfileLinkProps) => {
                   }
                 >
                   <UserProfileImage
-                    profileImageSrc={user.profileImageSrc}
+                    profileImageSrc={user.profile_picture}
                     noProfileImageClassName={"bg-zinc-100 dark:bg-zinc-900 p-2"}
                   />
                 </span>
@@ -68,7 +64,9 @@ const UserProfileLink = ({ user }: UserProfileLinkProps) => {
               >
                 @{userName}
               </h2>
-              {user.isAdmin && (
+              {!!user.userRoles.find(
+                (userRole) => userRole.role === "ADMIN",
+              ) && (
                 <div className={"flex flex-wrap gap-2"}>
                   <Badge
                     className={

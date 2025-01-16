@@ -8,8 +8,8 @@ type LanguageBadge = {
 };
 
 const colorMap = {
-  JAVASCRIPT: "bg-yellow-500/80 hover:bg-yellow-500/80 text-zinc-100",
-  PYTHON: "bg-blue-500 hover:bg-blue-500 text-zinc-100",
+  JAVASCRIPT: "bg-yellow-400 hover:bg-yellow-500 text-zinc-700",
+  PYTHON: "bg-blue-600 hover:bg-blue-600 text-zinc-50",
 };
 
 const LanguageBadge = ({ language, className }: LanguageBadge) => {

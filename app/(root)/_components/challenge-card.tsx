@@ -1,17 +1,16 @@
 import Link from "next/link";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import DifficultyBadge from "@/app/(root)/(challenge)/challenge/[challengeName]/@resources/_components/difficulty-badge";
-import IsChallengePassedIndicator from "@/app/(root)/_components/is-challenge-passed-indicator";
+import ChallengePassedIndicator from "@/app/(root)/_components/challenge-passed-indicator";
 import { ThumbsDown, ThumbsUp } from "lucide-react";
-import { ChallengeCardType } from "@/lib/types";
+import { TChallengeCard } from "@/lib/types";
 import { formatDistanceToNow } from "date-fns";
-import { User } from "@supabase/supabase-js";
-import { cn } from "@/lib/utils";
+import { cn, createUserName } from "@/lib/utils";
 import { Submission } from "@prisma/client";
+import ManageChallengeButton from "@/app/(root)/_components/manage-challenge-button";
 
 type ChallengeCardProps = {
-  signedInUser: User;
-  challenge: ChallengeCardType;
+  challenge: TChallengeCard;
 };
 
 const BORDERS_BY_DIFFICULTY = {
@@ -36,23 +35,21 @@ const SHADOWS_BY_DIFFICULTY = {
     "hover:shadow-extreme group-focus:shadow-extreme dark:hover:shadow-extreme-dark dark:group-focus:shadow-extreme-dark",
 };
 
-const hasUserPassedChallenge = (
-  successSubmissions: Submission[],
-  userId: string,
-  challengeId: string,
-) => {
-  return successSubmissions.find(
-    (submission) =>
-      submission.challengeId === challengeId && submission.userId === userId,
-  );
-};
+const ChallengeCard = ({ challenge }: ChallengeCardProps) => {
+  const title = challenge.title
+    .split("-")
+    .map((item) => item.slice(0, 1).toUpperCase() + item.slice(1))
+    .join(" ");
 
-const ChallengeCard = ({ challenge, signedInUser }: ChallengeCardProps) => {
-  const isPassed = hasUserPassedChallenge(
-    challenge.submission as Submission[],
-    signedInUser.id,
-    challenge.id,
-  );
+  const downVotes = challenge.votes.filter(
+    (vote) => vote.voteType === "DOWNVOTE",
+  ).length;
+
+  const upVotes = challenge.votes.filter(
+    (vote) => vote.voteType === "UPVOTE",
+  ).length;
+
+  const userName = createUserName(challenge.users.email!);
 
   return (
     <Link
@@ -69,30 +66,35 @@ const ChallengeCard = ({ challenge, signedInUser }: ChallengeCardProps) => {
         )}
       >
         <CardHeader className={"gap-1"}>
-          <h3
-            className={
-              "max-w-[75%] truncate text-2xl font-semibold tracking-tight duration-300"
-            }
-          >
-            {challenge.title}
-          </h3>
-          <div className={"flex items-center gap-5 text-center"}>
+          <div className={"flex w-full items-center justify-between"}>
+            <h3
+              className={
+                "max-w-[75%] truncate text-2xl font-semibold tracking-tight duration-300"
+              }
+            >
+              {title}
+            </h3>
+            <ManageChallengeButton
+              blur={false}
+              challengeId={challenge.id}
+              challengeTitle={challenge.title}
+            />
+          </div>
+          <div className={"flex min-h-6 items-center gap-5 text-center"}>
             <DifficultyBadge difficulty={challenge.difficulty} />
-            {isPassed && <IsChallengePassedIndicator />}
+
             <div className={"flex items-center gap-2 text-sm"}>
               <ThumbsUp className={"h-4 w-4"} />
-              {
-                challenge.votes.filter((vote) => vote.voteType === "UPVOTE")
-                  .length
-              }
+              {upVotes}
             </div>
             <div className={"flex items-center gap-2 text-sm"}>
               <ThumbsDown className={"h-4 w-4"} />
-              {
-                challenge.votes.filter((vote) => vote.voteType === "DOWNVOTE")
-                  .length
-              }
+              {downVotes}
             </div>
+            <ChallengePassedIndicator
+              submissions={challenge.submission as Submission[]}
+              challengeId={challenge.id}
+            />
           </div>
         </CardHeader>
         <CardContent className={"relative flex flex-col gap-2 pb-0 pt-1"}>
@@ -102,7 +104,7 @@ const ChallengeCard = ({ challenge, signedInUser }: ChallengeCardProps) => {
                 "max-w-1/3 overflow-hidden text-ellipsis text-xs font-semibold"
               }
             >
-              {challenge.users.email}
+              {userName}
             </div>
             <div className={"whitespace-nowrap text-sm text-muted-foreground"}>
               Created{" "}

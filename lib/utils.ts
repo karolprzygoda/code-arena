@@ -2,12 +2,7 @@ import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { ZodError } from "zod";
 import { User } from "@supabase/supabase-js";
-import {
-  MetricData,
-  MetricRange,
-  SelectionRange,
-  TypographyVariant,
-} from "@/lib/types";
+import { SelectionRange, TypographyVariant } from "@/lib/types";
 import { RefObject } from "react";
 import { editor } from "monaco-editor";
 
@@ -23,6 +18,23 @@ export const solutionTopicMap: Record<string, string> = {
 export const submissionTopicMap: Record<string, string> = {
   javascript: "nodejs-submission-topic",
   python: "python-submission-topic",
+};
+
+export const sanitizeTestCases = (testCases: PrismaJson.TestCasesType) => {
+  return testCases
+    .map((testCase) =>
+      testCase.hidden
+        ? {
+            inputs: null as unknown as PrismaJson.InputType[],
+            expectedOutput: null,
+            hidden: testCase.hidden,
+          }
+        : testCase,
+    )
+    .sort((a, b) => {
+      if (a.hidden === b.hidden) return 0;
+      return a.hidden ? 1 : -1;
+    });
 };
 
 export const sanitizeTestResults = (
@@ -72,10 +84,10 @@ export const getUserProfilePicture = (user: User | null) => {
   }
 };
 
-export const getStatusClass = (status: string) =>
-  status === "SUCCESS"
-    ? "text-emerald-600 dark:text-emerald-400"
-    : "text-rose-600 dark:text-rose-400";
+export const STATUS_STYLE = {
+  SUCCESS: "text-emerald-600 dark:text-emerald-400",
+  FAIL: "text-rose-600 dark:text-rose-400",
+};
 
 export const getMaxExecutionTime = (
   testResults: PrismaJson.TestResultsType | null,
@@ -91,78 +103,7 @@ export const getMaxMemoryUsage = (
     ? `${Math.max(...testResults.map((t) => t.memoryUsage))} MB`
     : "N/A";
 
-export function calculateRanges(values: number[]): MetricRange[] {
-  if (values.length === 0) return [];
-
-  if (values.length === 1) {
-    return [
-      {
-        start: values[0],
-        end: values[0] + 1,
-        percentage: 100,
-      },
-    ];
-  }
-
-  const minValue = Math.min(...values);
-  const maxValue = Math.max(...values);
-
-  const rangeSize = Number((maxValue - minValue).toFixed(2)) / 50;
-
-  const ranges: MetricRange[] = [];
-  let start = minValue;
-
-  do {
-    const end = Number((start + rangeSize).toFixed(2));
-    const count = values.filter(
-      (value) =>
-        Number(value.toFixed(2)) >= Number(start.toFixed(2)) &&
-        Number(value.toFixed(2)) < Number(end.toFixed(2)),
-    ).length;
-
-    const percentage = (count / values.length) * 100;
-    ranges.push({ start, end, percentage });
-    start = end;
-  } while (start <= maxValue);
-
-  return ranges;
-}
-
-export function calculateBeatPercentage(
-  currentValue: number,
-  values: number[],
-): number {
-  if (values.length === 1) {
-    return currentValue < values[0] ? 0 : 100;
-  }
-
-  const totalValues = values.length;
-  const beatenValues = values.filter((value) => currentValue < value).length;
-  return Number(((beatenValues / totalValues) * 100).toFixed(2));
-}
-
-export function processMetricData(
-  values: number[],
-  currentValue: number,
-  type: "memoryUsage" | "executionTime",
-): MetricData {
-  const timeRanges = calculateRanges(values);
-
-  const data = timeRanges.map((range) => ({
-    range: `${range.start.toFixed(2) + (type === "executionTime" ? " ms" : " MB")}`,
-    solutions: Number(range.percentage.toFixed(2)),
-    isActive: currentValue >= range.start && currentValue < range.end,
-  }));
-
-  return {
-    data,
-    current: currentValue,
-    beat: calculateBeatPercentage(currentValue, values),
-    unit: type === "executionTime" ? " ms" : " MB",
-  };
-}
-
-export const processTestCases = (testCases: PrismaJson.TestCasesType) => {
+export const parseTestCases = (testCases: PrismaJson.TestCasesType) => {
   return testCases.map((testCase) => ({
     ...testCase,
     inputs: testCase.inputs.map((input) => ({
@@ -173,7 +114,18 @@ export const processTestCases = (testCases: PrismaJson.TestCasesType) => {
   }));
 };
 
-export const typographyMap: Record<
+export const stringifyTestCases = (testCases: PrismaJson.TestCasesType) => {
+  return testCases.map((testCase) => ({
+    ...testCase,
+    expectedOutput: JSON.stringify(testCase.expectedOutput),
+    inputs: testCase.inputs.map((input) => ({
+      ...input,
+      value: JSON.stringify(input.value),
+    })),
+  }));
+};
+
+export const TYPOGRAPHY_MAP: Record<
   TypographyVariant,
   { format: (text: string) => string; length: number }
 > = {
@@ -203,7 +155,7 @@ export const typographyMap: Record<
   },
   orderedList: {
     format: (text) => `1. ${text}`,
-    length: 2,
+    length: 3,
   },
   h1: {
     format: (text) => `# ${text}`,
@@ -217,7 +169,7 @@ export const typographyMap: Record<
     format: (text) => `### ${text}`,
     length: 4,
   },
-};
+} as const;
 
 export const getSelectionStartEnd = (
   editorRef: RefObject<editor.IStandaloneCodeEditor>,
@@ -249,33 +201,17 @@ export const getSelectionStartEnd = (
   return { selectionStart, selectionEnd };
 };
 
-export const setSelectionFromStartEnd = (
-  editorRef: RefObject<editor.IStandaloneCodeEditor>,
-  start: number,
-  end: number,
-): void => {
-  if (!editorRef.current) {
-    console.warn("Editor is not initialized.");
-    return;
-  }
+export const createUserName = (email: string) => {
+  return `@${email.split("@").at(0)}`;
+};
 
-  const editor = editorRef.current;
-  const model = editor.getModel();
+export const fromKebabCaseToPascalCase = (text: string) => {
+  return text
+    .split("-")
+    .map((t) => t.slice(0, 1).toUpperCase() + t.slice(1))
+    .join(" ");
+};
 
-  if (!model) {
-    console.warn("Model is not available.");
-    return;
-  }
-
-  const startPosition = model.getPositionAt(start);
-  const endPosition = model.getPositionAt(end);
-
-  editor.setSelection({
-    startLineNumber: startPosition.lineNumber,
-    startColumn: startPosition.column,
-    endLineNumber: endPosition.lineNumber,
-    endColumn: endPosition.column,
-  });
-
-  editor.focus();
+export const formPascalCaseToKebabCase = (text: string) => {
+  return text.split(" ").join("-").toLowerCase();
 };

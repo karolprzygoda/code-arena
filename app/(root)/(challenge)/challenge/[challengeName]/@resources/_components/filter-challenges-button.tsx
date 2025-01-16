@@ -1,3 +1,5 @@
+"use client";
+
 import {
   Select,
   SelectContent,
@@ -6,7 +8,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import useFilteredDataContext from "@/hooks/use-filtered-data-context";
-import { Challenge } from "@prisma/client";
+import { Challenge, Difficulty } from "@prisma/client";
 import { useShallow } from "zustand/react/shallow";
 
 type FilterActions = {
@@ -14,16 +16,23 @@ type FilterActions = {
 };
 
 const FilterChallengesButton = () => {
-  const { setFilters } = useFilteredDataContext<Challenge, FilterActions>(
+  const { setFilters, filters } = useFilteredDataContext<
+    Challenge,
+    FilterActions & { filters: Partial<Record<keyof Challenge, unknown>> }
+  >(
     useShallow((state) => ({
       setFilters: state.setFilters,
+      filters: state.filters,
     })),
   );
 
   return (
     <Select onValueChange={(value) => setFilters({ difficulty: value })}>
       <SelectTrigger className={"w-1/2"}>
-        <SelectValue placeholder={"BEGINNER"} defaultValue={"BEGINNER"} />
+        <SelectValue
+          placeholder={filters.difficulty as Difficulty}
+          defaultValue={filters.difficulty as Difficulty}
+        />
       </SelectTrigger>
       <SelectContent>
         <SelectItem className={"cursor-pointer"} value={"BEGINNER"}>

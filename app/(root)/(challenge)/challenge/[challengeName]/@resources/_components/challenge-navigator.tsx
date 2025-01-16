@@ -23,6 +23,7 @@ const ChallengeNavigator = ({
       <Tooltip>
         <TooltipTrigger asChild>
           <Link
+            aria-label={tooltipMessage}
             href={href}
             className={
               "inline-flex h-9 items-center justify-center gap-2 whitespace-nowrap rounded-md bg-transparent px-3 py-2 text-sm font-semibold text-accent-foreground shadow-none transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 dark:hover:bg-zinc-900 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0"

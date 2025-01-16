@@ -1,22 +1,18 @@
 import prismadb from "@/lib/prismadb";
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 import MarkdownRenderer from "@/app/(root)/(challenge)/_components/markdown-renderer";
 import { Calendar } from "lucide-react";
-import { createClient } from "@/lib/supabase/server";
-import UpVoteButton from "@/app/(root)/(challenge)/challenge/[challengeName]/@resources/_components/up-vote-button";
-import DislikeButton from "@/app/(root)/(challenge)/challenge/[challengeName]/@resources/_components/down-vote-button";
-import ShareCurrentPathButton from "@/app/(root)/(challenge)/challenge/[challengeName]/@resources/_components/share-current-path-button";
-import VotesStoreProvider from "@/stores/store-providers/votes-store-provider";
-import ManageChallengeButton from "@/app/(root)/(challenge)/challenge/[challengeName]/@resources/_components/manage-challenge-button";
+import ManageChallengeButton from "@/app/(root)/_components/manage-challenge-button";
 import { formatDistanceToNow } from "date-fns";
 import TabWrapper from "@/app/(root)/(challenge)/challenge/[challengeName]/@resources/_components/tab-wrapper";
-import UserProfileLink from "@/components/user-profile-link";
 import DifficultyBadge from "@/app/(root)/(challenge)/challenge/[challengeName]/@resources/_components/difficulty-badge";
-import { Challenge, Users, Vote } from "@prisma/client";
-import { User } from "@supabase/supabase-js";
-import IsChallengePassedIndicator from "@/app/(root)/_components/is-challenge-passed-indicator";
-import { getUserById } from "@/actions/auth-actions";
-import { getUserProfilePicture } from "@/lib/utils";
+import ChallengeVotes from "@/app/(root)/(challenge)/challenge/[challengeName]/@resources/_components/challenge-votes";
+import UserContextProvider from "@/components/user-context-provider";
+import UserProfileLink from "@/components/user-profile-link";
+import ChallengePassedIndicator from "@/app/(root)/_components/challenge-passed-indicator";
+import ShareCurrentPathButton from "@/app/(root)/(challenge)/challenge/[challengeName]/@resources/_components/share-current-path-button";
+import { fromKebabCaseToPascalCase } from "@/lib/utils";
+import { TChallengeData } from "@/lib/types";
 
 type DescriptionPageProps = {
   params: Promise<{ challengeName: string }>;
@@ -25,10 +21,30 @@ type DescriptionPageProps = {
 const DescriptionPage = async ({ params }: DescriptionPageProps) => {
   const challengeData = await prismadb.challenge.findFirst({
     where: {
-      title: (await params).challengeName.split(" ").join("-").toLowerCase(),
+      title: (await params).challengeName,
     },
     include: {
-      users: true,
+      users: {
+        select: {
+          id: true,
+          profile_picture: true,
+          email: true,
+          userRoles: {
+            select: {
+              role: true,
+            },
+          },
+        },
+      },
+      submission: {
+        where: {
+          status: "SUCCESS",
+        },
+        select: {
+          challengeId: true,
+          userId: true,
+        },
+      },
       votes: true,
     },
   });
@@ -37,33 +53,6 @@ const DescriptionPage = async ({ params }: DescriptionPageProps) => {
     notFound();
   }
 
-  const supabaseClient = await createClient();
-
-  const {
-    data: { user: signedUser },
-    error: authError,
-  } = await supabaseClient.auth.getUser();
-
-  if (authError || !signedUser) {
-    redirect("/sign-in");
-  }
-
-  const [hasUserSolvedChallenge, userVote] = await Promise.all([
-    prismadb.submission.findFirst({
-      where: {
-        status: "SUCCESS",
-        userId: signedUser?.id,
-        challengeId: challengeData.id,
-      },
-    }),
-    prismadb.votes.findFirst({
-      where: { challengeId: challengeData.id, userId: signedUser.id },
-      select: {
-        voteType: true,
-      },
-    }),
-  ]);
-
   const upVotes = challengeData.votes.filter(
     (vote) => vote.voteType === "UPVOTE",
   ).length;
@@ -71,33 +60,19 @@ const DescriptionPage = async ({ params }: DescriptionPageProps) => {
     (vote) => vote.voteType === "DOWNVOTE",
   ).length;
 
-  const title = challengeData.title
-    .split("-")
-    .map((item) => item.slice(0, 1).toUpperCase() + item.slice(1))
-    .join(" ");
-
-  const authorUser = await getUserById(challengeData.authorId);
-
-  const authorProfilePicture = await getUserProfilePicture(authorUser);
+  const title = fromKebabCaseToPascalCase(challengeData.title);
 
   return (
     <TabWrapper>
       <div className={"flex flex-col p-4 pb-8"}>
-        <DescriptionPageHeader
-          upVotes={upVotes}
-          downVotes={downVotes}
-          userVote={userVote}
-          signedUser={signedUser}
-          authorUser={{
-            email: authorUser.email!,
-            id: authorUser.id,
-            isAdmin: authorUser.isAdmin,
-            profileImageSrc: authorProfilePicture,
-          }}
-          title={title}
-          challengeData={challengeData}
-          hasUserSolvedChallenge={!!hasUserSolvedChallenge}
-        />
+        <UserContextProvider>
+          <DescriptionPageHeader
+            upVotes={upVotes}
+            downVotes={downVotes}
+            title={title}
+            challengeData={challengeData}
+          />
+        </UserContextProvider>
         <MarkdownRenderer markdown={challengeData.description} />
       </div>
     </TabWrapper>
@@ -105,41 +80,29 @@ const DescriptionPage = async ({ params }: DescriptionPageProps) => {
 };
 
 type DescriptionPageHeaderProps = {
-  challengeData: Challenge & { users: Users };
-  signedUser: User;
-  authorUser: {
-    id: string;
-    email: string;
-    profileImageSrc: string | null;
-    isAdmin: boolean;
-  };
+  challengeData: TChallengeData;
   title: string;
   upVotes: number;
   downVotes: number;
-  hasUserSolvedChallenge: boolean;
-  userVote: { voteType: Vote } | null;
 };
 
 const DescriptionPageHeader = ({
   challengeData,
-  signedUser,
-  authorUser,
   title,
   upVotes,
   downVotes,
-  hasUserSolvedChallenge,
-  userVote,
 }: DescriptionPageHeaderProps) => {
   return (
     <div className={"mb-8 flex w-full flex-col gap-2"}>
       <div className={"flex justify-between"}>
         <h2 className={"text-3xl font-bold"}>{title}</h2>
-        {challengeData.authorId === signedUser.id && (
-          <ManageChallengeButton challengeId={challengeData.id} />
-        )}
+        <ManageChallengeButton
+          challengeId={challengeData.id}
+          challengeTitle={challengeData.title}
+        />
       </div>
       <div className={"flex flex-wrap items-center gap-4"}>
-        <UserProfileLink user={authorUser} />
+        <UserProfileLink user={challengeData.users} />
         <div
           className={
             "flex items-center gap-2 text-nowrap text-xs text-muted-foreground"
@@ -153,19 +116,19 @@ const DescriptionPageHeader = ({
       </div>
       <div className={"mt-2 flex flex-wrap gap-2 gap-y-4"}>
         <DifficultyBadge difficulty={challengeData.difficulty} />
-        {hasUserSolvedChallenge && <IsChallengePassedIndicator />}
-        <VotesStoreProvider
-          vote={userVote ? userVote.voteType : null}
-          upVotes={upVotes}
-          downVotes={downVotes}
-          itemId={challengeData.id}
-        >
-          <div className={"flex gap-2"}>
-            <UpVoteButton itemType={"challengeId"} />
-            <DislikeButton itemType={"challengeId"} />
-            <ShareCurrentPathButton />
-          </div>
-        </VotesStoreProvider>
+        <div className={"flex gap-2"}>
+          <ChallengeVotes
+            upVotes={upVotes}
+            difficulty={challengeData.difficulty}
+            downVotes={downVotes}
+            challengeTitle={challengeData.title}
+          />
+          <ShareCurrentPathButton />
+        </div>
+        <ChallengePassedIndicator
+          challengeId={challengeData.id}
+          submissions={challengeData.submission}
+        />
       </div>
     </div>
   );

@@ -1,9 +1,15 @@
 import prismadb from "@/lib/prismadb";
 import { Difficulty } from "@prisma/client";
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 import ChallengeCard from "@/app/(root)/_components/challenge-card";
-import { createClient } from "@/lib/supabase/server";
 import DifficultyTagShadow from "@/app/(root)/_components/difficulty-tag-shadow";
+import UserContextProvider from "@/components/user-context-provider";
+
+export async function generateStaticParams() {
+  return Array.from(Object.values(Difficulty)).map((difficulty) => ({
+    difficultyTag: difficulty.toLowerCase(),
+  }));
+}
 
 type DifficultyTagChallengesPageParams = {
   params: Promise<{ difficultyTag: string }>;
@@ -14,15 +20,12 @@ const DifficultyTagChallengesPage = async ({
 }: DifficultyTagChallengesPageParams) => {
   const difficultyTag = (await params).difficultyTag;
 
-  const supabase = await createClient();
+  const allowedDifficulties = Object.values(Difficulty).map((d) =>
+    d.toLowerCase(),
+  );
 
-  const {
-    data: { user },
-    error,
-  } = await supabase.auth.getUser();
-
-  if (!user || error) {
-    redirect("/sign-in");
+  if (!allowedDifficulties.includes(difficultyTag)) {
+    notFound();
   }
 
   const challenges = await prismadb.challenge.findMany({
@@ -66,22 +69,20 @@ const DifficultyTagChallengesPage = async ({
         "md:pb-20s container flex flex-col items-center gap-8 py-5 md:gap-16"
       }
     >
-      <h1
+      <h2
         className={"relative scroll-m-20 text-3xl font-semibold tracking-tight"}
       >
         <DifficultyTagShadow
           difficultyTag={difficultyTag.toUpperCase() as Difficulty}
         />
         {difficultyTag.slice(0, 1).toUpperCase() + difficultyTag.slice(1)}
-      </h1>
+      </h2>
       <div className={"flex w-full flex-wrap justify-center gap-6"}>
-        {challenges.map((challenge) => (
-          <ChallengeCard
-            key={`${challenge.id}-card`}
-            signedInUser={user}
-            challenge={challenge}
-          />
-        ))}
+        <UserContextProvider>
+          {challenges.map((challenge) => (
+            <ChallengeCard key={`${challenge.id}-card`} challenge={challenge} />
+          ))}
+        </UserContextProvider>
       </div>
     </div>
   );

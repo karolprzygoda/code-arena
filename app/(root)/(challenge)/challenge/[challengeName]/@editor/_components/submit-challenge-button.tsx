@@ -51,26 +51,30 @@ const SubmitChallengeButton = ({
       setIsPending(true);
       setGlobalError(null);
 
-      const response = await handleNewSubmission(
+      const { submission, error } = await handleNewSubmission(
         code,
         language.toUpperCase() as Language,
         challengeId,
       );
 
-      if (response.globalError || !response.testResults) {
-        setGlobalError(response.globalError);
-      } else {
-        setTestsResults(response.testResults);
+      if (!submission || error) {
+        throw error;
       }
 
-      if (response.status === "FAIL") {
+      if (submission.globalError || !submission.testResults) {
+        setGlobalError(submission.globalError);
+      } else {
+        setTestsResults(submission.testResults);
+      }
+
+      if (submission.status === "FAIL") {
         toast.error("Uh oh! You still have errors.");
       } else {
         toast.success("All tests were passed successfully");
       }
 
       router.push(
-        `/challenge/${response.challenge.title}/submissions/${response.id}`,
+        `/challenge/${submission.challenge.title}/submissions/${submission.id}`,
       );
     } catch (error) {
       toast.error(getCodeSubmissionError(error));

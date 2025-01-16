@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import prismadb from "@/lib/prismadb";
 import { AuthError } from "@supabase/auth-js";
+import { revalidatePath } from "next/cache";
 
 export async function createNewSolution(data: TSolutionSchema) {
   try {
@@ -29,18 +30,32 @@ export async function createNewSolution(data: TSolutionSchema) {
         title: data.title,
         description: data.description,
       },
+      include: {
+        challenge: {
+          select: {
+            title: true,
+          },
+        },
+      },
     });
+
+    revalidatePath(`/challenge/${solution.challenge.title}/solutions}`);
+    revalidatePath(
+      `/challenge/${solution.challenge.title}/solutions/${solution.id}`,
+    );
 
     return {
       solution,
       message: "Successfully created new solution",
+      error: null,
     };
   } catch (error) {
     console.log(error);
-
-    throw new Error(
-      "An unexpected error occurred try again or contact with support.",
-    );
+    return {
+      solution: null,
+      message: null,
+      error: "An unexpected error occurred try again or contact with support.",
+    };
   }
 }
 
@@ -57,7 +72,7 @@ export async function deleteSolution(solutionId: string) {
       throw new AuthError("Could not authenticate user");
     }
 
-    return await prismadb.solution.delete({
+    const deletedSolution = await prismadb.solution.delete({
       where: {
         id: solutionId,
         authorId: user.id,
@@ -70,6 +85,16 @@ export async function deleteSolution(solutionId: string) {
         },
       },
     });
+
+    revalidatePath(`/challenge/${deletedSolution.challenge.title}/solutions}`);
+    revalidatePath(
+      `/challenge/${deletedSolution.challenge.title}/solutions/${solutionId}`,
+    );
+
+    return {
+      deletedSolution,
+      error: null,
+    };
   } catch (error) {
     console.log(error);
 
@@ -77,9 +102,10 @@ export async function deleteSolution(solutionId: string) {
       redirect("/sign-in");
     }
 
-    throw new Error(
-      "An error occurred while deleting challenge. Please try again.",
-    );
+    return {
+      deletedSolution: null,
+      error: "An error occurred while deleting challenge. Please try again.",
+    };
   }
 }
 
@@ -110,11 +136,24 @@ export async function updateSolution(
         title: data.title,
         description: data.description,
       },
+      include: {
+        challenge: {
+          select: {
+            title: true,
+          },
+        },
+      },
     });
 
+    revalidatePath(`/challenge/${solution.challenge.title}/solutions}`);
+    revalidatePath(
+      `/challenge/${solution.challenge.title}/solutions/${solutionId}`,
+    );
+
     return {
-      solution,
+      solution: solution,
       message: `Successfully updated ${solution.title} solution`,
+      error: null,
     };
   } catch (error) {
     console.log(error);
@@ -123,8 +162,10 @@ export async function updateSolution(
       redirect("/sign-in");
     }
 
-    throw new Error(
-      "An error occurred while deleting challenge. Please try again.",
-    );
+    return {
+      deletedSolution: null,
+      message: null,
+      error: "An error occurred while deleting challenge. Please try again.",
+    };
   }
 }

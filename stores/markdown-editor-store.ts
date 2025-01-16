@@ -2,7 +2,7 @@
 
 import { create } from "zustand";
 import { temporal } from "zundo";
-import { typographyMap } from "@/lib/utils";
+import { TYPOGRAPHY_MAP } from "@/lib/utils";
 import { TypographyVariant } from "@/lib/types";
 import { createContext } from "react";
 
@@ -22,6 +22,7 @@ export type MarkdownState = {
     selectionEnd: number,
     text: string,
   ) => void;
+  getMarkdown: () => string;
 } & MarkdownProps;
 
 export type MarkdownStore = ReturnType<typeof createMarkdownStore>;
@@ -32,7 +33,7 @@ export const createMarkdownStore = (initState?: Partial<MarkdownProps>) => {
   };
 
   return create<MarkdownProps & MarkdownState>()(
-    temporal((set) => ({
+    temporal((set, get) => ({
       ...DEFAULT_STATE,
       ...initState,
       setMarkdown: (markdown) => {
@@ -42,7 +43,7 @@ export const createMarkdownStore = (initState?: Partial<MarkdownProps>) => {
         set((state) => ({
           markdown:
             state.markdown.slice(0, selectionStart) +
-            typographyMap[typographyVariant].format(
+            TYPOGRAPHY_MAP[typographyVariant].format(
               state.markdown.slice(selectionStart, selectionEnd),
             ) +
             state.markdown.slice(selectionEnd),
@@ -56,6 +57,7 @@ export const createMarkdownStore = (initState?: Partial<MarkdownProps>) => {
             state.markdown.slice(selectionEnd),
         }));
       },
+      getMarkdown: () => get().markdown,
     })),
   );
 };

@@ -23,7 +23,6 @@ const Loading = () => {
           >
             <Skeleton className={"h-6 w-52 rounded-full"} />
             <div className={"flex flex-wrap items-center gap-4"}>
-              {/*<UserProfileLink userId={solution.authorId} />*/}
               <Skeleton className={"h-4 w-32 rounded-full"} />
             </div>
             <div className={"flex w-full justify-between"}>

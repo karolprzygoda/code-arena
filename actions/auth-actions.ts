@@ -6,7 +6,6 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { AuthError } from "@supabase/auth-js";
 import prismadb from "@/lib/prismadb";
-import { createAdminClient } from "@/lib/supabase/admin";
 
 export async function signIn(formData: TAuthSchema) {
   const supabase = await createClient();
@@ -127,23 +126,4 @@ export async function authorizeUser() {
   }
 
   return { user };
-}
-
-export async function getUserById(userId: string) {
-  const supabaseAdminClient = await createAdminClient();
-
-  const {
-    data: { user },
-    error,
-  } = await supabaseAdminClient.auth.admin.getUserById(userId);
-
-  if (!user || error) {
-    throw new Error("could not fetch user");
-  }
-
-  const isAdmin = await prismadb.userRoles.findFirst({
-    where: { userid: user.id },
-  });
-
-  return { ...user, isAdmin: !!isAdmin, user };
 }

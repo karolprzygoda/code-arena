@@ -2,29 +2,34 @@
 
 import { ThumbsDown } from "lucide-react";
 import DescriptionActionButton from "@/app/(root)/(challenge)/challenge/[challengeName]/@resources/_components/description-action-button";
-
 import { cn } from "@/lib/utils";
-import useVotesContext from "@/hooks/use-votes-context";
 import { useShallow } from "zustand/react/shallow";
 import { downVote } from "@/actions/utils-actions";
+import useVotesContext from "@/hooks/use-votes-context";
+import { VotableItems } from "@/lib/types";
+import { toast } from "sonner";
 
 type DownVoteButtonProps = {
-  itemType: "challengeId" | "solutionId";
+  itemType: VotableItems;
+  paths?: string[];
 };
 
-const DownVoteButton = ({ itemType }: DownVoteButtonProps) => {
-  const { dislikes, vote, setVote, challengeId } = useVotesContext(
+const DownVoteButton = ({ itemType, paths }: DownVoteButtonProps) => {
+  const { downVotes, vote, setVote, itemId } = useVotesContext(
     useShallow((state) => ({
       vote: state.vote,
-      dislikes: state.downVotes,
+      downVotes: state.downVotes,
       setVote: state.setVote,
-      challengeId: state.itemId,
+      itemId: state.itemId,
     })),
   );
 
   const handleDownVote = async () => {
     setVote("DOWNVOTE");
-    await downVote(challengeId!, itemType);
+    const { error } = await downVote(itemId!, itemType, paths);
+    if (error) {
+      toast.error(error);
+    }
   };
 
   return (
@@ -37,7 +42,7 @@ const DownVoteButton = ({ itemType }: DownVoteButtonProps) => {
       onClick={handleDownVote}
     >
       <ThumbsDown />
-      {dislikes}
+      {downVotes}
     </DescriptionActionButton>
   );
 };

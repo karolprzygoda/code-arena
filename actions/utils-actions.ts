@@ -2,10 +2,14 @@
 
 import { createClient } from "@/lib/supabase/server";
 import prismadb from "@/lib/prismadb";
+import { VotableItems } from "@/lib/types";
+import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 
 export async function upVote(
   itemId: string,
-  itemType: "challengeId" | "solutionId",
+  itemType: VotableItems,
+  paths?: string[],
 ) {
   try {
     const supabase = await createClient();
@@ -50,15 +54,22 @@ export async function upVote(
         },
       });
     }
+
+    if (paths) {
+      paths.forEach((path) => revalidatePath(path));
+    }
+
+    return { error: null };
   } catch (error) {
     console.error("Error in upVote:", error);
-    throw new Error("An error occurred while voting. Please try again.");
+    return { error: "An error occurred while voting. Please try again." };
   }
 }
 
 export async function downVote(
   itemId: string,
-  itemType: "challengeId" | "solutionId",
+  itemType: VotableItems,
+  paths?: string[],
 ) {
   try {
     const supabase = await createClient();
@@ -103,8 +114,87 @@ export async function downVote(
         },
       });
     }
+
+    if (paths) {
+      paths.forEach((path) => revalidatePath(path));
+    }
+
+    return { error: null };
   } catch (error) {
     console.error("Error in downVote", error);
-    throw new Error("An error occurred while voting. Please try again.");
+    return { error: "An error occurred while voting. Please try again." };
+  }
+}
+
+export async function getSolvedChallenges() {
+  try {
+    const supabase = await createClient();
+
+    const {
+      data: { user },
+      error,
+    } = await supabase.auth.getUser();
+
+    if (!user || error) {
+      redirect("/sign-in");
+    }
+
+    const solvedChallenges = await prismadb.challenge.findMany({
+      where: {
+        submission: {
+          some: {
+            status: "SUCCESS",
+            userId: user.id,
+          },
+        },
+      },
+      select: {
+        difficulty: true,
+      },
+    });
+
+    return {
+      solvedChallenges,
+      error: null,
+    };
+  } catch (error) {
+    console.log("Error occurred in getSolvedChallenges", error);
+    return {
+      solvedChallenges: null,
+      error: "An unexpected error occurred. Please try again later.",
+    };
+  }
+}
+
+export async function getUserVoteType(itemId: string, itemType: VotableItems) {
+  try {
+    const supabase = await createClient();
+
+    const {
+      data: { user },
+      error,
+    } = await supabase.auth.getUser();
+
+    if (!user || error) {
+      redirect("/sign-in");
+    }
+
+    const userVote = await prismadb.votes.findFirst({
+      where: { [itemType]: itemId, userId: user.id },
+      select: {
+        voteType: true,
+      },
+    });
+
+    return {
+      userVote,
+      error: null,
+    };
+  } catch (error) {
+    console.log(error);
+    return {
+      userVote: null,
+      error: "An unexpected error occurred please try again later.",
+    };
   }
 }

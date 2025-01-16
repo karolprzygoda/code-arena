@@ -18,7 +18,7 @@ import { Challenge } from "@prisma/client";
 type ResourcesWrapperProps = {
   children: ReactNode;
   challengeName: string;
-  challenges: Array<Pick<Challenge, "title" | "difficulty">>;
+  challenges: Array<Pick<Challenge, "difficulty" | "title">>;
 };
 
 const ResourcesWrapper = ({

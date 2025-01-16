@@ -2,7 +2,7 @@ import { notFound, redirect } from "next/navigation";
 import TabWrapper from "@/app/(root)/(challenge)/challenge/[challengeName]/@resources/_components/tab-wrapper";
 import { createClient } from "@/lib/supabase/server";
 import prismadb from "@/lib/prismadb";
-import SubmissionsWrapper from "@/app/(root)/(challenge)/challenge/[challengeName]/@resources/submissions/_components/submissions-wrapper";
+import SubmissionsList from "@/app/(root)/(challenge)/challenge/[challengeName]/@resources/submissions/_components/submissions-list";
 import SubmissionsFilterButtonsWrapper from "@/app/(root)/(challenge)/challenge/[challengeName]/@resources/submissions/_components/submissions-filter-buttons-wrapper";
 import FilteredDataStoreProvider from "@/stores/store-providers/filtered-data-store-provider";
 
@@ -62,7 +62,7 @@ const SubmissionsPage = async ({ params }: SubmissionsPageProps) => {
             <div className={"w-44 shrink-0"}>Runtime</div>
             <div className={"w-44 shrink-0"}>Memory</div>
           </div>
-          <SubmissionsWrapper challengeName={challengeName} />
+          <SubmissionsList challengeName={challengeName} />
         </FilteredDataStoreProvider>
       </div>
     </TabWrapper>

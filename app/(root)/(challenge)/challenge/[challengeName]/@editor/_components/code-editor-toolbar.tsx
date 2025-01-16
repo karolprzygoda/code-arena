@@ -25,6 +25,12 @@ import ShortcutsDialog from "@/app/(root)/(challenge)/challenge/[challengeName]/
 import { useUserPreferencesStore } from "@/stores/user-preferences-store";
 import { useShallow } from "zustand/react/shallow";
 import { useFullScreen } from "@/hooks/use-full-screen";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 type TToolbarButton = {
   id: string;
@@ -171,13 +177,21 @@ const DesktopToolbarList = ({ toolbarButtonsList }: ToolbarListProps) => {
 const MobileToolbarList = ({ toolbarButtonsList }: ToolbarListProps) => {
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger
-        className={
-          "rounded-lg p-2 duration-300 focus:outline-none focus-visible:ring-2 sm:hidden"
-        }
-      >
-        <Ellipsis className={"h-5 w-5 text-muted-foreground"} />
-      </DropdownMenuTrigger>
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <DropdownMenuTrigger
+              aria-label={"Expand to see more actions"}
+              className={
+                "rounded-lg p-2 duration-300 focus:outline-none focus-visible:ring-2 sm:hidden"
+              }
+            >
+              <Ellipsis className={"h-5 w-5 text-muted-foreground"} />
+            </DropdownMenuTrigger>
+          </TooltipTrigger>
+          <TooltipContent>Expand to see more actions</TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
       <DropdownMenuContent
         align="end"
         className="mt-[0.33rem] flex flex-col gap-2 rounded-xl bg-background"

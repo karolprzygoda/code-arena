@@ -1,23 +1,18 @@
 "use client";
 
-import { Solution } from "@prisma/client";
-import UserProfileLink from "@/components/user-profile-link";
+import { Solution, UserRoles, Users } from "@prisma/client";
 import SolutionLink from "@/app/(root)/(challenge)/challenge/[challengeName]/@resources/solutions/_components/solution-link";
 import { Calendar, ThumbsDown, ThumbsUp } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import LanguageBadge from "@/app/(root)/(challenge)/challenge/[challengeName]/@resources/_components/language-badge";
+import UserProfileLink from "@/components/user-profile-link";
 
 type SolutionRowProps = {
   solution: Solution;
   challengeName: string;
   upVotes: number;
   downVotes: number;
-  author: {
-    id: string;
-    email: string;
-    profileImageSrc: string | null;
-    isAdmin: boolean;
-  };
+  author: Users & { userRoles: Array<Pick<UserRoles, "role">> };
 };
 
 const SolutionRow = ({

@@ -26,7 +26,10 @@ const FilterButton = ({
   return (
     <Select onValueChange={setter}>
       <div className={cn(className)}>
-        <SelectTrigger className="h-fit w-fit shrink-0 gap-4 border-0 p-0 shadow-none outline-0 ring-0 focus:ring-0">
+        <SelectTrigger
+          aria-label={"Apply filters"}
+          className="h-fit w-fit shrink-0 gap-4 border-0 p-0 shadow-none outline-0 ring-0 focus:ring-0"
+        >
           <SelectValue
             placeholder={selectItems[0].label}
             defaultValue={selectItems[0].value}

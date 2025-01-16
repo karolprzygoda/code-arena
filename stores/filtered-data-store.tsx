@@ -3,11 +3,14 @@
 import { create } from "zustand";
 import { createContext } from "react";
 
+type SortOrder = "asc" | "desc";
+
 export type FilteredDataProps<T extends Record<string, unknown>> = {
   initialData: T[];
   filters: Partial<Record<keyof T, unknown>>;
+  defaultFilters?: Partial<Record<keyof T, unknown>>;
   sortKey?: keyof T;
-  sortOrder?: "asc" | "desc";
+  sortOrder?: SortOrder;
 };
 
 export type FilteredDataState<T extends Record<string, unknown>> = {
@@ -15,12 +18,29 @@ export type FilteredDataState<T extends Record<string, unknown>> = {
   defaultFilters: Partial<Record<keyof T, unknown>>;
   clearFilters: () => void;
   setFilters: (filters: Partial<Record<keyof T, unknown>>) => void;
-  setSort: (key: keyof T, order: "asc" | "desc") => void;
+  setSort: (key: keyof T, order: SortOrder) => void;
 } & FilteredDataProps<T>;
 
 export type FilteredDataStore<T extends Record<string, unknown>> = ReturnType<
   typeof createFilteredDataStore<T>
 >;
+
+export const filterData = <T extends Record<string, unknown>>(
+  initialData: T[],
+  filters: Partial<Record<keyof T, unknown>>,
+  defaultFilters: Partial<Record<keyof T, unknown>>,
+): T[] => {
+  return initialData.filter((item) => {
+    return Object.entries(filters).every(([key, value]) => {
+      const itemKey = key as keyof T;
+      const defaultValue = defaultFilters[itemKey];
+      if (value === defaultValue || value === undefined) {
+        return true;
+      }
+      return item[itemKey] === value;
+    });
+  });
+};
 
 export const createFilteredDataStore = <T extends Record<string, unknown>>(
   initState?: Partial<FilteredDataProps<T>>,
@@ -40,8 +60,13 @@ export const createFilteredDataStore = <T extends Record<string, unknown>>(
   return create<FilteredDataState<T>>()((set) => ({
     ...DEFAULT_STATE,
     ...initState,
-    data: initState?.initialData ?? [],
-    defaultFilters: initState?.filters ?? {},
+    defaultFilters: initState?.defaultFilters ?? initState?.filters ?? {},
+    data:
+      filterData(
+        initState!.initialData!,
+        initState!.filters!,
+        initState!.defaultFilters ?? initState?.filters ?? {},
+      ) ?? [],
     clearFilters: () => {
       set((state) => ({
         ...state,
@@ -54,23 +79,14 @@ export const createFilteredDataStore = <T extends Record<string, unknown>>(
         filters: { ...state.filters, ...newFilters },
       }));
 
-      set((state) => {
-        const filteredData = state.initialData.filter((item) => {
-          return Object.entries(state.filters).every(([key, value]) => {
-            const itemKey = key as keyof T;
-            const defaultValue = state.defaultFilters[itemKey];
-            if (value === defaultValue || value === undefined) {
-              return true;
-            }
-            return item[itemKey] === value;
-          });
-        });
-
-        return {
-          ...state,
-          data: filteredData,
-        };
-      });
+      set((state) => ({
+        ...state,
+        data: filterData(
+          state.initialData,
+          state.filters,
+          state.defaultFilters,
+        ),
+      }));
     },
     setSort: (key, order) => {
       set((state) => ({

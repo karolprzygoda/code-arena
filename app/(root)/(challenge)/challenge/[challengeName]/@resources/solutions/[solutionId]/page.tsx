@@ -1,20 +1,15 @@
 import prismadb from "@/lib/prismadb";
 import TabWrapper from "@/app/(root)/(challenge)/challenge/[challengeName]/@resources/_components/tab-wrapper";
 import MarkdownRenderer from "@/app/(root)/(challenge)/_components/markdown-renderer";
-import { notFound, redirect } from "next/navigation";
-import UserProfileLink from "@/components/user-profile-link";
+import { notFound } from "next/navigation";
 import { Calendar } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import GoBackTabHeader from "@/app/(root)/(challenge)/challenge/[challengeName]/@resources/_components/go-back-tab-header";
-import UpVoteButton from "@/app/(root)/(challenge)/challenge/[challengeName]/@resources/_components/up-vote-button";
-import DownVoteButton from "@/app/(root)/(challenge)/challenge/[challengeName]/@resources/_components/down-vote-button";
-import VotesStoreProvider from "@/stores/store-providers/votes-store-provider";
-import { createClient } from "@/lib/supabase/server";
 import ShareCurrentPathButton from "@/app/(root)/(challenge)/challenge/[challengeName]/@resources/_components/share-current-path-button";
 import LanguageBadge from "@/app/(root)/(challenge)/challenge/[challengeName]/@resources/_components/language-badge";
-import { getUserById } from "@/actions/auth-actions";
-import { getUserProfilePicture } from "@/lib/utils";
 import ManageSolutionButton from "@/app/(root)/(challenge)/challenge/[challengeName]/@resources/solutions/_components/manage-solutions-button";
+import UserProfileLink from "@/components/user-profile-link";
+import SolutionVotes from "@/app/(root)/(challenge)/challenge/[challengeName]/@resources/solutions/_components/solution-votes";
 
 type CurrentSolutionPageParams = {
   params: Promise<{ solutionId: string }>;
@@ -23,38 +18,31 @@ type CurrentSolutionPageParams = {
 const CurrentSolutionPage = async ({ params }: CurrentSolutionPageParams) => {
   const solutionId = (await params).solutionId;
 
-  const supabase = await createClient();
-
-  const {
-    data: { user },
-    error,
-  } = await supabase.auth.getUser();
-
-  if (!user || error) {
-    redirect("/sign-in");
-  }
-
-  const [solution, userVote] = await Promise.all([
-    prismadb.solution.findFirst({
-      where: {
-        id: solutionId,
+  const solution = await prismadb.solution.findFirst({
+    where: {
+      id: solutionId,
+    },
+    include: {
+      challenge: {
+        select: {
+          title: true,
+        },
       },
-      include: {
-        challenge: {
-          select: {
-            title: true,
+      users: {
+        select: {
+          id: true,
+          profile_picture: true,
+          email: true,
+          userRoles: {
+            select: {
+              role: true,
+            },
           },
         },
-        votes: true,
       },
-    }),
-    prismadb.votes.findFirst({
-      where: { solutionId: solutionId, userId: user.id },
-      select: {
-        voteType: true,
-      },
-    }),
-  ]);
+      votes: true,
+    },
+  });
 
   if (!solution) {
     notFound();
@@ -66,10 +54,6 @@ const CurrentSolutionPage = async ({ params }: CurrentSolutionPageParams) => {
   const downVotes = solution.votes.filter(
     (vote) => vote.voteType === "DOWNVOTE",
   ).length;
-
-  const solutionUser = await getUserById(solution.authorId);
-
-  const solutionUserProfilePicture = getUserProfilePicture(solutionUser);
 
   return (
     <TabWrapper>
@@ -83,19 +67,13 @@ const CurrentSolutionPage = async ({ params }: CurrentSolutionPageParams) => {
             <div className={"mb-8 flex w-full flex-col items-start gap-3"}>
               <div className={"flex w-full items-center justify-between"}>
                 <h2 className={"font-bold"}>{solution.title}</h2>
-                {user?.id === solution.authorId && (
-                  <ManageSolutionButton solutionId={solution.id} />
-                )}
+                <ManageSolutionButton
+                  solutionId={solution.id}
+                  authorId={solution.authorId}
+                />
               </div>
               <div className={"flex flex-wrap items-center gap-4"}>
-                <UserProfileLink
-                  user={{
-                    id: solutionUser.id,
-                    isAdmin: solutionUser.isAdmin,
-                    email: solutionUser.email!,
-                    profileImageSrc: solutionUserProfilePicture,
-                  }}
-                />
+                <UserProfileLink user={solution.users} />
                 <div
                   className={
                     "text flex items-center gap-1 text-xs text-muted-foreground"
@@ -109,18 +87,15 @@ const CurrentSolutionPage = async ({ params }: CurrentSolutionPageParams) => {
               </div>
               <div className={"flex w-full flex-wrap justify-between gap-3"}>
                 <LanguageBadge language={solution.language} />
-                <VotesStoreProvider
-                  vote={userVote ? userVote.voteType : null}
-                  upVotes={upVotes}
-                  downVotes={downVotes}
-                  itemId={solution.id}
-                >
-                  <div className={"flex gap-2"}>
-                    <UpVoteButton itemType={"solutionId"} />
-                    <DownVoteButton itemType={"solutionId"} />
-                    <ShareCurrentPathButton />
-                  </div>
-                </VotesStoreProvider>
+                <div className={"flex gap-2"}>
+                  <SolutionVotes
+                    solutionId={solution.id}
+                    upVotes={upVotes}
+                    downVotes={downVotes}
+                    challengeTitle={solution.challenge.title}
+                  />
+                  <ShareCurrentPathButton />
+                </div>
               </div>
             </div>
             <MarkdownRenderer markdown={solution.description} />

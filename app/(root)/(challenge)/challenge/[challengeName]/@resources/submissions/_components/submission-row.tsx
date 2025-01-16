@@ -2,7 +2,7 @@ import {
   cn,
   getMaxExecutionTime,
   getMaxMemoryUsage,
-  getStatusClass,
+  STATUS_STYLE,
 } from "@/lib/utils";
 import { Calendar, Clock, Cpu } from "lucide-react";
 import { Submission } from "@prisma/client";
@@ -30,7 +30,7 @@ const SubmissionRow = ({
       >
         <div className={"w-16 shrink-0 text-center"}>{index + 1}</div>
         <div className={"flex w-48 shrink-0 flex-col gap-1"}>
-          <span className={cn(getStatusClass(submission.status))}>
+          <span className={cn(STATUS_STYLE[submission.status])}>
             {submission.status}
           </span>
           <span className={"flex items-center gap-1 text-xs"}>

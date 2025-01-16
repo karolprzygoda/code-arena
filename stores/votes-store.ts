@@ -12,10 +12,6 @@ export type VotesProps = {
 
 export type VotesState = {
   setVote: (vote: "UPVOTE" | "DOWNVOTE" | null) => void;
-  incrementLikes: () => void;
-  decrementLikes: () => void;
-  incrementDislikes: () => void;
-  decrementDislikes: () => void;
   setChallengeId: (challengeId: string) => void;
 } & VotesProps;
 
@@ -68,22 +64,6 @@ export const createVotesStore = (initState?: Partial<VotesProps>) => {
         itemId: state.itemId,
       }));
     },
-    incrementLikes: () =>
-      set((state) => ({
-        upVotes: state.upVotes + 1,
-      })),
-    decrementLikes: () =>
-      set((state) => ({
-        upVotes: state.upVotes > 0 ? state.upVotes - 1 : 0,
-      })),
-    incrementDislikes: () =>
-      set((state) => ({
-        downVotes: state.downVotes + 1,
-      })),
-    decrementDislikes: () =>
-      set((state) => ({
-        downVotes: state.downVotes > 0 ? state.downVotes - 1 : 0,
-      })),
   }));
 };
 

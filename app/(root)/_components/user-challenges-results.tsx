@@ -1,56 +1,38 @@
-import IsChallengePassedIndicator from "@/app/(root)/_components/is-challenge-passed-indicator";
-import prismadb from "@/lib/prismadb";
+"use client";
+
 import { Difficulty } from "@prisma/client";
-import { createClient } from "@/lib/supabase/server";
-import { redirect } from "next/navigation";
+import { CircleCheckBig } from "lucide-react";
+import { useSolvedChallengesContext } from "@/components/solved-challenges-context-provider";
+import { Skeleton } from "@/components/ui/skeleton";
 
 type UserChallengesResultsProps = {
   difficultyTag: Difficulty;
+  numberOfAllChallenges: number;
 };
 
-const UserChallengesResults = async ({
+const UserChallengesResults = ({
   difficultyTag,
+  numberOfAllChallenges,
 }: UserChallengesResultsProps) => {
-  const supabase = await createClient();
+  const { solvedChallenges } = useSolvedChallengesContext();
 
-  const {
-    data: { user },
-    error,
-  } = await supabase.auth.getUser();
+  const numberOfSolvedChallenges = solvedChallenges?.filter(
+    (challenge) => challenge.difficulty === difficultyTag,
+  ).length;
 
-  if (!user || error) {
-    redirect("/sign-in");
+  if (numberOfSolvedChallenges === undefined) {
+    return <Skeleton className="hidden h-8 w-24 rounded-full md:block" />;
   }
 
-  const [numberOfChallenges, numberOfChallengesSolvedByUser] =
-    await Promise.all([
-      prismadb.challenge.count({
-        where: {
-          difficulty: difficultyTag,
-        },
-      }),
-      prismadb.challenge.count({
-        where: {
-          difficulty: difficultyTag,
-          submission: {
-            some: {
-              status: "SUCCESS",
-              userId: user.id,
-            },
-          },
-        },
-      }),
-    ]);
-
   return (
-    <>
-      {numberOfChallengesSolvedByUser === numberOfChallenges && (
-        <IsChallengePassedIndicator />
+    <div className={"flex items-center gap-1"}>
+      {numberOfSolvedChallenges === numberOfAllChallenges && (
+        <CircleCheckBig className={"flex-shrink-0 text-emerald-500"} />
       )}
       <span className={"text-sm text-muted-foreground"}>
-        {`${numberOfChallengesSolvedByUser} / ${numberOfChallenges} Solved`}
+        {`${numberOfSolvedChallenges} / ${numberOfAllChallenges} Solved`}
       </span>
-    </>
+    </div>
   );
 };
 

@@ -1,22 +1,12 @@
 import TitleSection from "@/app/(root)/_components/title-section";
-import ChallengesListSection from "@/app/(root)/_components/challenges-list-section";
+import ChallengesSection from "@/app/(root)/_components/challenges-section";
 import prismadb from "@/lib/prismadb";
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 import { Difficulty } from "@prisma/client";
-import { createClient } from "@/lib/supabase/server";
+import UserContextProvider from "@/components/user-context-provider";
+import SolvedChallengesContextProvider from "@/components/solved-challenges-context-provider";
 
 const RootPage = async () => {
-  const supabase = await createClient();
-
-  const {
-    data: { user },
-    error,
-  } = await supabase.auth.getUser();
-
-  if (!user || error) {
-    redirect("/sign-in");
-  }
-
   const difficulties = Object.values(Difficulty);
   const challengesPerDifficulty = await Promise.all(
     difficulties.map((difficulty) =>
@@ -54,6 +44,12 @@ const RootPage = async () => {
     ),
   );
 
+  const allChallenges = await prismadb.challenge.findMany({
+    select: {
+      difficulty: true,
+    },
+  });
+
   if (challengesPerDifficulty.length < 5) {
     notFound();
   }
@@ -61,13 +57,17 @@ const RootPage = async () => {
   return (
     <div className={"flex flex-col gap-8 py-8 md:gap-10"}>
       <TitleSection />
-      {challengesPerDifficulty.map((challenges, index) => (
-        <ChallengesListSection
-          key={`challenges-section-${index}`}
-          signedInUser={user}
-          challenges={challenges}
-        />
-      ))}
+      <UserContextProvider>
+        <SolvedChallengesContextProvider>
+          {challengesPerDifficulty.map((challenges, index) => (
+            <ChallengesSection
+              key={`challenges-section-${index}`}
+              challenges={challenges}
+              allChallenges={allChallenges}
+            />
+          ))}
+        </SolvedChallengesContextProvider>
+      </UserContextProvider>
     </div>
   );
 };

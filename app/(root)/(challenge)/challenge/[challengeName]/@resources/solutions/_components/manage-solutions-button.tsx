@@ -25,19 +25,36 @@ import {
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
 import { deleteSolution } from "@/actions/solutions-actions";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import useUser from "@/hooks/use-user";
 
 type ManageSolutionButtonProps = {
   solutionId: string;
+  authorId: string;
 };
 
-const ManageSolutionButton = ({ solutionId }: ManageSolutionButtonProps) => {
+const ManageSolutionButton = ({
+  solutionId,
+  authorId,
+}: ManageSolutionButtonProps) => {
   const router = useRouter();
+  const user = useUser();
 
   const handleDelete = async () => {
     try {
-      const solution = await deleteSolution(solutionId);
-      toast.success(`Successfully deleted ${solution.title} solution`);
-      router.push(`/challenge/${solution.challenge.title}/solutions`);
+      const { deletedSolution, error } = await deleteSolution(solutionId);
+
+      if (!deletedSolution || error) {
+        toast.error(error);
+      } else {
+        toast.success(`Successfully deleted ${deletedSolution.title} solution`);
+        router.push(`/challenge/${deletedSolution.challenge.title}/solutions`);
+      }
     } catch (error) {
       if (error instanceof Error) {
         toast.error(error.message);
@@ -51,17 +68,29 @@ const ManageSolutionButton = ({ solutionId }: ManageSolutionButtonProps) => {
     router.push(`/update-solution/${solutionId}`);
   };
 
+  if (!user || user.id !== authorId) {
+    return null;
+  }
+
   return (
     <AlertDialog>
       <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button
-            variant={"ghost"}
-            className={"h-fit rounded-full p-2 hover:bg-zinc-700"}
-          >
-            <Ellipsis />
-          </Button>
-        </DropdownMenuTrigger>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  aria-label={"Expand to see more actions"}
+                  variant={"ghost"}
+                  className={"h-fit rounded-full p-2 hover:bg-zinc-700"}
+                >
+                  <Ellipsis />
+                </Button>
+              </DropdownMenuTrigger>
+            </TooltipTrigger>
+            <TooltipContent>Expand to see more actions</TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
         <DropdownMenuContent
           align="end"
           className="mt-[0.33rem] w-44 rounded-xl bg-white/50 backdrop-blur-sm dark:bg-neutral-950/50"

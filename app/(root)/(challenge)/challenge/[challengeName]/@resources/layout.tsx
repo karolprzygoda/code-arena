@@ -12,8 +12,16 @@ const ResourcesLayout = async ({ children, params }: ResourcesLayoutProps) => {
     select: {
       title: true,
       difficulty: true,
+      submission: {
+        select: {
+          userId: true,
+          status: true,
+        },
+      },
     },
   });
+
+  console.log(challenges);
 
   return (
     <ResourcesWrapper
