@@ -113,7 +113,7 @@ export type SelectionRange = {
 } | null;
 
 export type MoreChallengesSheetType = Array<
-  Pick<Challenge, "title" | "difficulty"> & {
+  Pick<Challenge, "title" | "difficulty" | "id"> & {
     submission: Array<Pick<Submission, "challengeId" | "userId">>;
   }
 >;

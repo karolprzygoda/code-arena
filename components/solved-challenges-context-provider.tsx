@@ -17,12 +17,12 @@ type UserContextProps = {
 };
 
 export const SolvedChallengesContext = createContext<{
-  solvedChallenges: Array<Pick<Challenge, "difficulty">> | null;
+  solvedChallenges: Array<Pick<Challenge, "difficulty" | "id">> | null;
 }>({ solvedChallenges: null });
 
 const SolvedChallengesContextProvider = ({ children }: UserContextProps) => {
   const [solvedChallenges, setSolvedChallenges] = useState<Array<
-    Pick<Challenge, "difficulty">
+    Pick<Challenge, "difficulty" | "id">
   > | null>(null);
 
   useLayoutEffect(() => {

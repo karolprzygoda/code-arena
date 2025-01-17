@@ -19,12 +19,16 @@ type ResourcesWrapperProps = {
   children: ReactNode;
   challengeName: string;
   challenges: Array<Pick<Challenge, "difficulty" | "title">>;
+  nextChallengeLink: string;
+  prevChallengeLink: string;
 };
 
 const ResourcesWrapper = ({
   children,
   challengeName,
   challenges,
+  nextChallengeLink,
+  prevChallengeLink,
 }: ResourcesWrapperProps) => {
   const { layout } = useUserPreferencesStore(
     useShallow((state) => ({
@@ -76,12 +80,12 @@ const ResourcesWrapper = ({
             <ChallengeNavigator
               tooltipMessage={"Previous"}
               variant={"prev"}
-              href={"/"}
+              href={`/challenge/${prevChallengeLink}`}
             />
             <ChallengeNavigator
               tooltipMessage={"Next"}
               variant={"next"}
-              href={"/"}
+              href={`/challenge/${nextChallengeLink}`}
             />
           </span>
         </PanelHeader>

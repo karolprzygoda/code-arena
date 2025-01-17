@@ -51,6 +51,7 @@ const CodeEditorPanel = () => {
             enabled: true,
           },
           formatOnPaste: true,
+          copyWithSyntaxHighlighting: true,
         }}
         language={language}
       />

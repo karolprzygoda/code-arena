@@ -16,9 +16,7 @@ const HeaderDropdownTrigger = () => {
         "relative m-2 hidden h-7 w-7 items-center justify-center overflow-hidden rounded-full duration-300 focus:outline-none focus-visible:ring-2 md:flex"
       }
     >
-      {profileImageSrc && (
-        <UserProfileImage profileImageSrc={profileImageSrc} />
-      )}
+      {user && <UserProfileImage profileImageSrc={profileImageSrc} />}
     </DropdownMenuTrigger>
   );
 };

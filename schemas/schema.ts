@@ -97,6 +97,14 @@ export const solutionSchema = z.object({
     .max(20000, "Solution description cannot exceed 20000 characters"),
 });
 
+export const askAiSchema = z.object({
+  message: z
+    .string()
+    .min(1, "Message cannot be empty")
+    .max(500, "Your message is to long"),
+});
+
+export type TAskAiSchema = z.infer<typeof askAiSchema>;
 export type TSolutionSchema = z.infer<typeof solutionSchema>;
 export type TTestCasesSchema = z.infer<typeof testCasesSchema>;
 export type TChallengeSchema = z.infer<typeof challengeSchema>;

@@ -149,6 +149,7 @@ export async function getSolvedChallenges() {
         },
       },
       select: {
+        id: true,
         difficulty: true,
       },
     });

@@ -60,6 +60,7 @@ const ResourcesTabsTrigger = ({
 }: ResourcesTabsTriggerProps) => {
   return (
     <TabsTrigger
+      aria-label={value.at(0)?.toUpperCase() + value.slice(1)}
       className={
         "font-semibold transition-colors duration-300 hover:bg-neutral-200/50 data-[state=active]:bg-neutral-200 @[70px]/panel:py-1.5 dark:hover:bg-neutral-700/50 dark:data-[state=active]:bg-neutral-700"
       }

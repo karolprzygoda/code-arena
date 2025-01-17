@@ -52,6 +52,13 @@ const SheetChallengeCardList = () => {
               key={`sheet-challenge-card-${index}`}
               title={challenge.title}
               difficulty={challenge.difficulty}
+              isPassed={
+                userSolvedChallengesByDifficulty
+                  ? !!userSolvedChallengesByDifficulty.find(
+                      (solvedChallenge) => solvedChallenge.id === challenge.id,
+                    )
+                  : false
+              }
             />
           ))}
         </div>
