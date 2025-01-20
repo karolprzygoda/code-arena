@@ -7,12 +7,12 @@ import {
   vscDarkPlus,
 } from "react-syntax-highlighter/dist/cjs/styles/prism";
 import Markdown from "react-markdown";
-import { useTheme } from "next-themes";
 import remarkMath from "remark-math";
 import remarkRemoveComments from "remark-remove-comments";
 import rehypeKatex from "rehype-katex";
 import "katex/dist/katex.min.css";
 import { Icons } from "@/components/icons";
+import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 
 type MarkdownRendererProps = {

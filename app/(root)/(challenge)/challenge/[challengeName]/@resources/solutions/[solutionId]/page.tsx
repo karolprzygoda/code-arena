@@ -1,6 +1,6 @@
 import prismadb from "@/lib/prismadb";
 import TabWrapper from "@/app/(root)/(challenge)/challenge/[challengeName]/@resources/_components/tab-wrapper";
-import MarkdownRenderer from "@/app/(root)/(challenge)/_components/markdown-renderer";
+import MarkdownRenderer from "@/app/(root)/(challenge)/_components/markdown/markdown-renderer";
 import { notFound } from "next/navigation";
 import { Calendar } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";

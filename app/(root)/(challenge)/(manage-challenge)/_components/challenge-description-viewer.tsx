@@ -1,7 +1,7 @@
 "use client";
 
 import { useShallow } from "zustand/react/shallow";
-import MarkdownRenderer from "@/app/(root)/(challenge)/_components/markdown-renderer";
+import MarkdownRenderer from "@/app/(root)/(challenge)/_components/markdown/markdown-renderer";
 import useMarkdownContext from "@/hooks/use-markdown-context";
 
 const ChallengeDescriptionViewer = () => {

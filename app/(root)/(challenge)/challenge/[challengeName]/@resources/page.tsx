@@ -1,6 +1,5 @@
 import prismadb from "@/lib/prismadb";
 import { notFound } from "next/navigation";
-import MarkdownRenderer from "@/app/(root)/(challenge)/_components/markdown-renderer";
 import { Calendar } from "lucide-react";
 import ManageChallengeButton from "@/app/(root)/_components/manage-challenge-button";
 import { formatDistanceToNow } from "date-fns";
@@ -13,6 +12,9 @@ import ChallengePassedIndicator from "@/app/(root)/_components/challenge-passed-
 import ShareCurrentPathButton from "@/app/(root)/(challenge)/challenge/[challengeName]/@resources/_components/share-current-path-button";
 import { fromKebabCaseToPascalCase } from "@/lib/utils";
 import { TChallengeData } from "@/lib/types";
+// import MarkdownRenderer from "@/app/(root)/(challenge)/_components/markdown-renderer";
+import SSRMarkdownRenderer from "@/app/(root)/(challenge)/_components/markdown/ssr-markdown-renderer";
+// import MarkdownRenderer from "@/app/(root)/(challenge)/_components/markdown/markdown-renderer";
 
 type DescriptionPageProps = {
   params: Promise<{ challengeName: string }>;
@@ -73,7 +75,9 @@ const DescriptionPage = async ({ params }: DescriptionPageProps) => {
             challengeData={challengeData}
           />
         </UserContextProvider>
-        <MarkdownRenderer markdown={challengeData.description} />
+        {/*<MemoizedMarkdown content={challengeData.description} id={"xd"} />*/}
+        {/*<MarkdownRenderer markdown={challengeData.description} />*/}
+        <SSRMarkdownRenderer markdown={challengeData.description} />
       </div>
     </TabWrapper>
   );

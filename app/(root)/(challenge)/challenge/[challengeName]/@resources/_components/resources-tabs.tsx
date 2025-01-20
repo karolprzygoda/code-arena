@@ -8,10 +8,10 @@ import {
 } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
-  BrainCircuit,
   FlaskConical,
   History,
   LucideIcon,
+  Sparkles,
   Text,
 } from "lucide-react";
 import {
@@ -167,7 +167,7 @@ const ResourcesTabs = ({
         <ResourcesTabsTrigger value={"description"} Icon={Text} />
         <ResourcesTabsTrigger value={"solutions"} Icon={FlaskConical} />
         <ResourcesTabsTrigger value={"submissions"} Icon={History} />
-        <ResourcesTabsTrigger value={"ai-chatbot"} Icon={BrainCircuit} />
+        <ResourcesTabsTrigger value={"ai-chatbot"} Icon={Sparkles} />
       </ResourcesTabsList>
       {!isCollapsed && (
         <ResourcesTabsContent value={activeTab}>

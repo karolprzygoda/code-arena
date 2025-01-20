@@ -1,6 +1,6 @@
 import { marked } from "marked";
 import { memo, useMemo } from "react";
-import MarkdownRenderer from "@/app/(root)/(challenge)/_components/markdown-renderer";
+import MarkdownRenderer from "@/app/(root)/(challenge)/_components/markdown/markdown-renderer";
 
 function parseMarkdownIntoBlocks(markdown: string): string[] {
   const tokens = marked.lexer(markdown);

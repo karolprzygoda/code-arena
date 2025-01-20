@@ -1,5 +1,5 @@
 import { Separator } from "@/components/ui/separator";
-import MarkdownRenderer from "@/app/(root)/(challenge)/_components/markdown-renderer";
+import MarkdownRenderer from "@/app/(root)/(challenge)/_components/markdown/markdown-renderer";
 import { Language } from "@prisma/client";
 
 type SubmissionCodeProps = {

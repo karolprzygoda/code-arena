@@ -1,5 +1,5 @@
 import { Sparkles } from "lucide-react";
-import { MemoizedMarkdown } from "@/app/(root)/(challenge)/_components/memoized-markdown";
+import { MemoizedMarkdown } from "@/app/(root)/(challenge)/_components/markdown/memoized-markdown";
 import { Message as MessageT } from "ai";
 import { AnimatePresence, motion } from "motion/react";
 

@@ -1,0 +1,51 @@
+.markdown h1 {
+  @apply mb-2 pb-2 text-3xl font-bold;
+}
+
+.markdown h2 {
+  @apply mb-2 pb-2 text-2xl font-bold;
+}
+
+.markdown h3 {
+  @apply mb-2 pb-2 text-xl font-bold;
+}
+
+.markdown p {
+  @apply mb-4 overflow-hidden text-ellipsis;
+}
+
+.markdown ol {
+  @apply mb-4 list-decimal ps-10;
+}
+
+.markdown ul {
+  @apply mb-4 list-disc ps-10;
+}
+
+.markdown hr {
+  @apply my-4 dark:border-zinc-700;
+}
+
+.markdown a {
+  @apply whitespace-nowrap text-blue-500;
+}
+
+.markdown blockquote {
+  @apply mx-0 my-[10px] border-l-8 border-gray-400 bg-zinc-200 px-2 py-[10px] dark:border-gray-200 dark:bg-zinc-700;
+}
+
+.markdown table {
+  @apply w-full table-auto border-collapse border border-gray-400 text-left;
+}
+
+.markdown th {
+  @apply border border-gray-400 bg-zinc-200 px-4 py-2 dark:bg-zinc-700;
+}
+
+.markdown td {
+  @apply border border-gray-400 px-4 py-2;
+}
+
+.markdown code:not(pre > code) {
+  @apply rounded-md border border-zinc-300 bg-neutral-200 px-1 py-[0.10rem] font-mono text-zinc-600 dark:border-zinc-600 dark:bg-zinc-700 dark:text-zinc-300;
+}
