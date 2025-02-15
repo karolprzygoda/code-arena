@@ -40,23 +40,23 @@ const SignUp = () => {
   });
 
   const onSubmit = async (data: TAuthSchema) => {
-    const error = await signUp(data);
+    const { error } = await signUp(data);
     if (error) {
-      toast.error(error.message);
+      toast.error(error);
     }
   };
 
   const onGithubSignIn = async () => {
     const error = await signInWithGithub();
     if (error) {
-      toast.error(error.message);
+      toast.error(error.errorMessage);
     }
   };
 
   async function onGoogleSignIn() {
     const error = await signInWithGoogle();
     if (error) {
-      toast.error(error.message);
+      toast.error(error.errorMessage);
     }
   }
 

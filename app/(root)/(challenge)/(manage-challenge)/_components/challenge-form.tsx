@@ -214,7 +214,7 @@ const ChallengeForm = ({
                             defaultValue={field.value}
                           >
                             <FormControl>
-                              <SelectTrigger>
+                              <SelectTrigger aria-label={"Select difficulty"}>
                                 <SelectValue defaultValue={"EASY"} />
                               </SelectTrigger>
                             </FormControl>
@@ -295,6 +295,7 @@ const ChallengeForm = ({
                 <Button
                   type="button"
                   variant={"outline"}
+                  aria-label={"Import test cases from JSON file"}
                   className={"relative px-2"}
                   onClick={() => fileInputRef.current?.click()}
                 >

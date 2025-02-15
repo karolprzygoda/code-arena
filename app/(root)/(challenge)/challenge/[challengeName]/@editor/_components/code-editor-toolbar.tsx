@@ -183,7 +183,7 @@ const MobileToolbarList = ({ toolbarButtonsList }: ToolbarListProps) => {
             <DropdownMenuTrigger
               aria-label={"Expand to see more actions"}
               className={
-                "rounded-lg p-2 duration-300 focus:outline-none focus-visible:ring-2 sm:hidden"
+                "rounded-lg p-2 duration-300 focus:outline-none focus-visible:ring-2"
               }
             >
               <Ellipsis className={"h-5 w-5 text-muted-foreground"} />

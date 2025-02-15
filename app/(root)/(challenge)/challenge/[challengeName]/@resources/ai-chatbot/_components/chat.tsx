@@ -4,6 +4,7 @@ import { useChat } from "@ai-sdk/react";
 import AskAiForm from "@/app/(root)/(challenge)/challenge/[challengeName]/@resources/ai-chatbot/_components/ask-ai-form";
 import ChatPreview from "@/app/(root)/(challenge)/challenge/[challengeName]/@resources/ai-chatbot/_components/chat-preview";
 import { useEffect, useRef, useState } from "react";
+import ChatWrapper from "@/app/(root)/(challenge)/challenge/[challengeName]/@resources/ai-chatbot/_components/chat-wrapper";
 
 const Chat = () => {
   const initialMessage = "Hello how can i assist you today?";
@@ -48,16 +49,14 @@ const Chat = () => {
   }, [messages]);
 
   return (
-    <div
-      className={"absolute flex h-full w-full flex-col items-center gap-4 pb-4"}
-    >
+    <ChatWrapper>
       <ChatPreview ref={chatPreviewRef} messages={messages} />
       <AskAiForm
         onSubmit={handleSubmit}
         value={input}
         onChange={handleInputChange}
       />
-    </div>
+    </ChatWrapper>
   );
 };
 

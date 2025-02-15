@@ -51,7 +51,10 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  if (request.nextUrl.pathname.startsWith("/create-challenge")) {
+  if (
+    request.nextUrl.pathname.startsWith("/create-challenge") ||
+    request.nextUrl.pathname.startsWith("/update-challenge")
+  ) {
     const {
       data: { session },
     } = await supabase.auth.getSession();

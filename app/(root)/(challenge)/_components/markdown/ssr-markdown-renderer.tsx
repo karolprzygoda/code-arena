@@ -11,6 +11,8 @@ import rehypeHighlight from "rehype-highlight";
 import rehypeStringify from "rehype-stringify";
 import "./markdown.css";
 
+// TODO: add css styles for rehype syntax highlighting
+
 type MarkdownRendererProps = {
   markdown: string;
 };
@@ -39,8 +41,6 @@ const SSRMarkdownRenderer = async ({ markdown }: MarkdownRendererProps) => {
       </div>
     );
   }
-
-  console.log("XD");
 
   return (
     <div

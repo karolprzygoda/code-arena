@@ -29,19 +29,22 @@ const POSSIBLE_TABS = ["solutions", "submissions", "ai-chatbot"];
 
 type ResourcesTabsContentProps = {
   value: string;
+  collapsed: boolean;
   children: ReactNode;
 };
 const ResourcesTabsContent = ({
   value,
   children,
+  collapsed,
 }: ResourcesTabsContentProps) => {
   return (
     <TabsContent
       value={value}
       tabIndex={-1}
-      className={
-        "relative m-0 w-full flex-1 focus-visible:ring-0 focus-visible:ring-offset-0"
-      }
+      className={cn(
+        "relative m-0 w-full flex-1 focus-visible:ring-0 focus-visible:ring-offset-0",
+        collapsed && "hidden",
+      )}
     >
       {children}
     </TabsContent>
@@ -169,11 +172,9 @@ const ResourcesTabs = ({
         <ResourcesTabsTrigger value={"submissions"} Icon={History} />
         <ResourcesTabsTrigger value={"ai-chatbot"} Icon={Sparkles} />
       </ResourcesTabsList>
-      {!isCollapsed && (
-        <ResourcesTabsContent value={activeTab}>
-          {children}
-        </ResourcesTabsContent>
-      )}
+      <ResourcesTabsContent collapsed={isCollapsed} value={activeTab}>
+        {children}
+      </ResourcesTabsContent>
     </Tabs>
   );
 };

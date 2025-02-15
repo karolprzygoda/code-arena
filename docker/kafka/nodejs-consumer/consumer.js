@@ -1,8 +1,9 @@
 import { Kafka } from "kafkajs";
 import vm from "vm";
 
-const broker = process.env.KAFKA_BROKER || "kafka:9092";
-const inputTopic = process.env.INPUT_TOPIC || "nodejs-submission-topic";
+const broker = "kafka:9092";
+const inputTopic = "nodejs-submission-topic";
+const outputTopic = "nodejs-solution-topic";
 
 const kafka = new Kafka({
   clientId: "nodejs-solution-nodejs-consumer",
@@ -110,7 +111,7 @@ const runConsumer = async () => {
           console.log("Execution Result:", JSON.stringify(result, null, 2));
 
           await producer.send({
-            topic: "nodejs-solution-topic",
+            topic: outputTopic,
             messages: [
               {
                 value: JSON.stringify({

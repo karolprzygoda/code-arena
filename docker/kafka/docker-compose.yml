@@ -6,7 +6,6 @@ services:
       - "2181:2181"
     networks:
       - kafka-network
-
   kafka:
     image: wurstmeister/kafka
     ports:

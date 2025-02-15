@@ -17,7 +17,7 @@ export async function generateStaticParams() {
     },
   });
 
-  const paths = challenges.flatMap((challenge) => {
+  return challenges.flatMap((challenge) => {
     const mainPath = [{ challengeName: challenge.title }];
 
     const solutionPaths = challenge.solution.map((solution) => ({
@@ -27,15 +27,7 @@ export async function generateStaticParams() {
 
     return [...mainPath, ...solutionPaths];
   });
-
-  return paths;
 }
-
-type CurrentChallengeLayoutProps = {
-  editor: ReactNode;
-  resources: ReactNode;
-  params: Promise<{ challengeName: string }>;
-};
 
 export const generateMetadata = async ({
   params,
@@ -45,6 +37,12 @@ export const generateMetadata = async ({
   return {
     title: `${fromKebabCaseToPascalCase(name)} - CodeArena`,
   };
+};
+
+type CurrentChallengeLayoutProps = {
+  editor: ReactNode;
+  resources: ReactNode;
+  params: Promise<{ challengeName: string }>;
 };
 
 const CurrentChallengeLayout = ({

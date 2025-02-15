@@ -136,23 +136,23 @@ export const pollSubmissionResult = async (
     }, timeoutMs);
 
     consumer
-      .run({
-        eachMessage: async ({ message }) => {
-          const payload = JSON.parse(message.value!.toString());
-          if (payload.kafkaMessageId === kafkaMessageId) {
-            console.log(payload);
-            clearTimeout(timer);
-            console.log("Result received for submission:", kafkaMessageId);
-            resolve(payload.result);
-            await consumer.disconnect();
-          }
-        },
-      })
-      .catch(async (err) => {
-        clearTimeout(timer);
-        reject(err);
-        await consumer.disconnect();
-      });
+        .run({
+          eachMessage: async ({ message }) => {
+            const payload = JSON.parse(message.value!.toString());
+            if (payload.kafkaMessageId === kafkaMessageId) {
+              console.log(payload);
+              clearTimeout(timer);
+              console.log("Result received for submission:", kafkaMessageId);
+              resolve(payload.result);
+              await consumer.disconnect();
+            }
+          },
+        })
+        .catch(async (err) => {
+          clearTimeout(timer);
+          reject(err);
+          await consumer.disconnect();
+        });
   });
 };
 

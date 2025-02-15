@@ -4,7 +4,6 @@ import { authSchema, TAuthSchema } from "@/schemas/schema";
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { AuthError } from "@supabase/auth-js";
 import prismadb from "@/lib/prismadb";
 
 export async function signIn(formData: TAuthSchema) {
@@ -18,13 +17,13 @@ export async function signIn(formData: TAuthSchema) {
   const validatedAuthData = authSchema.safeParse(data);
 
   if (!validatedAuthData.success) {
-    return validatedAuthData.error.errors[0];
+    return { error: validatedAuthData.error.errors[0].message };
   }
 
   const { error } = await supabase.auth.signInWithPassword(data);
 
   if (error) {
-    return error;
+    return { error: error.message };
   }
 
   revalidatePath("/", "layout");
@@ -42,13 +41,13 @@ export async function signUp(formData: TAuthSchema) {
   const validatedAuthData = authSchema.safeParse(data);
 
   if (!validatedAuthData.success) {
-    return validatedAuthData.error.errors[0];
+    return { error: validatedAuthData.error.errors[0].message };
   }
 
   const { error } = await supabase.auth.signUp(data);
 
   if (error) {
-    return error;
+    return { error: error.message };
   }
 
   revalidatePath("/", "layout");
@@ -65,7 +64,7 @@ export async function signInWithGithub() {
   });
 
   if (error) {
-    return error;
+    return { errorMessage: error.message };
   }
 
   if (data.url) {
@@ -87,7 +86,7 @@ export async function signInWithGoogle() {
   });
 
   if (error) {
-    return error;
+    return { errorMessage: error.message };
   }
   if (data.url) {
     redirect(data.url);
@@ -104,12 +103,18 @@ export async function authorizeUser() {
 
   if (error) {
     console.error("Authentication error:", error.message);
-    throw new AuthError("Authentication failed. Please log in and try again.");
+    return {
+      user: null,
+      error: "Authentication failed. Please log in and try again.",
+    };
   }
 
   if (!user) {
     console.error("No user found.");
-    throw new AuthError("You are not authenticated. Please log in to proceed.");
+    return {
+      user: null,
+      error: "You are not authenticated. Please log in to proceed.",
+    };
   }
 
   const isAdmin = await prismadb.userRoles.findFirst({
@@ -120,10 +125,12 @@ export async function authorizeUser() {
   });
 
   if (!isAdmin) {
-    throw new Error(
-      "Unauthenticated. You do not have permission to perform this action.",
-    );
+    return {
+      user: null,
+      error:
+        "Unauthenticated. You do not have permission to perform this action.",
+    };
   }
 
-  return { user };
+  return { user, error: null };
 }

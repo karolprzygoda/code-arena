@@ -40,6 +40,7 @@ const TestCaseFormField = ({
           <Button
             type="button"
             variant="ghost"
+            aria-label={"remove test case"}
             size="icon"
             onClick={onRemove}
             className={"absolute right-6 h-fit w-fit p-2"}
@@ -63,6 +64,7 @@ const TestCaseFormField = ({
                 </div>
                 <FormControl>
                   <Switch
+                    aria-label={"toggle test case visibility"}
                     checked={field.value}
                     onCheckedChange={field.onChange}
                   />

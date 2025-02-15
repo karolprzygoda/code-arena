@@ -2,10 +2,7 @@ import prismadb from "@/lib/prismadb";
 import { notFound } from "next/navigation";
 import EditorStoreProvider from "@/stores/store-providers/editor-store-provider";
 import CodeEditorWrapper from "@/app/(root)/(challenge)/challenge/[challengeName]/@editor/_components/code-editor-wrapper";
-import {
-  ResizableHandle,
-  ResizablePanelGroup,
-} from "@/components/ui/resizable";
+import { ResizablePanelGroup } from "@/components/ui/resizable";
 import PanelHeader from "@/app/(root)/(challenge)/_components/panel-header";
 import LanguageDropdown from "@/app/(root)/(challenge)/challenge/[challengeName]/@editor/_components/language-dropdown";
 import CodeEditorToolbar from "@/app/(root)/(challenge)/challenge/[challengeName]/@editor/_components/code-editor-toolbar";
@@ -15,6 +12,7 @@ import PanelFooter from "@/app/(root)/(challenge)/_components/panel-footer";
 import SubmitChallengeButton from "@/app/(root)/(challenge)/challenge/[challengeName]/@editor/_components/submit-challenge-button";
 import ExpandTestsPanelButton from "@/app/(root)/(challenge)/challenge/[challengeName]/@editor/_components/tests-components/expand-tests-panel-button";
 import { sanitizeTestCases } from "@/lib/utils";
+import EditorResizableHandle from "@/app/(root)/(challenge)/challenge/[challengeName]/@editor/_components/EditorResizableHandle";
 
 type EditorPageComponentProps = {
   challengeName: string;
@@ -65,12 +63,7 @@ const EditorPageComponent = async ({
             <CodeEditorToolbar defaultCode={defaultCode} />
           </PanelHeader>
           <CodeEditorPanel />
-          <ResizableHandle
-            className={
-              "group border-y border-zinc-200 bg-zinc-100 p-2 dark:border-zinc-700 dark:bg-zinc-800 lg:[&[data-panel-group-direction=vertical]>div]:rotate-90"
-            }
-            withCustomHandle
-          />
+          <EditorResizableHandle />
           <TestsPanel tests={sanitizedTests} />
           <PanelFooter>
             <ExpandTestsPanelButton />

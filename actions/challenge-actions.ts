@@ -132,7 +132,11 @@ export async function createNewChallenge(data: TChallengeSchema) {
 
     const processedTestCases = parseTestCases(data.testCases);
 
-    const { user } = await authorizeUser();
+    const { user, error } = await authorizeUser();
+
+    if (!user || error) {
+      throw error;
+    }
 
     const challenge = await prismadb.challenge.create({
       data: {
@@ -186,7 +190,11 @@ export async function updateChallenge(
 
     const processedTestCases = parseTestCases(data.testCases);
 
-    const { user } = await authorizeUser();
+    const { user, error } = await authorizeUser();
+
+    if (!user || error) {
+      throw error;
+    }
 
     const challenge = await prismadb.challenge.update({
       where: {
@@ -237,7 +245,11 @@ export async function updateChallenge(
 
 export async function deleteChallenge(challengeId: string) {
   try {
-    const { user } = await authorizeUser();
+    const { user, error } = await authorizeUser();
+
+    if (!user || error) {
+      throw error;
+    }
 
     const deletedChallenge = await prismadb.challenge.delete({
       where: {

@@ -1,6 +1,5 @@
 import { cn } from "@/lib/utils";
 import { Difficulty } from "@prisma/client";
-import DifficultyTagShadow from "@/app/(root)/_components/difficulty-tag-shadow";
 import UserChallengesResults from "@/app/(root)/_components/user-challenges-results";
 
 type ChallengesSectionTitleProps = {
@@ -12,27 +11,27 @@ const TITLES_BY_DIFFICULTY_TAG = {
   BEGINNER: {
     styles:
       "bg-clip-text text-transparent select-none bg-gradient-to-r from-sky-500 to-sky-500 dark:from-sky-500 dark:to-sky-200",
-    title: "Great for Beginners",
+    title: "Beginner",
   },
   EASY: {
     styles:
       "bg-clip-text text-transparent select-none bg-gradient-to-r from-green-600 to-green-500 dark:from-green-300 dark:to-green-100",
-    title: "Great for Learners",
+    title: "Easy",
   },
   MEDIUM: {
     styles:
       "bg-clip-text text-transparent select-none bg-gradient-to-r from-yellow-600 to-yellow-500 dark:from-yellow-300 dark:to-yellow-100",
-    title: "Great for Enthusiasts",
+    title: "Medium",
   },
   HARD: {
     styles:
       "bg-clip-text text-transparent select-none bg-gradient-to-r from-red-600 to-red-500 dark:from-red-300 dark:to-red-100",
-    title: "Great for Experts",
+    title: "Hard",
   },
   EXTREME: {
     styles:
       "bg-clip-text text-transparent select-none bg-gradient-to-r from-purple-600 to-purple-500 dark:from-purple-400 dark:to-purple-100",
-    title: "Great for Masters",
+    title: "Extreme",
   },
 } as const;
 
@@ -50,7 +49,6 @@ const ChallengesSectionTitle = ({
           TITLES_BY_DIFFICULTY_TAG[difficultyTag].styles,
         )}
       >
-        <DifficultyTagShadow difficultyTag={difficultyTag} />
         {TITLES_BY_DIFFICULTY_TAG[difficultyTag].title}
       </h2>
       <UserChallengesResults

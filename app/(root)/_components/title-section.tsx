@@ -6,17 +6,16 @@ const TitleSection = () => {
           "mb-8 text-4xl font-bold tracking-tight text-neutral-900 dark:text-white"
         }
       >
-        Explore
+        Unleash Your Potential
       </h1>
       <p
         className={
           "mx-auto max-w-[69ch] text-lg leading-10 text-neutral-600 dark:text-white/50"
         }
       >
-        Explore the challenges. Embrace the opportunity to grow, learn, and
-        showcase your programming abilities. We hope you find the{" "}
-        <span className={"font-semibold dark:text-neutral-200"}>perfect</span>{" "}
-        challenge!
+        Dive into exciting challenges. Seize the opportunity to grow, learn, and
+        demonstrate your programming expertise. We’re confident you’ll discover
+        the ideal challenge!
       </p>
     </section>
   );

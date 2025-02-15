@@ -47,7 +47,7 @@ export function SearchChallenge({ challenges }: SearchChallengeProps) {
             Place where user can search for particular Challenge.
           </DialogDescription>
         </VisuallyHidden>
-        <CommandInput placeholder="Type a command or search..." />
+        <CommandInput placeholder="Type to search..." />
         <CommandList onSelect={console.log}>
           {Object.values(Difficulty).map((difficulty) => (
             <CommandGroup
