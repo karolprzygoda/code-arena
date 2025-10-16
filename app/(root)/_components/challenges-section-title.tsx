@@ -1,6 +1,7 @@
 import { cn } from "@/lib/utils";
 import { Difficulty } from "@prisma/client";
 import UserChallengesResults from "@/app/(root)/_components/user-challenges-results";
+import DifficultyTagShadow from "@/app/(root)/_components/difficulty-tag-shadow";
 
 type ChallengesSectionTitleProps = {
   difficultyTag: Difficulty;
@@ -49,6 +50,7 @@ const ChallengesSectionTitle = ({
           TITLES_BY_DIFFICULTY_TAG[difficultyTag].styles,
         )}
       >
+        <DifficultyTagShadow difficultyTag={difficultyTag} />
         {TITLES_BY_DIFFICULTY_TAG[difficultyTag].title}
       </h2>
       <UserChallengesResults

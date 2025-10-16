@@ -12,7 +12,7 @@ import PanelFooter from "@/app/(root)/(challenge)/_components/panel-footer";
 import SubmitChallengeButton from "@/app/(root)/(challenge)/challenge/[challengeName]/@editor/_components/submit-challenge-button";
 import ExpandTestsPanelButton from "@/app/(root)/(challenge)/challenge/[challengeName]/@editor/_components/tests-components/expand-tests-panel-button";
 import { sanitizeTestCases } from "@/lib/utils";
-import EditorResizableHandle from "@/app/(root)/(challenge)/challenge/[challengeName]/@editor/_components/EditorResizableHandle";
+import EditorResizableHandle from "@/app/(root)/(challenge)/challenge/[challengeName]/@editor/_components/editor-resizable-handle";
 
 type EditorPageComponentProps = {
   challengeName: string;

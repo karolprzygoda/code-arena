@@ -3,21 +3,15 @@
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { LogOut } from "lucide-react";
-import { createClient } from "@/lib/supabase/client";
-import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { signOut } from "@/actions/auth-actions";
 
 const SignOutButton = ({ className }: { className?: string }) => {
-  const router = useRouter();
-
   const handleSignOut = async () => {
-    const supabase = createClient();
-    const { error } = await supabase.auth.signOut();
+    const { error } = await signOut();
 
     if (error) {
-      toast.error(error.message);
-    } else {
-      router.push("/sign-in");
+      toast.error(error);
     }
   };
 

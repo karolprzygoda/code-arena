@@ -18,6 +18,7 @@ services:
       KAFKA_LISTENERS: INSIDE://0.0.0.0:9093,OUTSIDE://0.0.0.0:9092
       KAFKA_INTER_BROKER_LISTENER_NAME: INSIDE
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
+      KAFKA_NUM_PARTITIONS: 3
     depends_on:
       - zookeeper
     networks:
@@ -32,6 +33,7 @@ services:
     environment:
       - KAFKA_BROKER=kafka:9093
       - TOPIC_NAME=nodejs-submission-topic
+      - OUTPUT_TOPIC=nodejs-solution-topic
     networks:
       - kafka-network
     deploy:

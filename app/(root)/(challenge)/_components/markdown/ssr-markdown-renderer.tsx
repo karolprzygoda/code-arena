@@ -1,15 +1,15 @@
 import remarkParse from "remark-parse";
-import { unified } from "unified";
 import remarkMath from "remark-math";
 import remarkGfm from "remark-gfm";
 import remarkRehype from "remark-rehype";
 import remarkRemoveComments from "remark-remove-comments";
 import rehypeKatex from "rehype-katex";
-import "katex/dist/katex.min.css";
+// import "katex/dist/katex.min.css";
 import { Icons } from "@/components/icons";
 import rehypeHighlight from "rehype-highlight";
 import rehypeStringify from "rehype-stringify";
 import "./markdown.css";
+import { unified } from "unified";
 
 // TODO: add css styles for rehype syntax highlighting
 

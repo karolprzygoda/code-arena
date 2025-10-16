@@ -34,6 +34,8 @@ export const generateMetadata = async ({
 }: CurrentChallengeLayoutProps): Promise<Metadata> => {
   const name = (await params).challengeName;
 
+  console.log("name", fromKebabCaseToPascalCase(name));
+
   return {
     title: `${fromKebabCaseToPascalCase(name)} - CodeArena`,
   };

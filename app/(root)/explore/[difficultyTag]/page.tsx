@@ -2,8 +2,8 @@ import prismadb from "@/lib/prismadb";
 import { Difficulty } from "@prisma/client";
 import { notFound } from "next/navigation";
 import ChallengeCard from "@/app/(root)/_components/challenge-card";
-import DifficultyTagShadow from "@/app/(root)/_components/difficulty-tag-shadow";
 import UserContextProvider from "@/components/user-context-provider";
+import DifficultyTagShadow from "@/app/(root)/_components/difficulty-tag-shadow";
 
 export async function generateStaticParams() {
   return Array.from(Object.values(Difficulty)).map((difficulty) => ({

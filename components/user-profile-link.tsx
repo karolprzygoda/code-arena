@@ -21,7 +21,7 @@ const UserProfileLink = ({ user }: UserProfileLinkProps) => {
   return (
     <HoverCard>
       <HoverCardTrigger
-        href={`/profile/${user?.id}`}
+        href={`/profile/${userName}`}
         className={
           "flex items-center bg-[linear-gradient(to_right,theme(colors.purple.700),theme(colors.purple.500),theme(colors.pink.600),theme(colors.orange.700),theme(colors.pink.600),theme(colors.purple.500),theme(colors.purple.700))] bg-[length:200%_auto] bg-clip-text p-0 text-xs font-semibold text-transparent hover:animate-gradient dark:bg-[linear-gradient(to_right,theme(colors.purple.400),theme(colors.purple.300),theme(colors.pink.300),theme(colors.orange.400),theme(colors.pink.300),theme(colors.purple.300),theme(colors.purple.400))]"
         }

@@ -10,7 +10,7 @@ import Markdown from "react-markdown";
 import remarkMath from "remark-math";
 import remarkRemoveComments from "remark-remove-comments";
 import rehypeKatex from "rehype-katex";
-import "katex/dist/katex.min.css";
+// import "katex/dist/katex.min.css";
 import { Icons } from "@/components/icons";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
